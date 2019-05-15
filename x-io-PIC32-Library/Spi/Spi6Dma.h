@@ -1,0 +1,29 @@
+/**
+ * @file Spi6Dma.h
+ * @author Seb Madgwick
+ * @brief SPI driver using DMA for PIC32 devices.
+ */
+
+#ifndef SPI6_DMA_H
+#define SPI6_DMA_H
+
+//------------------------------------------------------------------------------
+// Includes
+
+#include "Spi.h"
+#include <stdbool.h>
+#include <stddef.h>
+
+//------------------------------------------------------------------------------
+// Function prototypes
+
+void Spi6DmaInitialise(const SpiSettings * const spiSettings);
+void Spi6DmaDisable();
+void Spi6DmaSetCallbackFunction(void (*transferComplete)());
+void Spi6DmaTransfer(void* const data, const size_t numberOfBytes);
+bool Spi6DmaTransferInProgress();
+
+#endif
+
+//------------------------------------------------------------------------------
+// End of file

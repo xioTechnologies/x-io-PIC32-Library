@@ -1,0 +1,35 @@
+/**
+ * @file I2C2.h
+ * @author Seb Madgwick
+ * @brief I2C driver for PIC32.
+ */
+
+#ifndef I2C2_H
+#define I2C2_H
+
+//------------------------------------------------------------------------------
+// Includes
+
+#include "I2C.h"
+#include "I2CMessage.h"
+#include "I2CSlaveAddress.h"
+#include <stdbool.h>
+#include <stdint.h>
+
+//------------------------------------------------------------------------------
+// Function prototypes
+
+void I2C2Initialise(const I2CClockFrequency clockFrequency);
+void I2C2Disable();
+void I2C2Start();
+void I2C2Restart();
+void I2C2Stop();
+bool I2C2Send(const uint8_t byte);
+uint8_t I2C2Receive(const bool ack);
+void I2C2BeginMessage(I2CMessage * const i2cMessage);
+bool I2C2MessageInProgress();
+
+#endif
+
+//------------------------------------------------------------------------------
+// End of file
