@@ -17,7 +17,7 @@
 //------------------------------------------------------------------------------
 // Function prototypes
 
-void Spi6DmaInitialise(const SpiSettings * const spiSettings);
+void Spi6DmaInitialise(const SpiSettings * const settings);
 void Spi6DmaDisable();
 void Spi6DmaSetCallbackFunction(void (*transferComplete)());
 void Spi6DmaTransfer(void* const data, const size_t numberOfBytes);

@@ -33,7 +33,7 @@ static void WaitForInterruptOrTimeout();
 //------------------------------------------------------------------------------
 // Variables
 
-static I2CMessage* currentI2CMessage;
+static I2CMessage* currentmessage;
 static uint64_t messageTimeout;
 
 //------------------------------------------------------------------------------
@@ -151,9 +151,9 @@ static void WaitForInterruptOrTimeout() {
 
 /**
  * @brief Begins message.
- * @param i2cMessage I2C message.
+ * @param message Message.
  */
-void I2C4BeginMessage(I2CMessage * const i2cMessage) {
+void I2C4BeginMessage(I2CMessage * const message) {
 
     // Do nothing if message in progress
     if (I2C4MessageInProgress() == true) {
@@ -161,8 +161,8 @@ void I2C4BeginMessage(I2CMessage * const i2cMessage) {
     }
 
     // Set current message
-    currentI2CMessage = i2cMessage;
-    i2cMessage->index = 0;
+    currentmessage = message;
+    message->index = 0;
 
     // Calculate message timeout
     messageTimeout = TimerGetTicks64() + (I2C_MESSAGE_MAX_LENGTH * I2C_TIMEOUT);
@@ -188,8 +188,8 @@ bool I2C4MessageInProgress() {
  */
 void __ISR(INTERRUPT_VECTOR) I2C4Interrupt() {
     SYS_INT_SourceStatusClear(INT_SOURCE_I2C_4_MASTER); // clear interrupt flag first because next event may complete before ISR returns
-    const int index = currentI2CMessage->index++;
-    switch (currentI2CMessage->event[index]) {
+    const int index = currentmessage->index++;
+    switch (currentmessage->event[index]) {
         case I2CMessageEventStart:
             I2C4CONbits.SEN = 1;
             break;
@@ -200,25 +200,25 @@ void __ISR(INTERRUPT_VECTOR) I2C4Interrupt() {
             I2C4CONbits.PEN = 1;
             break;
         case I2CMessageEventSend:
-            I2C4TRN = currentI2CMessage->data[index];
+            I2C4TRN = currentmessage->data[index];
             break;
         case I2CMessageEventReceive:
             I2C4CONbits.RCEN = 1;
             break;
         case I2CMessageEventAck:
-            *currentI2CMessage->destination[index] = I2C4RCV;
+            *currentmessage->destination[index] = I2C4RCV;
             I2C4CONbits.ACKDT = 0;
             I2C4CONbits.ACKEN = 1;
             break;
         case I2CMessageEventNack:
-            *currentI2CMessage->destination[index] = I2C4RCV;
+            *currentmessage->destination[index] = I2C4RCV;
             I2C4CONbits.ACKDT = 1;
             I2C4CONbits.ACKEN = 1;
             break;
         case I2CMessageEventEnd:
             SYS_INT_SourceDisable(INT_SOURCE_I2C_4_MASTER);
-            if (currentI2CMessage->messageComplete != NULL) {
-                currentI2CMessage->messageComplete();
+            if (currentmessage->messageComplete != NULL) {
+                currentmessage->messageComplete();
             }
             break;
     }

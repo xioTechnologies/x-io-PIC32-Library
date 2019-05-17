@@ -50,11 +50,11 @@ typedef struct {
 //------------------------------------------------------------------------------
 // Function prototypes
 
-void I2CMessageStart(I2CMessage * const i2cMessage);
-void I2CMessageRestart(I2CMessage * const i2cMessage);
-void I2CMessageSend(I2CMessage * const i2cMessage, const uint8_t byte);
-void I2CMessageReceive(I2CMessage * const i2cMessage, uint8_t * const destination, const bool ack);
-void I2CMessageStop(I2CMessage * const i2cMessage, void (*messageComplete)());
+void I2CMessageStart(I2CMessage * const message);
+void I2CMessageRestart(I2CMessage * const message);
+void I2CMessageSend(I2CMessage * const message, const uint8_t byte);
+void I2CMessageReceive(I2CMessage * const message, uint8_t * const destination, const bool ack);
+void I2CMessageStop(I2CMessage * const message, void (*messageComplete)());
 
 #endif
 

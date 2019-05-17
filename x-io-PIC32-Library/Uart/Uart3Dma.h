@@ -18,7 +18,7 @@
 //------------------------------------------------------------------------------
 // Function prototypes
 
-void Uart3DmaInitialise(const UartSettings * const uartSettings, const UartDmaReadConditions * const uartDmaReadConditions);
+void Uart3DmaInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions);
 void Uart3DmaDisable();
 void Uart3DmaSetCallbackFunction(void (*read)(const void* const data, const size_t numberOfBytes));
 void Uart3DmaRead();

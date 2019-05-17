@@ -17,7 +17,7 @@
 //------------------------------------------------------------------------------
 // Function prototypes
 
-void Uart3Initialise(const UartSettings * const uartSettings);
+void Uart3Initialise(const UartSettings * const settings);
 void Uart3Disable();
 size_t Uart3GetReadAvailable();
 size_t Uart3Read(void* const destination, size_t numberOfBytes);

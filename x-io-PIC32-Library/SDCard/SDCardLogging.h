@@ -49,8 +49,8 @@ typedef enum {
 //------------------------------------------------------------------------------
 // Function prototypes
 
-void SDCardLoggingSetSettings(const SDCardLoggingSettings * const sdCardLoggingSettings);
-void SDCardLoggingSetCallbackFunctions(const SDCardLoggingCallbackFunctions * const SDCardLoggingCallbackFunctions);
+void SDCardLoggingSetSettings(const SDCardLoggingSettings * const settings);
+void SDCardLoggingSetCallbackFunctions(const SDCardLoggingCallbackFunctions * const callbackFunctions);
 void SDCardLoggingStart();
 void SDCardLoggingStop();
 SDCardLoggingStatus SDCardLoggingGetSatus();

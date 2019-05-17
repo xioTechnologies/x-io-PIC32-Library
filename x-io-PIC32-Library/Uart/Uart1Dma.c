@@ -30,28 +30,28 @@ static uint8_t __attribute__((coherent)) readBuffer[1024];
 
 /**
  * @brief Initialises the module.
- * @param uartSettings UART settings.
- * @param uartReadConditions UART read conditions.
+ * @param settings Settings.
+ * @param readConditions Read conditions.
  */
-void Uart1DmaInitialise(const UartSettings * const uartSettings, const UartDmaReadConditions * const uartDmaReadConditions) {
+void Uart1DmaInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions) {
 
     // Ensure default register states
     Uart1DmaDisable();
 
     // Configure UART
-    if (uartSettings->ctsRtsEnabled == true) {
+    if (settings->ctsRtsEnabled == true) {
         U1MODEbits.UEN = 0b10; // UxTX, UxRX, UxCTS and UxRTS pins are enabled and used
     }
-    if (uartSettings->invertDataLines == true) {
+    if (settings->invertDataLines == true) {
         U1MODEbits.RXINV = 1; // UxRX Idle state is '0'
         U1STAbits.UTXINV = 1; // UxTX Idle state is '0'
     }
-    U1MODEbits.PDSEL = uartSettings->parityAndData;
-    U1MODEbits.STSEL = uartSettings->stopBits;
+    U1MODEbits.PDSEL = settings->parityAndData;
+    U1MODEbits.STSEL = settings->stopBits;
     U1MODEbits.BRGH = 1; // High-Speed mode - 4x baud clock enabled
     U1STAbits.URXEN = 1; // UARTx receiver is enabled. UxRX pin is controlled by UARTx (if ON = 1)
     U1STAbits.UTXEN = 1; // UARTx transmitter is enabled. UxTX pin is controlled by UARTx (if ON = 1)
-    U1BRG = UartCalculateUxbrg(uartSettings->baudRate);
+    U1BRG = UartCalculateUxbrg(settings->baudRate);
     U1MODEbits.ON = 1; // UARTx is enabled. UARTx pins are controlled by UARTx as defined by UEN<1:0> and UTXEN control bits
 
     // Configure TX DMA channel
@@ -62,15 +62,15 @@ void Uart1DmaInitialise(const UartSettings * const uartSettings, const UartDmaRe
     DCH2CSIZ = 1; // transfers per event
 
     // Limit read condition values to valid range
-    UartDmaReadConditions validUartDmaReadConditions = *uartDmaReadConditions;
-    if (validUartDmaReadConditions.numberOfBytes > sizeof (readBuffer)) {
-        validUartDmaReadConditions.numberOfBytes = sizeof (readBuffer);
+    UartDmaReadConditions validReadConditions = *readConditions;
+    if (validReadConditions.numberOfBytes > sizeof (readBuffer)) {
+        validReadConditions.numberOfBytes = sizeof (readBuffer);
     }
-    if (validUartDmaReadConditions.terminatingByte != -1) {
-        validUartDmaReadConditions.terminatingByte &= 0xFF;
+    if (validReadConditions.terminatingByte != -1) {
+        validReadConditions.terminatingByte &= 0xFF;
     }
-    if (validUartDmaReadConditions.timeout > 1000) {
-        validUartDmaReadConditions.timeout = 1000;
+    if (validReadConditions.timeout > 1000) {
+        validReadConditions.timeout = 1000;
     }
 
     // Configure RX DMA channel
@@ -78,22 +78,22 @@ void Uart1DmaInitialise(const UartSettings * const uartSettings, const UartDmaRe
     DCH3ECONbits.CHSIRQ = INT_VECTOR_UART1_RX;
     DCH3ECONbits.SIRQEN = 1; // Start channel cell transfer if an interrupt matching CHSIRQ occurs
     DCH3ECONbits.AIRQEN = 1; // Channel transfer is aborted if an interrupt matching CHAIRQ occurs
-    if (uartDmaReadConditions->terminatingByte != -1) {
+    if (readConditions->terminatingByte != -1) {
         DCH3ECONbits.PATEN = 1; // Abort transfer and clear CHEN on pattern match
     }
     DCH3SSA = KVA_TO_PA(&U1RXREG); // source address
     DCH3DSA = KVA_TO_PA(readBuffer); // destination address
     DCH3SSIZ = 1; // source size
-    DCH3DSIZ = validUartDmaReadConditions.numberOfBytes; // destination size
+    DCH3DSIZ = validReadConditions.numberOfBytes; // destination size
     DCH3CSIZ = 1; // transfers per event
-    DCH3DAT = validUartDmaReadConditions.terminatingByte; // pattern data
+    DCH3DAT = validReadConditions.terminatingByte; // pattern data
     DCH3INTbits.CHBCIE = 1; // Channel Block Transfer Complete Interrupt Enable bit
     DCH3INTbits.CHTAIE = 1; // Channel Transfer Abort Interrupt Enable bit
     DCH3CONbits.CHEN = 1; // Channel is enabled
 
     // Calculate timer reset value
     static uint32_t __attribute__((coherent)) timerResetValue[1]; // must be declared __attribute__((coherent)) for PIC32MZ devices
-    timerResetValue[0] = UartDmaCalculateTimerRestValue(validUartDmaReadConditions.timeout);
+    timerResetValue[0] = UartDmaCalculateTimerRestValue(validReadConditions.timeout);
 
     // Configure timer DMA channel
     DCH4CONbits.CHAEN = 1; // Channel is continuously enabled, and not automatically disabled after a block transfer is complete

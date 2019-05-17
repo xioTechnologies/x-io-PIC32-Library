@@ -56,29 +56,29 @@ static uint32_t writeBufferReadIndex;
 
 /**
  * @brief Initialises the module.
- * @param uartSettings UART settings.
+ * @param settings Settings.
  */
-void Uart1Initialise(const UartSettings * const uartSettings) {
+void Uart1Initialise(const UartSettings * const settings) {
 
     // Ensure default register states
     Uart1Disable();
 
     // Configure UART
-    if (uartSettings->ctsRtsEnabled == true) {
+    if (settings->ctsRtsEnabled == true) {
         U1MODEbits.UEN = 0b10; // UxTX, UxRX, UxCTS and UxRTS pins are enabled and used
     }
-    if (uartSettings->invertDataLines == true) {
+    if (settings->invertDataLines == true) {
         U1MODEbits.RXINV = 1; // UxRX Idle state is '0'
         U1STAbits.UTXINV = 1; // UxTX Idle state is '0'
     }
-    U1MODEbits.PDSEL = uartSettings->parityAndData;
-    U1MODEbits.STSEL = uartSettings->stopBits;
+    U1MODEbits.PDSEL = settings->parityAndData;
+    U1MODEbits.STSEL = settings->stopBits;
     U1MODEbits.BRGH = 1; // High-Speed mode - 4x baud clock enabled
     U1STAbits.URXISEL = 0b01; // Interrupt flag bit is asserted while receive buffer is 1/2 or more full (i.e., has 4 or more data characters)
     U1STAbits.UTXISEL = 0b10; // Interrupt is generated and asserted while the transmit buffer is empty
     U1STAbits.URXEN = 1; // UARTx receiver is enabled. UxRX pin is controlled by UARTx (if ON = 1)
     U1STAbits.UTXEN = 1; // UARTx transmitter is enabled. UxTX pin is controlled by UARTx (if ON = 1)
-    U1BRG = UartCalculateUxbrg(uartSettings->baudRate);
+    U1BRG = UartCalculateUxbrg(settings->baudRate);
     U1MODEbits.ON = 1; // UARTx is enabled. UARTx pins are controlled by UARTx as defined by UEN<1:0> and UTXEN control bits
 
     // Configure interrupts

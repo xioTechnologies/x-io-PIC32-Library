@@ -17,7 +17,7 @@
 //------------------------------------------------------------------------------
 // Function prototypes
 
-void Spi5DmaInitialise(const SpiSettings * const spiSettings);
+void Spi5DmaInitialise(const SpiSettings * const settings);
 void Spi5DmaDisable();
 void Spi5DmaSetCallbackFunction(void (*transferComplete)());
 void Spi5DmaTransfer(void* const data, const size_t numberOfBytes);

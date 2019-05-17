@@ -57,8 +57,8 @@ static void PrintStatistics();
 //------------------------------------------------------------------------------
 // Variables
 
-static SDCardLoggingSettings settings;
-static SDCardLoggingCallbackFunctions callbackFunctions;
+static SDCardLoggingSettings currentSettings;
+static SDCardLoggingCallbackFunctions applicationCallbackFunctions;
 static State state = StateDisabled;
 static uint64_t fileStartTicks;
 static uint32_t fileSize;
@@ -77,34 +77,34 @@ static bool bufferOverrun;
 /**
  * @brief Sets the SD card logging settings.  This function must be called
  * before calling SDCardLoggingStart for the first time.
- * @param sdCardLoggingSettings SD card logging settings.
+ * @param settings Settings.
  */
-void SDCardLoggingSetSettings(const SDCardLoggingSettings * const sdCardLoggingSettings) {
+void SDCardLoggingSetSettings(const SDCardLoggingSettings * const settings) {
 
     // Copy structure
-    settings = *sdCardLoggingSettings;
+    currentSettings = *settings;
 
     // Append underscore to file name prefix
-    if (strlen(sdCardLoggingSettings->fileNamePrefix) > 0) {
-        snprintf(settings.fileNamePrefix, sizeof (settings.fileNamePrefix), "%.*s_", (int) sizeof (settings.fileNamePrefix) - 2, sdCardLoggingSettings->fileNamePrefix);
+    if (strlen(settings->fileNamePrefix) > 0) {
+        snprintf(currentSettings.fileNamePrefix, sizeof (currentSettings.fileNamePrefix), "%.*s_", (int) sizeof (currentSettings.fileNamePrefix) - 2, settings->fileNamePrefix);
     }
 
     // Prefix dot on file name extension
-    if (strlen(sdCardLoggingSettings->fileExtension) > 0) {
-        const char* fileExtension = sdCardLoggingSettings->fileExtension;
+    if (strlen(settings->fileExtension) > 0) {
+        const char* fileExtension = settings->fileExtension;
         while (*fileExtension == '.') {
             fileExtension++; // remove leading dots
         }
-        snprintf(settings.fileExtension, sizeof (settings.fileExtension), ".%.*s", (int) sizeof (settings.fileExtension) - 2, fileExtension);
+        snprintf(currentSettings.fileExtension, sizeof (currentSettings.fileExtension), ".%.*s", (int) sizeof (currentSettings.fileExtension) - 2, fileExtension);
     }
 }
 
 /**
  * @brief Sets the callback functions.
- * @param sdCardLoggingCallbackFunctions SD card logging callback functions.
+ * @param callbackFunctions Callback functions.
  */
-void SDCardLoggingSetCallbackFunctions(const SDCardLoggingCallbackFunctions * const sdCardLoggingCallbackFunctions) {
-    callbackFunctions = *sdCardLoggingCallbackFunctions;
+void SDCardLoggingSetCallbackFunctions(const SDCardLoggingCallbackFunctions * const callbackFunctions) {
+    applicationCallbackFunctions = *callbackFunctions;
 }
 
 /**
@@ -197,8 +197,8 @@ static void StateOpenTasks() {
     OpenFile();
 
     // Write preamble
-    if (callbackFunctions.writePreamble != NULL) {
-        callbackFunctions.writePreamble();
+    if (applicationCallbackFunctions.writePreamble != NULL) {
+        applicationCallbackFunctions.writePreamble();
     }
     state = StateWrite;
 }
@@ -237,8 +237,8 @@ static void StateWriteTasks() {
     PrintStatistics();
 
     // Restart logging if maximum file period reached
-    if (settings.maximumFilePeriod > 0) {
-        if (TimerGetTicks64() >= (fileStartTicks + settings.maximumFilePeriod)) {
+    if (currentSettings.maximumFilePeriod > 0) {
+        if (TimerGetTicks64() >= (fileStartTicks + currentSettings.maximumFilePeriod)) {
 #ifdef DEBUG_ENABLED
             printf("Exceeded maximum file period\r\n");
 #endif
@@ -266,8 +266,8 @@ static void StateWriteTasks() {
     }
 
     // Restart logging if maximum file size reached
-    if (settings.maximumFileSize > 0) {
-        if (((uint64_t) fileSize + (uint64_t) numberOfBytes) >= (uint64_t) settings.maximumFileSize) {
+    if (currentSettings.maximumFileSize > 0) {
+        if (((uint64_t) fileSize + (uint64_t) numberOfBytes) >= (uint64_t) currentSettings.maximumFileSize) {
 #ifdef DEBUG_ENABLED
             printf("Exceeded maximum file size\r\n");
 #endif
@@ -324,7 +324,7 @@ static void CloseFile() {
 
     // Create new file name
     char newFileName[SD_CARD_MAX_FILE_NAME_SIZE];
-    if (settings.fileNameIsTime == false) {
+    if (currentSettings.fileNameIsTime == false) {
         CreateFileNameUsingNumber(newFileName, sizeof (newFileName));
     } else {
         CreateFileNameUsingTime(newFileName, sizeof (newFileName));
@@ -352,19 +352,19 @@ static void CreateFileNameUsingNumber(char* const destination, const size_t dest
     SDCardDirectoryOpen();
 
     // Create available file name
-    const uint32_t initialFileNameNumber = settings.fileNameNumber;
+    const uint32_t initialFileNameNumber = currentSettings.fileNameNumber;
     while (true) {
-        snprintf(destination, destinationSize, "%s%04u%s", settings.fileNamePrefix, settings.fileNameNumber, settings.fileExtension);
-        if (++settings.fileNameNumber > 9999) {
-            settings.fileNameNumber = 0;
+        snprintf(destination, destinationSize, "%s%04u%s", currentSettings.fileNamePrefix, currentSettings.fileNameNumber, currentSettings.fileExtension);
+        if (++currentSettings.fileNameNumber > 9999) {
+            currentSettings.fileNameNumber = 0;
         }
         if (SDCardDirectoryExists(destination) == false) {
-            if (callbackFunctions.fileNameNumberChanged != NULL) {
-                callbackFunctions.fileNameNumberChanged(settings.fileNameNumber);
+            if (applicationCallbackFunctions.fileNameNumberChanged != NULL) {
+                applicationCallbackFunctions.fileNameNumberChanged(currentSettings.fileNameNumber);
             }
             break;
         }
-        if (settings.fileNameNumber == initialFileNameNumber) {
+        if (currentSettings.fileNameNumber == initialFileNameNumber) {
             strncpy(destination, "", destinationSize); // no file names available
             break;
         }
@@ -403,7 +403,7 @@ static void CreateFileNameUsingTime(char* const destination, const size_t destin
 
         // Create file name
         snprintf(destination, destinationSize, "%s%04u-%02u-%02u_%02u-%02u-%02u_%u%s%s",
-                settings.fileNamePrefix,
+                currentSettings.fileNamePrefix,
                 sdCardfileDetails.time.year,
                 sdCardfileDetails.time.month,
                 sdCardfileDetails.time.day,
@@ -412,7 +412,7 @@ static void CreateFileNameUsingTime(char* const destination, const size_t destin
                 sdCardfileDetails.time.second,
                 (unsigned int) filePeriod,
                 counterString,
-                settings.fileExtension);
+                currentSettings.fileExtension);
 
         // Increment counter if file already exists
         if (SDCardDirectoryExists(destination) == false) {

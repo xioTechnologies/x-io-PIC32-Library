@@ -66,7 +66,7 @@ SDCardError SDCardFileWriteString(const char* const string);
 void SDCardFileClose();
 void SDCardFileRename(const char* const fileName, const char* const newFileName);
 void SDCardDirectoryOpen();
-void SDCardDirectorySearch(const char* const fileName, SDCardFileDetails * const sdCardFileDetails);
+void SDCardDirectorySearch(const char* const fileName, SDCardFileDetails * const fileDetails);
 bool SDCardDirectoryExists(const char* const fileName);
 void SDCardDirectoryClose();
 

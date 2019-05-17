@@ -266,9 +266,9 @@ void SDCardDirectoryOpen() {
  * then the file name provided in the file details will be an empty string.
  * The root directory must be closed and reopened for each new search.
  * @param fileName File name.
- * @param sdCardFileDetails SD card file details.
+ * @param fileDetails File details.
  */
-void SDCardDirectorySearch(const char* const fileName, SDCardFileDetails * const sdCardFileDetails) {
+void SDCardDirectorySearch(const char* const fileName, SDCardFileDetails * const fileDetails) {
 
     // Get search result
     SYS_FS_FSTAT sysFSFstat;
@@ -280,29 +280,29 @@ void SDCardDirectorySearch(const char* const fileName, SDCardFileDetails * const
         if (sysFSError != SYS_FS_ERROR_NO_FILE) {
             PrintFileSystemError("SYS_FS_DirSearch", sysFSError);
         }
-        memset(sdCardFileDetails, 0, sizeof (SDCardFileDetails));
+        memset(fileDetails, 0, sizeof (SDCardFileDetails));
         return;
     }
 
     // Copy file size
-    sdCardFileDetails->size = sysFSFstat.fsize;
+    fileDetails->size = sysFSFstat.fsize;
 
     // Parse time
     SYS_FS_TIME sysFSTime;
     sysFSTime.timeDate.time = sysFSFstat.ftime;
     sysFSTime.timeDate.date = sysFSFstat.fdate;
-    sdCardFileDetails->time.second = sysFSTime.discreteTime.second;
-    sdCardFileDetails->time.minute = sysFSTime.discreteTime.minute;
-    sdCardFileDetails->time.hour = sysFSTime.discreteTime.hour;
-    sdCardFileDetails->time.day = sysFSTime.discreteTime.day;
-    sdCardFileDetails->time.month = sysFSTime.discreteTime.month;
-    sdCardFileDetails->time.year = 1980 + sysFSTime.discreteTime.year;
+    fileDetails->time.second = sysFSTime.discreteTime.second;
+    fileDetails->time.minute = sysFSTime.discreteTime.minute;
+    fileDetails->time.hour = sysFSTime.discreteTime.hour;
+    fileDetails->time.day = sysFSTime.discreteTime.day;
+    fileDetails->time.month = sysFSTime.discreteTime.month;
+    fileDetails->time.year = 1980 + sysFSTime.discreteTime.year;
 
     // Copy file name
     if (strlen(sysFSFstat.lfname) == 0) {
-        strncpy(sdCardFileDetails->name, sysFSFstat.fname, sizeof (sdCardFileDetails->name));
+        strncpy(fileDetails->name, sysFSFstat.fname, sizeof (fileDetails->name));
     } else {
-        strncpy(sdCardFileDetails->name, sysFSFstat.lfname, sizeof (sdCardFileDetails->name));
+        strncpy(fileDetails->name, sysFSFstat.lfname, sizeof (fileDetails->name));
     }
 }
 
@@ -318,9 +318,9 @@ void SDCardDirectorySearch(const char* const fileName, SDCardFileDetails * const
 bool SDCardDirectoryExists(const char* const fileName) {
 
     // Search from unknown starting position in directory
-    SDCardFileDetails sdCardFileDetails;
-    SDCardDirectorySearch(fileName, &sdCardFileDetails);
-    if (strlen(sdCardFileDetails.name) > 0) {
+    SDCardFileDetails fileDetails;
+    SDCardDirectorySearch(fileName, &fileDetails);
+    if (strlen(fileDetails.name) > 0) {
         return true;
     }
 
@@ -329,8 +329,8 @@ bool SDCardDirectoryExists(const char* const fileName) {
         PrintFileSystemError("SYS_FS_DirRewind", SYS_FS_FileError(directoryHandle));
         return false;
     }
-    SDCardDirectorySearch(fileName, &sdCardFileDetails);
-    if (strlen(sdCardFileDetails.name) > 0) {
+    SDCardDirectorySearch(fileName, &fileDetails);
+    if (strlen(fileDetails.name) > 0) {
         return true;
     }
     return false;

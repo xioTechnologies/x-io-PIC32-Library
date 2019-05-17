@@ -17,7 +17,7 @@
 //------------------------------------------------------------------------------
 // Function prototypes
 
-void Uart5Initialise(const UartSettings * const uartSettings);
+void Uart5Initialise(const UartSettings * const settings);
 void Uart5Disable();
 size_t Uart5GetReadAvailable();
 size_t Uart5Read(void* const destination, size_t numberOfBytes);

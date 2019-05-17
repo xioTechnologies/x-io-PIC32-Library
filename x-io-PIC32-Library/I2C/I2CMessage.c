@@ -15,87 +15,87 @@
 
 /**
  * @brief Initialises the I2C message with a start event.
- * @param i2cMessage I2C message.
+ * @param message Message.
  */
-void I2CMessageStart(I2CMessage * const i2cMessage) {
+void I2CMessageStart(I2CMessage * const message) {
 
     // Initialise I2C message
-    i2cMessage->index = 0;
-    i2cMessage->event[0] = I2CMessageEventEnd;
-    i2cMessage->messageComplete = NULL;
+    message->index = 0;
+    message->event[0] = I2CMessageEventEnd;
+    message->messageComplete = NULL;
 
     // Add start event
-    if (i2cMessage->index >= I2C_MESSAGE_MAX_LENGTH) {
+    if (message->index >= I2C_MESSAGE_MAX_LENGTH) {
         return;
     }
-    i2cMessage->event[i2cMessage->index] = I2CMessageEventStart;
-    i2cMessage->event[++i2cMessage->index] = I2CMessageEventEnd;
+    message->event[message->index] = I2CMessageEventStart;
+    message->event[++message->index] = I2CMessageEventEnd;
 }
 
 /**
  * @brief Appends a restart event to the I2C message.
- * @param i2cMessage I2C message.
+ * @param message Message.
  */
-void I2CMessageRestart(I2CMessage * const i2cMessage) {
-    if (i2cMessage->index >= I2C_MESSAGE_MAX_LENGTH) {
+void I2CMessageRestart(I2CMessage * const message) {
+    if (message->index >= I2C_MESSAGE_MAX_LENGTH) {
         return;
     }
-    i2cMessage->event[i2cMessage->index] = I2CMessageEventRestart;
-    i2cMessage->event[++i2cMessage->index] = I2CMessageEventEnd;
+    message->event[message->index] = I2CMessageEventRestart;
+    message->event[++message->index] = I2CMessageEventEnd;
 }
 
 /**
  * @brief Appends a send event to the I2C message.
- * @param i2cMessage I2C message.
+ * @param message Message.
  */
-void I2CMessageSend(I2CMessage * const i2cMessage, const uint8_t byte) {
-    if (i2cMessage->index >= I2C_MESSAGE_MAX_LENGTH) {
+void I2CMessageSend(I2CMessage * const message, const uint8_t byte) {
+    if (message->index >= I2C_MESSAGE_MAX_LENGTH) {
         return;
     }
-    i2cMessage->event[i2cMessage->index] = I2CMessageEventSend;
-    i2cMessage->data[i2cMessage->index] = byte;
-    i2cMessage->event[++i2cMessage->index] = I2CMessageEventEnd;
+    message->event[message->index] = I2CMessageEventSend;
+    message->data[message->index] = byte;
+    message->event[++message->index] = I2CMessageEventEnd;
 }
 
 /**
  * @brief Appends a receive event followed by an ACK or NACK event to the I2C
  * message.
- * @param i2cMessage I2C message.
+ * @param message Message.
  */
-void I2CMessageReceive(I2CMessage * const i2cMessage, uint8_t * const destination, const bool ack) {
+void I2CMessageReceive(I2CMessage * const message, uint8_t * const destination, const bool ack) {
     // Add receive event
-    if (i2cMessage->index >= I2C_MESSAGE_MAX_LENGTH) {
+    if (message->index >= I2C_MESSAGE_MAX_LENGTH) {
         return;
     }
-    i2cMessage->event[i2cMessage->index] = I2CMessageEventReceive;
-    i2cMessage->event[++i2cMessage->index] = I2CMessageEventEnd;
+    message->event[message->index] = I2CMessageEventReceive;
+    message->event[++message->index] = I2CMessageEventEnd;
 
     // Add ACK/NACK event
-    if (i2cMessage->index >= I2C_MESSAGE_MAX_LENGTH) {
+    if (message->index >= I2C_MESSAGE_MAX_LENGTH) {
         return;
     }
-    i2cMessage->event[i2cMessage->index] = ack ? I2CMessageEventAck : I2CMessageEventNack;
-    i2cMessage->destination[i2cMessage->index] = destination;
-    i2cMessage->event[++i2cMessage->index] = I2CMessageEventEnd;
+    message->event[message->index] = ack ? I2CMessageEventAck : I2CMessageEventNack;
+    message->destination[message->index] = destination;
+    message->event[++message->index] = I2CMessageEventEnd;
 }
 
 /**
  * @brief Appends a stop event to the I2C message.
  * @param Message complete callback function.  This callback function will be
  * called from within an interrupt once the message is complete.
- * @param i2cMessage I2C message.
+ * @param message Message.
  */
-void I2CMessageStop(I2CMessage * const i2cMessage, void (*messageComplete)()) {
+void I2CMessageStop(I2CMessage * const message, void (*messageComplete)()) {
 
     // Add stop event
-    if (i2cMessage->index >= I2C_MESSAGE_MAX_LENGTH) {
+    if (message->index >= I2C_MESSAGE_MAX_LENGTH) {
         return;
     }
-    i2cMessage->event[i2cMessage->index] = I2CMessageEventStop;
-    i2cMessage->event[++i2cMessage->index] = I2CMessageEventEnd;
+    message->event[message->index] = I2CMessageEventStop;
+    message->event[++message->index] = I2CMessageEventEnd;
 
     // Set callback function
-    i2cMessage->messageComplete = messageComplete;
+    message->messageComplete = messageComplete;
 }
 
 //------------------------------------------------------------------------------

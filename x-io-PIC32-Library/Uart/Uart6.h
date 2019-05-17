@@ -17,7 +17,7 @@
 //------------------------------------------------------------------------------
 // Function prototypes
 
-void Uart6Initialise(const UartSettings * const uartSettings);
+void Uart6Initialise(const UartSettings * const settings);
 void Uart6Disable();
 size_t Uart6GetReadAvailable();
 size_t Uart6Read(void* const destination, size_t numberOfBytes);

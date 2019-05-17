@@ -18,7 +18,7 @@
 //------------------------------------------------------------------------------
 // Function prototypes
 
-void Uart2DmaInitialise(const UartSettings * const uartSettings, const UartDmaReadConditions * const uartDmaReadConditions);
+void Uart2DmaInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions);
 void Uart2DmaDisable();
 void Uart2DmaSetCallbackFunction(void (*read)(const void* const data, const size_t numberOfBytes));
 void Uart2DmaRead();

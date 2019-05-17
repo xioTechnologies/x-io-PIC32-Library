@@ -21,18 +21,18 @@ static void (*transferCompleteCallback)();
 
 /**
  * @brief Initialises the module.
- * @param spiSettings SPI settings.
+ * @param settings Settings.
  */
-void Spi3DmaInitialise(const SpiSettings * const spiSettings) {
+void Spi3DmaInitialise(const SpiSettings * const settings) {
 
     // Ensure default register states
     Spi3DmaDisable();
 
     // Configure SPI
     SPI3CONbits.MSTEN = 1; // Master mode
-    SPI3CONbits.CKP = spiSettings->clockPolarity;
-    SPI3CONbits.CKE = spiSettings->clockPhase;
-    SPI3BRG = SpiCalculateSpixbrg(spiSettings->clockFrequency);
+    SPI3CONbits.CKP = settings->clockPolarity;
+    SPI3CONbits.CKE = settings->clockPhase;
+    SPI3BRG = SpiCalculateSpixbrg(settings->clockFrequency);
     SPI3CONbits.ON = 1;
 
     // Enable DMA
