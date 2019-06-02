@@ -195,16 +195,11 @@ static void StateOpenTasks() {
 
     // Open file
     OpenFile();
-
-    // Write preamble
-    if (applicationCallbackFunctions.writePreamble != NULL) {
-        applicationCallbackFunctions.writePreamble();
-    }
     state = StateWrite;
 }
 
 /**
- * @brief Opens file.
+ * @brief Opens a file.
  */
 static void OpenFile() {
 #ifdef DEBUG_ENABLED
@@ -219,8 +214,15 @@ static void OpenFile() {
         state = StateError;
         return;
     }
+
+    // Write preamble
+    if (applicationCallbackFunctions.writePreamble != NULL) {
+        applicationCallbackFunctions.writePreamble(); // use SDCardFileWrite to write preamble
+    }
+
+    // Reset statistics
     fileStartTicks = TimerGetTicks64();
-    fileSize = 0;
+    fileSize = SDCardFileGetSize();
 #ifdef DEBUG_ENABLED
     maxWritePeriod = 0;
     maxbufferUsed = 0;
@@ -248,7 +250,7 @@ static void StateWriteTasks() {
         }
     }
 
-    // Do nothing if no data avaliable
+    // Do nothing else if no data avaliable
     const uint32_t bufferWriteIndexCache = bufferWriteIndex; // avoid asynchronous hazard
     if (bufferReadIndex == bufferWriteIndexCache) {
         return;
@@ -312,7 +314,7 @@ static void StateWriteTasks() {
 }
 
 /**
- * @brief Close the file.
+ * @brief Closes the file.
  */
 static void CloseFile() {
 #ifdef DEBUG_ENABLED

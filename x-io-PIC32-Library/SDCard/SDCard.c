@@ -120,7 +120,7 @@ void SDCardUnmount() {
             return;
         case StateMounted:
             if (SYS_FS_Unmount(MOUNT_NAME) != SYS_FS_RES_SUCCESS) {
-                PrintFileSystemError("SYS_FS_Mount", SYS_FS_Error());
+                PrintFileSystemError("SYS_FS_Unmount", SYS_FS_Error());
             }
             state = StateUnmounted;
             break;
@@ -226,6 +226,19 @@ SDCardError SDCardFileWrite(const void* const data, const size_t numberOfBytes) 
  */
 SDCardError SDCardFileWriteString(const char* const string) {
     return SDCardFileWrite(string, strlen(string));
+}
+
+/**
+ * @brief Gets the file size.
+ * @return File size.
+ */
+size_t SDCardFileGetSize() {
+    const int32_t fileSize = SYS_FS_FileSize(fileHandle);
+    if (fileSize == -1) {
+        PrintFileSystemError("SYS_FS_FileSize", SYS_FS_FileError(fileHandle));
+        return 0;
+    }
+    return (size_t) fileSize;
 }
 
 /**

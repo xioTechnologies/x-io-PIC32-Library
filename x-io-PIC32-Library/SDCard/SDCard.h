@@ -63,6 +63,7 @@ size_t SDCardFileRead(void* const destination, const size_t destinationSize);
 void SDCardFileReadString(void* const destination, const size_t destinationSize);
 SDCardError SDCardFileWrite(const void* const data, const size_t numberOfBytes);
 SDCardError SDCardFileWriteString(const char* const string);
+size_t SDCardFileGetSize();
 void SDCardFileClose();
 void SDCardFileRename(const char* const fileName, const char* const newFileName);
 void SDCardDirectoryOpen();
