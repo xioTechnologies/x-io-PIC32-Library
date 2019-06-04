@@ -15,8 +15,8 @@ i2c4_text = ["I2C4", "I2C4", "I2C_4"]
 i2c5_files = ["I2C/I2C5.c", "I2C/I2C5.h"]
 i2c5_text = ["I2C5", "I2C5", "I2C_5"]
 
-source_files = i2c1_files
-old_text = i2c1_text
+source_files = i2c1_files  # files to be duplicated
+old_text = i2c1_text  # text to be replaced in duplicated files
 
 find_and_replace(source_files, i2c1_files, old_text, i2c1_text)
 find_and_replace(source_files, i2c2_files, old_text, i2c2_text)

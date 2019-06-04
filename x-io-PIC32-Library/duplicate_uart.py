@@ -24,8 +24,8 @@ uart6_files = ["Uart/Uart6.c", "Uart/Uart6.h",
                "Uart/Uart6Dma.c", "Uart/Uart6Dma.h"]
 uart6_text = ["Uart6", "U6", "UART6", "UART_6", "USART_6"]
 
-source_files = uart3_files
-old_text = uart3_text
+source_files = uart3_files  # files to be duplicated
+old_text = uart3_text  # text to be replaced in duplicated files
 
 find_and_replace(source_files, uart1_files, old_text, uart1_text)
 find_and_replace(source_files, uart2_files, old_text, uart2_text)
