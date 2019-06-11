@@ -47,9 +47,10 @@ typedef enum {
 // Function prototypes
 
 static void StateOpenTasks();
-static void OpenFile();
 static void StateWriteTasks();
-static void CloseFile();
+static int OpenFile();
+static int WriteToFile();
+static int CloseFile();
 static void CreateFileNameUsingNumber(char* const destination, const size_t destinationSize);
 static void CreateFileNameUsingTime(char* const destination, const size_t destinationSize);
 static void PrintStatistics();
@@ -75,8 +76,7 @@ static bool bufferOverrun;
 // Functions
 
 /**
- * @brief Sets the SD card logging settings.  This function must be called
- * before calling SDCardLoggingStart for the first time.
+ * @brief Sets the SD card logging settings.
  * @param settings Settings.
  */
 void SDCardLoggingSetSettings(const SDCardLoggingSettings * const settings) {
@@ -123,6 +123,7 @@ void SDCardLoggingStart() {
         case StateError:
             break;
     }
+    bufferWriteIndex = bufferReadIndex; // clear buffer
     state = StateOpen;
 }
 
@@ -135,16 +136,19 @@ void SDCardLoggingStop() {
 #endif
     switch (state) {
         case StateDisabled:
-            return;
+            break;
         case StateOpen:
+            state = StateDisabled;
             break;
         case StateWrite:
-            CloseFile();
+            state = StateDisabled;
+            if ((WriteToFile() != 0) || (WriteToFile() != 0) || (CloseFile() != 0)) { // write twice to handle buffer index wraparound
+                state = StateError;
+            }
             break;
         case StateError:
-            return;
+            break;
     }
-    state = StateDisabled;
 }
 
 /**
@@ -194,14 +198,28 @@ static void StateOpenTasks() {
     }
 
     // Open file
-    OpenFile();
+    if (OpenFile() != 0) {
+        state = StateError;
+        return;
+    }
     state = StateWrite;
 }
 
 /**
- * @brief Opens a file.
+ * @brief Write state tasks.
  */
-static void OpenFile() {
+static void StateWriteTasks() {
+    PrintStatistics();
+    if (WriteToFile() != 0) {
+        state = StateError;
+    }
+}
+
+/**
+ * @brief Opens a file.
+ * @return 0 if successful.
+ */
+static int OpenFile() {
 #ifdef DEBUG_ENABLED
     printf("Open\r\n");
 #endif
@@ -211,8 +229,7 @@ static void OpenFile() {
 #ifdef DEBUG_ENABLED
         printf("Open failed\r\n");
 #endif
-        state = StateError;
-        return;
+        return 1;
     }
 
     // Write preamble
@@ -228,15 +245,14 @@ static void OpenFile() {
     maxbufferUsed = 0;
     bufferOverrun = false;
 #endif
+    return 0;
 }
 
 /**
- * @brief Write state tasks.
+ * @brief Writes buffered data to the file.
+ * @return 0 if successful.
  */
-static void StateWriteTasks() {
-
-    // Print statistics
-    PrintStatistics();
+static int WriteToFile() {
 
     // Restart logging if maximum file period reached
     if (currentSettings.maximumFilePeriod > 0) {
@@ -244,16 +260,17 @@ static void StateWriteTasks() {
 #ifdef DEBUG_ENABLED
             printf("Exceeded maximum file period\r\n");
 #endif
-            CloseFile();
-            OpenFile();
-            return;
+            if ((CloseFile() != 0) || (OpenFile() != 0)) {
+                return 1;
+            }
+            return 0;
         }
     }
 
     // Do nothing else if no data avaliable
     const uint32_t bufferWriteIndexCache = bufferWriteIndex; // avoid asynchronous hazard
     if (bufferReadIndex == bufferWriteIndexCache) {
-        return;
+        return 0;
     }
 
     // Calculate number of bytes to write
@@ -273,9 +290,10 @@ static void StateWriteTasks() {
 #ifdef DEBUG_ENABLED
             printf("Exceeded maximum file size\r\n");
 #endif
-            CloseFile();
-            OpenFile();
-            return;
+            if ((CloseFile() != 0) || (OpenFile() != 0)) {
+                return 1;
+            }
+            return 0;
         }
     }
 
@@ -298,9 +316,10 @@ static void StateWriteTasks() {
 #ifdef DEBUG_ENABLED
         printf("SD card or file full\r\n");
 #endif
-        CloseFile();
-        OpenFile();
-        return;
+        if ((CloseFile() != 0) || (OpenFile() != 0)) {
+            return 1;
+        }
+        return 0;
     }
 
     // Abort if error occurred
@@ -308,15 +327,16 @@ static void StateWriteTasks() {
 #ifdef DEBUG_ENABLED
         printf("Write failed\r\n");
 #endif
-        state = StateError;
-        return;
+        return 1;
     }
+    return 0;
 }
 
 /**
  * @brief Closes the file.
+ * @return 0 if successful.
  */
-static void CloseFile() {
+static int CloseFile() {
 #ifdef DEBUG_ENABLED
     printf("Close\r\n");
 #endif
@@ -335,12 +355,12 @@ static void CloseFile() {
 #ifdef DEBUG_ENABLED
         printf("No file names available\r\n");
 #endif
-        state = StateError;
-        return;
+        return 1;
     }
 
     // Rename file
     SDCardFileRename(FILE_NAME, newFileName);
+    return 0;
 }
 
 /**
@@ -449,6 +469,17 @@ size_t SDCardLoggingGetWriteAvailable() {
  */
 void SDCardLoggingWrite(const void* const data, const size_t numberOfBytes) {
 
+    // Do nothing if logging not started
+    switch (state) {
+        case StateDisabled:
+            return;
+        case StateOpen:
+        case StateWrite:
+            break;
+        case StateError:
+            return;
+    }
+
     // Do nothing if no space avaliable
     if (numberOfBytes > SDCardLoggingGetWriteAvailable()) {
 #ifdef DEBUG_ENABLED
@@ -498,11 +529,8 @@ static void PrintStatistics() {
     const float kilobytesPerSecond = (float) (deltaFileSize >> 10) / ((float) deltaTicks / (float) TIMER_TICKS_PER_SECOND);
 
     // Create buffer usage string
-    char bufferUsageString[] = "Buffer Overrun";
-    if (bufferOverrun == false) {
-        const float percentage = (float) maxbufferUsed * (100.0f / (float) WRITE_BUFFER_SIZE);
-        snprintf(bufferUsageString, sizeof (bufferUsageString), "%0.1f %%", (double) percentage);
-    }
+    char bufferUsageString[16];
+    snprintf(bufferUsageString, sizeof (bufferUsageString), "%0.1f %%", (double) ((float) maxbufferUsed * (100.0f / (float) WRITE_BUFFER_SIZE)));
 
     // Create and print statistics string
     printf("%u s, %u KB/s, %u KB, %0.1f ms, %s\r\n",
@@ -510,7 +538,7 @@ static void PrintStatistics() {
             (unsigned int) (kilobytesPerSecond + 0.5f),
             fileSize >> 10,
             (double) ((float) maxWritePeriod * (1000.0f / (float) TIMER_TICKS_PER_SECOND)),
-            bufferUsageString);
+            bufferOverrun ? "Buffer Overrun" : bufferUsageString);
 
     // Reset statistics
     maxWritePeriod = 0;
