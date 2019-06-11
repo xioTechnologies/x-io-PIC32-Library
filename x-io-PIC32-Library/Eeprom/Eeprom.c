@@ -10,6 +10,7 @@
 #include "Eeprom.h"
 #include "EepromHal.h"
 #include <stdbool.h>
+#include <stdio.h> // printf
 #include "Timer/Timer.h"
 
 //------------------------------------------------------------------------------
@@ -86,14 +87,45 @@ static void StartSequence(const uint16_t address) {
 }
 
 /**
- * @brief Erases the entire EEPROM.  All data bytes are set to 0xFF.
+ * @brief Erases the EEPROM.  All data bytes are set to 0xFF.
  */
 void EepromEraseAll() {
     const uint8_t blankPage[EEPROM_PAGE_SIZE] = {[0 ... (EEPROM_PAGE_SIZE - 1)] = 0xFF};
-    uint32_t pageIndex;
+    int pageIndex;
     for (pageIndex = 0; pageIndex < (EEPROM_SIZE / EEPROM_PAGE_SIZE); pageIndex++) {
-        EepromWrite((pageIndex * EEPROM_PAGE_SIZE), (uint8_t*) blankPage, sizeof (blankPage));
+        EepromWrite(pageIndex * EEPROM_PAGE_SIZE, (uint8_t*) blankPage, sizeof (blankPage));
     }
+}
+
+/**
+ * @brief Prints the EEPROM.
+ */
+void EepromPrint() {
+    int pageIndex;
+    for (pageIndex = 0; pageIndex < (EEPROM_SIZE / EEPROM_PAGE_SIZE); pageIndex++) {
+        int8_t pageData[EEPROM_PAGE_SIZE];
+        EepromRead(pageIndex * EEPROM_PAGE_SIZE, pageData, sizeof (pageData));
+        int index;
+        for (index = 0; index < sizeof (pageData); index++) {
+
+            // Print address
+            const uint16_t address = (pageIndex * EEPROM_PAGE_SIZE) + index;
+            if (address % 32 == 0) {
+                if (address > 0) {
+                    printf("\r\n");
+                }
+                printf("%04X | ", address);
+            }
+
+            // Print byte value
+            if ((pageData[index] >= 0x20) && (pageData[index] <= 0x7E)) {
+                printf(" %c ", (char) pageData[index]);
+            } else {
+                printf("%02X ", (uint8_t) pageData[index]);
+            }
+        }
+    }
+    printf("\r\n");
 }
 
 //------------------------------------------------------------------------------
