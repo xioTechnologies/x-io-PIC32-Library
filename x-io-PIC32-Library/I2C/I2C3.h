@@ -27,7 +27,7 @@ void I2C3Stop();
 bool I2C3Send(const uint8_t byte);
 uint8_t I2C3Receive(const bool ack);
 void I2C3BeginMessage(I2CMessage * const message);
-bool I2C3MessageInProgress();
+bool I2C3IsMessageInProgress();
 
 #endif
 

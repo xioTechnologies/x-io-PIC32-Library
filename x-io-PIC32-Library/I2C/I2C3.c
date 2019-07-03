@@ -156,7 +156,7 @@ static void WaitForInterruptOrTimeout() {
 void I2C3BeginMessage(I2CMessage * const message) {
 
     // Do nothing if message in progress
-    if (I2C3MessageInProgress() == true) {
+    if (I2C3IsMessageInProgress() == true) {
         return;
     }
 
@@ -176,7 +176,7 @@ void I2C3BeginMessage(I2CMessage * const message) {
  * @brief Returns true if the message is in progress.
  * @return True if the message is in progress.
  */
-bool I2C3MessageInProgress() {
+bool I2C3IsMessageInProgress() {
     if (TimerGetTicks64() >= messageTimeout) {
         SYS_INT_SourceDisable(INT_SOURCE_I2C_3_MASTER);
     }
