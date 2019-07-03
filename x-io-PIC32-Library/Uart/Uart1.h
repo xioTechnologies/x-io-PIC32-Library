@@ -28,8 +28,8 @@ void Uart1WriteByte(const uint8_t byte);
 void Uart1WriteString(const char* string);
 void Uart1ClearReadBuffer();
 void Uart1ClearWriteBuffer();
-bool Uart1ReadBufferOverrun();
-bool Uart1TransmitionComplete();
+bool Uart1HasReadBufferOverrun();
+bool Uart1IsTransmitionComplete();
 
 #endif
 

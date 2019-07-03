@@ -288,7 +288,7 @@ void Uart2DmaWrite(const void* const data, const size_t numberOfBytes) {
  * buffer.
  * @return True while data is being transferred to the hardware TX buffer.
  */
-bool Uart2DmaWriteInProgress() {
+bool Uart2DmaIsWriteInProgress() {
     return DCH2CONbits.CHEN == 1;
 }
 
@@ -297,7 +297,7 @@ bool Uart2DmaWriteInProgress() {
  * function will reset the flag.
  * @return True if the hardware receive buffer has overrun.
  */
-bool Uart2DmaReceiveBufferOverrun() {
+bool Uart2DmaHasReceiveBufferOverrun() {
     if (U2STAbits.OERR == 1) {
         U2STAbits.OERR = 0;
         return true;
@@ -309,8 +309,8 @@ bool Uart2DmaReceiveBufferOverrun() {
  * @brief Returns true if all data has been transmitted.
  * @return True if all data has been transmitted.
  */
-bool Uart2DmaTransmitionComplete() {
-    return (Uart2DmaWriteInProgress() == false) && (U2STAbits.TRMT == 1);
+bool Uart2DmaIsTransmitionComplete() {
+    return (Uart2DmaIsWriteInProgress() == false) && (U2STAbits.TRMT == 1);
 }
 
 //------------------------------------------------------------------------------

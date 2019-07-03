@@ -23,9 +23,9 @@ void Uart5DmaDisable();
 void Uart5DmaSetCallbackFunction(void (*read)(const void* const data, const size_t numberOfBytes));
 void Uart5DmaRead();
 void Uart5DmaWrite(const void* const data, const size_t numberOfBytes);
-bool Uart5DmaWriteInProgress();
-bool Uart5DmaReceiveBufferOverrun();
-bool Uart5DmaTransmitionComplete();
+bool Uart5DmaIsWriteInProgress();
+bool Uart5DmaHasReceiveBufferOverrun();
+bool Uart5DmaIsTransmitionComplete();
 
 #endif
 

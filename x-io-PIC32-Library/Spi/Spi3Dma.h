@@ -21,7 +21,7 @@ void Spi3DmaInitialise(const SpiSettings * const settings);
 void Spi3DmaDisable();
 void Spi3DmaSetCallbackFunction(void (*transferComplete)());
 void Spi3DmaTransfer(void* const data, const size_t numberOfBytes);
-bool Spi3DmaTransferInProgress();
+bool Spi3DmaIsTransferInProgress();
 
 #endif
 

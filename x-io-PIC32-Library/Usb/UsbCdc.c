@@ -211,7 +211,7 @@ static void WriteTasks() {
  * @brief Returns true if the USB host is connected.
  * @return True if the USB host is connected.
  */
-bool UsbCdcHostIsConnected() {
+bool UsbCdcIsHostConnected() {
     return isConfigured;
 }
 

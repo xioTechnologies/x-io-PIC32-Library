@@ -21,7 +21,7 @@ void Spi4DmaInitialise(const SpiSettings * const settings);
 void Spi4DmaDisable();
 void Spi4DmaSetCallbackFunction(void (*transferComplete)());
 void Spi4DmaTransfer(void* const data, const size_t numberOfBytes);
-bool Spi4DmaTransferInProgress();
+bool Spi4DmaIsTransferInProgress();
 
 #endif
 

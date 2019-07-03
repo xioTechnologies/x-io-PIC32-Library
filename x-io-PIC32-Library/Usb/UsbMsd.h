@@ -16,7 +16,7 @@
 // Function prototypes
 
 void UsbMsdTasks();
-bool UsbMsdHostIsConnected();
+bool UsbMsdIsHostConnected();
 
 #endif
 

@@ -152,7 +152,7 @@ void __ISR(_DMA1_VECTOR) Dma1Interrupt() {
  * @brief Returns true while the transfer is in progress.
  * @return True while the transfer is in progress.
  */
-bool Spi5DmaTransferInProgress() {
+bool Spi5DmaIsTransferInProgress() {
     return (DCH1CONbits.CHEN == 1) && (DCH1INTbits.CHDDIF == 0); // if RX DMA channel interrupt enabled and flag not set
 }
 

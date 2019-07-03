@@ -226,7 +226,7 @@ void Uart5WriteString(const char* string) {
  */
 void Uart5ClearReadBuffer() {
     readBufferReadIndex = readBufferWriteIndex & READ_WRITE_BUFFER_INDEX_BIT_MASK;
-    Uart5ReadBufferOverrun();
+    Uart5HasReadBufferOverrun();
 }
 
 /**
@@ -242,7 +242,7 @@ void Uart5ClearWriteBuffer() {
  * @return True if either the hardware receive buffer or software read buffer
  * has overrun.
  */
-bool Uart5ReadBufferOverrun() {
+bool Uart5HasReadBufferOverrun() {
     if (readBufferOverrun == true) {
         readBufferOverrun = false;
         return true;
@@ -254,7 +254,7 @@ bool Uart5ReadBufferOverrun() {
  * @brief Returns true if all data has been transmitted.
  * @return True if all data has been transmitted.
  */
-bool Uart5TransmitionComplete() {
+bool Uart5IsTransmitionComplete() {
     return (SYS_INT_SourceIsEnabled(INT_SOURCE_USART_5_TRANSMIT) == false) && (U5STAbits.TRMT == 1);
 }
 

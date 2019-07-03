@@ -18,7 +18,7 @@
 // Function prototypes
 
 void UsbCdcTasks();
-bool UsbCdcHostIsConnected();
+bool UsbCdcIsHostConnected();
 size_t UsbCdcGetReadAvailable();
 size_t UsbCdcRead(void* const destination, size_t numberOfBytes);
 uint8_t UsbCdcReadByte();

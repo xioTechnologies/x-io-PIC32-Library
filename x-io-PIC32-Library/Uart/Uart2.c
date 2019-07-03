@@ -226,7 +226,7 @@ void Uart2WriteString(const char* string) {
  */
 void Uart2ClearReadBuffer() {
     readBufferReadIndex = readBufferWriteIndex & READ_WRITE_BUFFER_INDEX_BIT_MASK;
-    Uart2ReadBufferOverrun();
+    Uart2HasReadBufferOverrun();
 }
 
 /**
@@ -242,7 +242,7 @@ void Uart2ClearWriteBuffer() {
  * @return True if either the hardware receive buffer or software read buffer
  * has overrun.
  */
-bool Uart2ReadBufferOverrun() {
+bool Uart2HasReadBufferOverrun() {
     if (readBufferOverrun == true) {
         readBufferOverrun = false;
         return true;
@@ -254,7 +254,7 @@ bool Uart2ReadBufferOverrun() {
  * @brief Returns true if all data has been transmitted.
  * @return True if all data has been transmitted.
  */
-bool Uart2TransmitionComplete() {
+bool Uart2IsTransmitionComplete() {
     return (SYS_INT_SourceIsEnabled(INT_SOURCE_USART_2_TRANSMIT) == false) && (U2STAbits.TRMT == 1);
 }
 
