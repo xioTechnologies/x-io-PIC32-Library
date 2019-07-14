@@ -90,7 +90,7 @@ static void StartSequence(const uint16_t address) {
  * @brief Erases the EEPROM.  All data bytes are set to 0xFF.
  */
 void EepromEraseAll() {
-    const uint8_t blankPage[EEPROM_PAGE_SIZE] = {[0 ... (EEPROM_PAGE_SIZE - 1)] = 0xFF};
+    const uint8_t blankPage[] = {[0 ... (EEPROM_PAGE_SIZE - 1)] = 0xFF};
     int pageIndex;
     for (pageIndex = 0; pageIndex < (EEPROM_SIZE / EEPROM_PAGE_SIZE); pageIndex++) {
         EepromWrite(pageIndex * EEPROM_PAGE_SIZE, (uint8_t*) blankPage, sizeof (blankPage));
