@@ -10,6 +10,7 @@
 //------------------------------------------------------------------------------
 // Includes
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -17,8 +18,10 @@
 // Function prototypes
 
 void EepromRead(const uint16_t address, void* const destination, const size_t numberOfBytes);
-void EepromWrite(uint16_t address, const void* data, const size_t numberOfBytes);
-void EepromEraseAll();
+void EepromWrite(uint16_t address, const void* const data, const size_t numberOfBytes);
+void EepromUpdate(uint16_t address, const void* const data, const size_t numberOfBytes);
+void EepromErase();
+bool EepromIsBlank();
 void EepromPrint();
 
 #endif

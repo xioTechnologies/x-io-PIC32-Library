@@ -11,12 +11,22 @@
 #include "EepromHal.h"
 #include <stdbool.h>
 #include <stdio.h> // printf
+#include <string.h> // memcmp
 #include "Timer/Timer.h"
+
+//------------------------------------------------------------------------------
+// Definitions
+
+/**
+ * @brief Print line length.  Must be a multiple of the EEPROM size.
+ */
+#define PRINT_LINE_LENGTH (32)
 
 //------------------------------------------------------------------------------
 // Function prototypes
 
 static void StartSequence(const uint16_t address);
+static void PrintLine(const uint16_t address, const uint8_t * const data);
 
 //------------------------------------------------------------------------------
 // Functions
@@ -32,8 +42,8 @@ void EepromRead(const uint16_t address, void* const destination, const size_t nu
     EepromHalI2CStop();
     EepromHalI2CStart();
     EepromHalI2CSend(I2CSlaveAddressRead(EEPROM_I2C_ADDRESS));
-    const uint32_t endIndex = numberOfBytes - 1;
-    uint32_t destinationIndex = 0;
+    const int endIndex = numberOfBytes - 1;
+    int destinationIndex = 0;
     while (destinationIndex < numberOfBytes) {
         const bool ack = destinationIndex < endIndex;
         ((uint8_t*) destination)[destinationIndex] = EepromHalI2CReceive(ack);
@@ -48,11 +58,11 @@ void EepromRead(const uint16_t address, void* const destination, const size_t nu
  * @param data Data.
  * @param numberOfBytes Number of bytes.
  */
-void EepromWrite(uint16_t address, const void* data, const size_t numberOfBytes) {
+void EepromWrite(uint16_t address, const void* const data, const size_t numberOfBytes) {
     StartSequence(address);
     const uint16_t endAddress = address + numberOfBytes;
     uint8_t* dataByte = (uint8_t*) data;
-    uint32_t currentPageIndex = address / EEPROM_PAGE_SIZE;
+    int currentPageIndex = address / EEPROM_PAGE_SIZE;
     while (address < endAddress) {
         EepromHalI2CSend(*dataByte++);
         const uint32_t nextPageIndex = ++address / EEPROM_PAGE_SIZE;
@@ -66,7 +76,35 @@ void EepromWrite(uint16_t address, const void* data, const size_t numberOfBytes)
 }
 
 /**
- * @brief Start sequence common to read and write functions.  Implements
+ * @brief Writes data only if the data being written is different to the data
+ * on the EEPROM.
+ * @param address Address.
+ * @param data Data.
+ * @param numberOfBytes Number of bytes.
+ */
+void EepromUpdate(uint16_t address, const void* const data, const size_t numberOfBytes) {
+    const uint16_t endAddress = address + numberOfBytes;
+    const uint8_t* dataByte = (uint8_t*) data;
+    while (address < endAddress) {
+        size_t chunkSize = EEPROM_PAGE_SIZE - (address % EEPROM_PAGE_SIZE); // number of bytes from address to end of page
+        if ((address + chunkSize) > endAddress) {
+            chunkSize = endAddress - address;
+        }
+        uint8_t pageData[EEPROM_PAGE_SIZE];
+        EepromRead(address, pageData, chunkSize);
+        //printf("A=%u, S=%u", address, (unsigned int) chunkSize);
+        if (memcmp(dataByte, pageData, chunkSize) != 0) {
+            EepromWrite(address, dataByte, chunkSize);
+            printf(", WRITE");
+        }
+        //printf("\r\n");
+        address += chunkSize;
+        dataByte += chunkSize;
+    }
+}
+
+/**
+ * @brief Start sequence common to read and write operations.  Implements
  * acknowledge polling to minimise delay while device is engaged in write
  * cycle.
  * @param address Address.
@@ -89,7 +127,7 @@ static void StartSequence(const uint16_t address) {
 /**
  * @brief Erases the EEPROM.  All data bytes are set to 0xFF.
  */
-void EepromEraseAll() {
+void EepromErase() {
     const uint8_t blankPage[] = {[0 ... (EEPROM_PAGE_SIZE - 1)] = 0xFF};
     int pageIndex;
     for (pageIndex = 0; pageIndex < (EEPROM_SIZE / EEPROM_PAGE_SIZE); pageIndex++) {
@@ -98,31 +136,77 @@ void EepromEraseAll() {
 }
 
 /**
+ * @brief Returns true if the EEPROM is blank.
+ * @return True if the EEPROM is blank.
+ */
+bool EepromIsBlank() {
+    int pageIndex;
+    for (pageIndex = 0; pageIndex < (EEPROM_SIZE / EEPROM_PAGE_SIZE); pageIndex++) {
+        uint8_t pageData[EEPROM_PAGE_SIZE];
+        EepromRead(pageIndex * EEPROM_PAGE_SIZE, pageData, sizeof (pageData));
+        const uint8_t blankPage[] = {[0 ... (EEPROM_PAGE_SIZE - 1)] = 0xFF};
+        if (memcmp(blankPage, pageData, sizeof (pageData)) != 0) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
  * @brief Prints the EEPROM.
  */
 void EepromPrint() {
-    int pageIndex;
-    for (pageIndex = 0; pageIndex < (EEPROM_SIZE / EEPROM_PAGE_SIZE); pageIndex++) {
-        int8_t pageData[EEPROM_PAGE_SIZE];
-        EepromRead(pageIndex * EEPROM_PAGE_SIZE, pageData, sizeof (pageData));
-        int index;
-        for (index = 0; index < sizeof (pageData); index++) {
+    bool printEllipses = true;
+    uint16_t address;
+    for (address = 0; address < EEPROM_SIZE; address += PRINT_LINE_LENGTH) {
 
-            // Print address
-            const uint16_t address = (pageIndex * EEPROM_PAGE_SIZE) + index;
-            if (address % 32 == 0) {
-                if (address > 0) {
-                    printf("\r\n");
-                }
-                printf("%04X | ", address);
-            }
+        // Read data
+        uint8_t data[PRINT_LINE_LENGTH];
+        EepromRead(address, data, sizeof (data));
 
-            // Print byte value
-            if ((pageData[index] >= 0x20) && (pageData[index] <= 0x7E)) {
-                printf(" %c ", (char) pageData[index]);
-            } else {
-                printf("%02X ", (uint8_t) pageData[index]);
-            }
+        // Print first and last line
+        if ((address == 0) || (address == (EEPROM_SIZE - PRINT_LINE_LENGTH))) {
+            PrintLine(address, data);
+            continue;
+        }
+
+        // Print line if data not blank
+        const uint8_t blankData[] = {[0 ... (PRINT_LINE_LENGTH - 1)] = 0xFF};
+        if (memcmp(blankData, data, sizeof (data)) != 0) {
+            PrintLine(address, data);
+            printEllipses = true;
+            continue;
+        }
+
+        // Print ellipses
+        if (printEllipses == true) {
+            PrintLine(0xFFFF, data);
+            printEllipses = false;
+        }
+    }
+}
+
+/**
+ * @brief Prints line.
+ * @param address Address.  0xFFFF for ellipses.
+ * @param data Data.
+ */
+static void PrintLine(const uint16_t address, const uint8_t * const data) {
+
+    // Print address
+    if (address == 0xFFFF) {
+        printf("...  | ");
+    } else {
+        printf("%04X | ", address);
+    }
+
+    // Print data
+    int index;
+    for (index = 0; index < PRINT_LINE_LENGTH; index++) {
+        if ((data[index] >= 0x20) && (data[index] <= 0x7E)) {
+            printf(" %c ", (char) data[index]);
+        } else {
+            printf("%02X ", (uint8_t) data[index]);
         }
     }
     printf("\r\n");

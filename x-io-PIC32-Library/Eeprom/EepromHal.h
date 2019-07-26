@@ -24,7 +24,7 @@
 /**
  * @brief EEPROM size.
  */
-#define EEPROM_SIZE (0x400)
+#define EEPROM_SIZE (0x1000)
 
 /**
  * @brief EEPROM page size.
