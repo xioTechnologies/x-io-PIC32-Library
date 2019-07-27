@@ -313,9 +313,9 @@ void SDCardDirectorySearch(const char* const fileName, SDCardFileDetails * const
 
     // Copy file name
     if (strlen(sysFSFstat.lfname) == 0) {
-        strncpy(fileDetails->name, sysFSFstat.fname, sizeof (fileDetails->name));
+        snprintf(fileDetails->name, sizeof (fileDetails->name), "%s", sysFSFstat.fname);
     } else {
-        strncpy(fileDetails->name, sysFSFstat.lfname, sizeof (fileDetails->name));
+        snprintf(fileDetails->name, sizeof (fileDetails->name), "%s", sysFSFstat.lfname);
     }
 }
 
