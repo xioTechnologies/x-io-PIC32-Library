@@ -23,7 +23,6 @@ void PrintResetReason() {
     PLIB_RESET_ReasonClear(RESET_ID_0, RESET_REASON_ALL);
 
     // Print reset reasons common to all devices
-    printf("\r\n");
     if ((resetReason & RESET_REASON_NONE) != 0) {
         printf("RESET_REASON_NONE\r\n");
     }
