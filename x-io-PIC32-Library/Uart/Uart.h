@@ -41,7 +41,7 @@ typedef enum {
  */
 typedef struct {
     uint32_t baudRate;
-    bool ctsRtsEnabled;
+    bool rtsCtsEnabled;
     UartParityAndData parityAndData;
     UartStopBits stopBits;
     bool invertDataLines;

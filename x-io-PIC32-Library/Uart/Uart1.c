@@ -64,7 +64,7 @@ void Uart1Initialise(const UartSettings * const settings) {
     Uart1Disable();
 
     // Configure UART
-    if (settings->ctsRtsEnabled == true) {
+    if (settings->rtsCtsEnabled == true) {
         U1MODEbits.UEN = 0b10; // UxTX, UxRX, UxCTS and UxRTS pins are enabled and used
     }
     if (settings->invertDataLines == true) {
@@ -226,7 +226,7 @@ void Uart1WriteString(const char* string) {
  */
 void Uart1ClearReadBuffer() {
     readBufferReadIndex = readBufferWriteIndex & READ_WRITE_BUFFER_INDEX_BIT_MASK;
-    Uart1ReadBufferOverrun();
+    Uart1HasReadBufferOverrun();
 }
 
 /**
@@ -242,7 +242,7 @@ void Uart1ClearWriteBuffer() {
  * @return True if either the hardware receive buffer or software read buffer
  * has overrun.
  */
-bool Uart1ReadBufferOverrun() {
+bool Uart1HasReadBufferOverrun() {
     if (readBufferOverrun == true) {
         readBufferOverrun = false;
         return true;
@@ -254,7 +254,7 @@ bool Uart1ReadBufferOverrun() {
  * @brief Returns true if all data has been transmitted.
  * @return True if all data has been transmitted.
  */
-bool Uart1TransmitionComplete() {
+bool Uart1IsTransmitionComplete() {
     return (SYS_INT_SourceIsEnabled(INT_SOURCE_USART_1_TRANSMIT) == false) && (U1STAbits.TRMT == 1);
 }
 

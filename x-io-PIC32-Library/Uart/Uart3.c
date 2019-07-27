@@ -64,7 +64,7 @@ void Uart3Initialise(const UartSettings * const settings) {
     Uart3Disable();
 
     // Configure UART
-    if (settings->ctsRtsEnabled == true) {
+    if (settings->rtsCtsEnabled == true) {
         U3MODEbits.UEN = 0b10; // UxTX, UxRX, UxCTS and UxRTS pins are enabled and used
     }
     if (settings->invertDataLines == true) {

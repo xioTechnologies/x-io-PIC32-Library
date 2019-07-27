@@ -64,7 +64,7 @@ void Uart6Initialise(const UartSettings * const settings) {
     Uart6Disable();
 
     // Configure UART
-    if (settings->ctsRtsEnabled == true) {
+    if (settings->rtsCtsEnabled == true) {
         U6MODEbits.UEN = 0b10; // UxTX, UxRX, UxCTS and UxRTS pins are enabled and used
     }
     if (settings->invertDataLines == true) {
@@ -226,7 +226,7 @@ void Uart6WriteString(const char* string) {
  */
 void Uart6ClearReadBuffer() {
     readBufferReadIndex = readBufferWriteIndex & READ_WRITE_BUFFER_INDEX_BIT_MASK;
-    Uart6ReadBufferOverrun();
+    Uart6HasReadBufferOverrun();
 }
 
 /**
@@ -242,7 +242,7 @@ void Uart6ClearWriteBuffer() {
  * @return True if either the hardware receive buffer or software read buffer
  * has overrun.
  */
-bool Uart6ReadBufferOverrun() {
+bool Uart6HasReadBufferOverrun() {
     if (readBufferOverrun == true) {
         readBufferOverrun = false;
         return true;
@@ -254,7 +254,7 @@ bool Uart6ReadBufferOverrun() {
  * @brief Returns true if all data has been transmitted.
  * @return True if all data has been transmitted.
  */
-bool Uart6TransmitionComplete() {
+bool Uart6IsTransmitionComplete() {
     return (SYS_INT_SourceIsEnabled(INT_SOURCE_USART_6_TRANSMIT) == false) && (U6STAbits.TRMT == 1);
 }
 

@@ -29,7 +29,7 @@
 
 const UartSettings uartSettingsDefault = {
     .baudRate = 115200,
-    .ctsRtsEnabled = false,
+    .rtsCtsEnabled = false,
     .parityAndData = EightBitNoParity,
     .stopBits = OneStopBit,
     .invertDataLines = false,
