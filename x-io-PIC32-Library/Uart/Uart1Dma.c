@@ -39,7 +39,7 @@ void Uart1DmaInitialise(const UartSettings * const settings, const UartDmaReadCo
     Uart1DmaDisable();
 
     // Configure UART
-    if (settings->ctsRtsEnabled == true) {
+    if (settings->rtsCtsEnabled == true) {
         U1MODEbits.UEN = 0b10; // UxTX, UxRX, UxCTS and UxRTS pins are enabled and used
     }
     if (settings->invertDataLines == true) {
