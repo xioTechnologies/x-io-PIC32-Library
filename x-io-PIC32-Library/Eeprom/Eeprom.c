@@ -92,12 +92,9 @@ void EepromUpdate(uint16_t address, const void* const data, const size_t numberO
         }
         uint8_t pageData[EEPROM_PAGE_SIZE];
         EepromRead(address, pageData, chunkSize);
-        //printf("A=%u, S=%u", address, (unsigned int) chunkSize);
         if (memcmp(dataByte, pageData, chunkSize) != 0) {
             EepromWrite(address, dataByte, chunkSize);
-            printf(", WRITE");
         }
-        //printf("\r\n");
         address += chunkSize;
         dataByte += chunkSize;
     }
