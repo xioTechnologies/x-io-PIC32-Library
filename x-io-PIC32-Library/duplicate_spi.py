@@ -18,8 +18,8 @@ spi5_text = ["Spi5", "SPI5"]
 spi6_files = ["Spi/Spi6Dma.c", "Spi/Spi6Dma.h"]
 spi6_text = ["Spi6", "SPI6"]
 
-source_files = spi2_files # files to be duplicated
-old_text = spi2_text # text to be replaced in duplicated files
+source_files = spi2_files  # files to be duplicated
+old_text = spi2_text  # text to be replaced in duplicated files
 
 find_and_replace(source_files, spi1_files, old_text, spi1_text)
 find_and_replace(source_files, spi2_files, old_text, spi2_text)
