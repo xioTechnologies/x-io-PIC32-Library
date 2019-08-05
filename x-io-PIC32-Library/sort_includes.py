@@ -1,5 +1,4 @@
 import os
-from os import walk
 
 
 def process_file(file_path):
@@ -16,8 +15,7 @@ def process_file(file_path):
     lines_after_includes = []
     for line in all_lines:
         if line.lstrip()[0:len(hash_include)] == hash_include:
-            include_lines.append(str(line.lstrip()).replace(
-                "<", "\"").replace(">", "\""))
+            include_lines.append(str(line.lstrip()).replace("<", "\"").replace(">", "\""))
             waiting_for_includes = False
             continue
         if waiting_for_includes:
@@ -35,8 +33,7 @@ def process_file(file_path):
     for index, _ in enumerate(include_lines):
         for standard_library in standard_libraries:
             if standard_library in include_lines[index]:
-                include_lines[index] = include_lines[index].replace(
-                    "\"", "<").replace("h<", "h>")
+                include_lines[index] = include_lines[index].replace("\"", "<").replace("h<", "h>")
 
     # Overwrite original file
     with open(file_path, "w") as file:
