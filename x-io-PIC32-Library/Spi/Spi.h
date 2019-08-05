@@ -16,8 +16,7 @@
 // Definitions
 
 /**
- * @brief SPI clock polarity enumeration.  Values equal the CKP bit of the
- * SPIxCON register.
+ * @brief SPI clock polarity.  Values equal the CKP bit of the SPIxCON register.
  */
 typedef enum {
     SpiClockPolarityIdleLow,
@@ -25,8 +24,7 @@ typedef enum {
 } SpiClockPolarity;
 
 /**
- * @brief SPI clock phase enumeration.  Values equal the CKE bit of the
- * SPIxCON register.
+ * @brief SPI clock phase.  Values equal the CKE bit of the SPIxCON register.
  */
 typedef enum {
     SpiClockPhaseIdleToActive,
@@ -34,7 +32,7 @@ typedef enum {
 } SpiClockPhase;
 
 /**
- * @brief SPI settings structure.
+ * @brief SPI settings.
  */
 typedef struct {
     uint32_t clockFrequency;

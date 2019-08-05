@@ -28,7 +28,7 @@
 // Variables
 
 const SpiSettings spiSettingsDefault = {
-    .clockFrequency = 10000000,
+    .clockFrequency = 5000000,
     .clockPolarity = SpiClockPolarityIdleHigh,
     .clockPhase = SpiClockPhaseIdleToActive,
 };

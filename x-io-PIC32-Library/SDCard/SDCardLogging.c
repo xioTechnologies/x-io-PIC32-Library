@@ -34,7 +34,7 @@
 #define DEBUG_ENABLED
 
 /**
- * @brief State enumeration.
+ * @brief State.
  */
 typedef enum {
     StateDisabled,

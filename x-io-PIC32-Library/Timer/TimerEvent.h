@@ -19,8 +19,8 @@
 // Definitions
 
 /**
- * @brief Timer event structure.  Structure members are used internally and must
- * not be accessed by the application.
+ * @brief Timer event.  Structure members are used internally and must not be
+ * accessed by the application.
  */
 typedef struct {
     bool enabled;
