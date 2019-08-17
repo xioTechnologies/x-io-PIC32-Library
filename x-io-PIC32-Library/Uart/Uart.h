@@ -20,18 +20,18 @@
  * @brief UART parity and data.  Values equal to PDSEL bits of UxMODE register.
  */
 typedef enum {
-    EightBitNoParity,
-    EightBitEvenParity,
-    EightBitOddParity,
-    NineBitNoParity,
+    UartParityAndDataEightNone,
+    UartParityAndDataEightEven,
+    UartParityAndDataEightOdd,
+    UartParityAndDataNineNone,
 } UartParityAndData;
 
 /**
  * @brief UART stop bits.  Values equal to STSEL bits of UxMODE register.
  */
 typedef enum {
-    OneStopBit,
-    TwoStopBits,
+    UartStopBitsOne,
+    UartStopBitsTwo,
 } UartStopBits;
 
 /**
