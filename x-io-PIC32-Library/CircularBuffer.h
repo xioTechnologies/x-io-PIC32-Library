@@ -25,7 +25,7 @@
  * @param destination Destination.
  * @param numberOfBytes Number of bytes.
  */
-static inline __attribute__((always_inline)) void CircularBufferRead(const uint8_t * const buffer, const size_t bufferSize, uint32_t * const bufferReadIndex, void* const destination, const size_t numberOfBytes) {
+static inline __attribute__((always_inline)) void CircularBufferRead(const uint8_t * const buffer, const size_t bufferSize, int* const bufferReadIndex, void* const destination, const size_t numberOfBytes) {
     if ((*bufferReadIndex + numberOfBytes) >= bufferSize) {
         const size_t numberOfBytesBeforeWraparound = bufferSize - *bufferReadIndex;
         memcpy(destination, &buffer[*bufferReadIndex], numberOfBytesBeforeWraparound);
@@ -46,7 +46,7 @@ static inline __attribute__((always_inline)) void CircularBufferRead(const uint8
  * @param data Data.
  * @param numberOfBytes Number of bytes.
  */
-static inline __attribute__((always_inline)) void CircularBufferWrite(uint8_t * const buffer, const size_t bufferSize, uint32_t * const bufferWriteIndex, const void* const data, const size_t numberOfBytes) {
+static inline __attribute__((always_inline)) void CircularBufferWrite(uint8_t * const buffer, const size_t bufferSize, int* const bufferWriteIndex, const void* const data, const size_t numberOfBytes) {
     if ((*bufferWriteIndex + numberOfBytes) >= bufferSize) {
         const size_t numberOfBytesBeforeWraparound = bufferSize - *bufferWriteIndex;
         memcpy(&buffer[*bufferWriteIndex], data, numberOfBytesBeforeWraparound);

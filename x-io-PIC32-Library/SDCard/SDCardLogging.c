@@ -64,8 +64,8 @@ static State state = StateDisabled;
 static uint64_t fileStartTicks;
 static uint32_t fileSize;
 static uint8_t __attribute__((persistent)) buffer[WRITE_BUFFER_SIZE];
-static uint32_t bufferWriteIndex;
-static uint32_t bufferReadIndex;
+static int bufferWriteIndex;
+static int bufferReadIndex;
 #ifdef DEBUG_ENABLED
 static uint32_t maxWritePeriod;
 static uint32_t maxbufferUsed;
@@ -268,14 +268,14 @@ static int WriteToFile() {
     }
 
     // Do nothing else if no data avaliable
-    const uint32_t bufferWriteIndexCache = bufferWriteIndex; // avoid asynchronous hazard
+    const int bufferWriteIndexCache = bufferWriteIndex; // avoid asynchronous hazard
     if (bufferReadIndex == bufferWriteIndexCache) {
         return 0;
     }
 
     // Calculate number of bytes to write
     size_t numberOfBytes;
-    uint32_t newbufferReadIndex;
+    int newbufferReadIndex;
     if (bufferWriteIndexCache < bufferReadIndex) {
         numberOfBytes = WRITE_BUFFER_SIZE - bufferReadIndex;
         newbufferReadIndex = 0;
@@ -414,7 +414,7 @@ static void CreateFileNameUsingTime(char* const destination, const size_t destin
     const uint64_t filePeriod = (TimerGetTicks64() - fileStartTicks) / TIMER_TICKS_PER_SECOND;
 
     // Create available file name
-    uint32_t counter = 0;
+    int counter = 0;
     while (true) {
 
         // Create counter string

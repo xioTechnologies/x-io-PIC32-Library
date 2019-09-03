@@ -65,7 +65,7 @@ void EepromWrite(uint16_t address, const void* const data, const size_t numberOf
     int currentPageIndex = address / EEPROM_PAGE_SIZE;
     while (address < endAddress) {
         EepromHalI2CSend(*dataByte++);
-        const uint32_t nextPageIndex = ++address / EEPROM_PAGE_SIZE;
+        const int nextPageIndex = ++address / EEPROM_PAGE_SIZE;
         if (nextPageIndex != currentPageIndex) { // if crossing page boundary
             currentPageIndex = nextPageIndex;
             EepromHalI2CStop();

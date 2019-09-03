@@ -47,11 +47,11 @@ static uint8_t readRequestData[64];
 static bool readInProgress;
 static bool writeInProgress;
 static uint8_t readBuffer[READ_WRITE_BUFFER_SIZE];
-static uint32_t readBufferWriteIndex;
-static uint32_t readBufferReadIndex;
+static int readBufferWriteIndex;
+static int readBufferReadIndex;
 static uint8_t writeBuffer[READ_WRITE_BUFFER_SIZE];
-static uint32_t writeBufferWriteIndex;
-static uint32_t writeBufferReadIndex;
+static int writeBufferWriteIndex;
+static int writeBufferReadIndex;
 
 //------------------------------------------------------------------------------
 // Functions
@@ -193,7 +193,7 @@ static void WriteTasks() {
     if (numberOfBytes > sizeof (buffer)) {
         numberOfBytes = sizeof (buffer);
     }
-    uint32_t writeBufferReadIndexCache = writeBufferReadIndex & READ_WRITE_BUFFER_INDEX_BIT_MASK;
+    int writeBufferReadIndexCache = writeBufferReadIndex & READ_WRITE_BUFFER_INDEX_BIT_MASK;
     CircularBufferRead(writeBuffer, READ_WRITE_BUFFER_SIZE, &writeBufferReadIndexCache, buffer, numberOfBytes);
 
     // Schedule write

@@ -40,7 +40,7 @@ typedef enum {
  * not be accessed by the application.
  */
 typedef struct {
-    uint32_t index;
+    int index;
     I2CMessageEvent event[I2C_MESSAGE_MAX_LENGTH + 1];
     uint8_t data[I2C_MESSAGE_MAX_LENGTH];
     uint8_t* destination[I2C_MESSAGE_MAX_LENGTH];

@@ -45,11 +45,11 @@ static inline __attribute__((always_inline)) void TXInterruptTasks();
 
 static bool readBufferOverrun;
 static uint8_t readBuffer[READ_WRITE_BUFFER_SIZE];
-static uint32_t readBufferWriteIndex;
-static uint32_t readBufferReadIndex;
+static int readBufferWriteIndex;
+static int readBufferReadIndex;
 static uint8_t writeBuffer[READ_WRITE_BUFFER_SIZE];
-static uint32_t writeBufferWriteIndex;
-static uint32_t writeBufferReadIndex;
+static int writeBufferWriteIndex;
+static int writeBufferReadIndex;
 
 //------------------------------------------------------------------------------
 // Functions
