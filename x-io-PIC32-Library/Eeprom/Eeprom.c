@@ -126,9 +126,9 @@ static void StartSequence(const uint16_t address) {
  */
 void EepromErase() {
     const uint8_t blankPage[] = {[0 ... (EEPROM_PAGE_SIZE - 1)] = 0xFF};
-    int pageIndex;
-    for (pageIndex = 0; pageIndex < (EEPROM_SIZE / EEPROM_PAGE_SIZE); pageIndex++) {
-        EepromWrite(pageIndex * EEPROM_PAGE_SIZE, (uint8_t*) blankPage, sizeof (blankPage));
+    int index;
+    for (index = 0; index < (EEPROM_SIZE / EEPROM_PAGE_SIZE); index++) {
+        EepromWrite(index * EEPROM_PAGE_SIZE, (uint8_t*) blankPage, sizeof (blankPage));
     }
 }
 
@@ -137,10 +137,10 @@ void EepromErase() {
  * @return True if the EEPROM is blank.
  */
 bool EepromIsBlank() {
-    int pageIndex;
-    for (pageIndex = 0; pageIndex < (EEPROM_SIZE / EEPROM_PAGE_SIZE); pageIndex++) {
+    int index;
+    for (index = 0; index < (EEPROM_SIZE / EEPROM_PAGE_SIZE); index++) {
         uint8_t pageData[EEPROM_PAGE_SIZE];
-        EepromRead(pageIndex * EEPROM_PAGE_SIZE, pageData, sizeof (pageData));
+        EepromRead(index * EEPROM_PAGE_SIZE, pageData, sizeof (pageData));
         const uint8_t blankPage[] = {[0 ... (EEPROM_PAGE_SIZE - 1)] = 0xFF};
         if (memcmp(blankPage, pageData, sizeof (pageData)) != 0) {
             return false;

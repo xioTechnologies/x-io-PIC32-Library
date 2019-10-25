@@ -35,7 +35,7 @@ typedef struct {
 typedef struct {
     void (*writePreamble)();
     void (*fileNameNumberChanged)(const uint32_t fileNameNumber);
-} SDCardLoggingCallbackFunctions;
+} SDCardLoggingCallbacks;
 
 /**
  * @brief SD card logging status.
@@ -50,7 +50,7 @@ typedef enum {
 // Function prototypes
 
 void SDCardLoggingSetSettings(const SDCardLoggingSettings * const settings);
-void SDCardLoggingSetCallbackFunctions(const SDCardLoggingCallbackFunctions * const callbackFunctions);
+void SDCardLoggingSetCallbacks(const SDCardLoggingCallbacks * const callbacks);
 void SDCardLoggingStart();
 void SDCardLoggingStop();
 SDCardLoggingStatus SDCardLoggingGetSatus();

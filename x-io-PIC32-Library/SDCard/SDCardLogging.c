@@ -59,7 +59,7 @@ static void PrintStatistics();
 // Variables
 
 static SDCardLoggingSettings currentSettings;
-static SDCardLoggingCallbackFunctions applicationCallbackFunctions;
+static SDCardLoggingCallbacks applicationCallbacks;
 static State state = StateDisabled;
 static uint64_t fileStartTicks;
 static uint32_t fileSize;
@@ -101,10 +101,10 @@ void SDCardLoggingSetSettings(const SDCardLoggingSettings * const settings) {
 
 /**
  * @brief Sets the callback functions.
- * @param callbackFunctions Callback functions.
+ * @param callbacks Callback functions.
  */
-void SDCardLoggingSetCallbackFunctions(const SDCardLoggingCallbackFunctions * const callbackFunctions) {
-    applicationCallbackFunctions = *callbackFunctions;
+void SDCardLoggingSetCallbacks(const SDCardLoggingCallbacks * const callbacks) {
+    applicationCallbacks = *callbacks;
 }
 
 /**
@@ -233,8 +233,8 @@ static int OpenFile() {
     }
 
     // Write preamble
-    if (applicationCallbackFunctions.writePreamble != NULL) {
-        applicationCallbackFunctions.writePreamble(); // use SDCardFileWrite to write preamble
+    if (applicationCallbacks.writePreamble != NULL) {
+        applicationCallbacks.writePreamble(); // use SDCardFileWrite to write preamble
     }
 
     // Reset statistics
@@ -381,8 +381,8 @@ static void CreateFileNameUsingNumber(char* const destination, const size_t dest
             currentSettings.fileNameNumber = 0;
         }
         if (SDCardDirectoryExists(destination) == false) {
-            if (applicationCallbackFunctions.fileNameNumberChanged != NULL) {
-                applicationCallbackFunctions.fileNameNumberChanged(currentSettings.fileNameNumber);
+            if (applicationCallbacks.fileNameNumberChanged != NULL) {
+                applicationCallbacks.fileNameNumberChanged(currentSettings.fileNameNumber);
             }
             break;
         }

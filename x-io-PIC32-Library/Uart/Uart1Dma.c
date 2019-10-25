@@ -181,7 +181,7 @@ void Uart1DmaDisable() {
  * an interrupt each time a read condition is met.
  * @param read Read callback function.
  */
-void Uart1DmaSetCallbackFunction(void (*read)(const void* const data, const size_t numberOfBytes)) {
+void Uart1DmaSetCallback(void (*read)(const void* const data, const size_t numberOfBytes)) {
     SYS_INT_SourceDisable(INT_SOURCE_DMA_3);
     readCallback = read;
     SYS_INT_SourceEnable(INT_SOURCE_DMA_3);

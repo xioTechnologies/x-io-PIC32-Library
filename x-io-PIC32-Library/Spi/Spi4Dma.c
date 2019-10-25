@@ -108,7 +108,7 @@ void Spi4DmaDisable() {
  * will be called from within an interrupt once the transfer is complete.
  * @param transferComplete Transfer complete callback function.
  */
-void Spi4DmaSetCallbackFunction(void (*transferComplete)()) {
+void Spi4DmaSetCallback(void (*transferComplete)()) {
     SYS_INT_SourceDisable(INT_SOURCE_DMA_1);
     transferCompleteCallback = transferComplete;
     SYS_INT_SourceEnable(INT_SOURCE_DMA_1);
