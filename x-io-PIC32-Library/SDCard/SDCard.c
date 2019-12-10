@@ -138,6 +138,16 @@ bool SDCardIsMounted() {
 }
 
 /**
+ * @brief Sets the volume label.
+ * @param label Label.
+ */
+void SDCardSetVolumeLabel(const char* const label) {
+    if (SYS_FS_DriveLabelSet(MOUNT_NAME, label) != SYS_FS_RES_SUCCESS) {
+        PrintFileSystemError("SYS_FS_DriveLabelSet", SYS_FS_Error());
+    }
+}
+
+/**
  * @brief Opens a file in either read or write mode.  Opening a file in write
  * mode will overwrite the file if it already exists.
  * @param fileName File name.
@@ -262,6 +272,16 @@ void SDCardFileRename(const char* const fileName, const char* const newFileName)
 }
 
 /**
+ * @brief Deletes a file.  The file must be closed before it is deleted.
+ * @param fileName File name.
+ */
+void SDCardFileDelete(const char* const fileName) {
+    if (SYS_FS_FileDirectoryRemove(fileName) != SYS_FS_RES_SUCCESS) {
+        PrintFileSystemError("SYS_FS_FileDirectoryRemove", SYS_FS_Error());
+    }
+}
+
+/**
  * @brief Opens the root directory.
  */
 void SDCardDirectoryOpen() {
@@ -364,79 +384,79 @@ void SDCardDirectoryClose() {
  */
 static void PrintFileSystemError(const char* functionName, const SYS_FS_ERROR sysFSError) {
 #ifdef PRINT_FILE_SYSTEM_ERRORS
-    char* error = (char*) &"";
+    char* error = "";
     switch (sysFSError) {
         case SYS_FS_ERROR_OK:
-            error = (char*) &"SYS_FS_ERROR_OK";
+            error = "SYS_FS_ERROR_OK";
             break;
         case SYS_FS_ERROR_DISK_ERR:
-            error = (char*) &"SYS_FS_ERROR_DISK_ERR";
+            error = "SYS_FS_ERROR_DISK_ERR";
             break;
         case SYS_FS_ERROR_INT_ERR:
-            error = (char*) &"SYS_FS_ERROR_INT_ERR";
+            error = "SYS_FS_ERROR_INT_ERR";
             break;
         case SYS_FS_ERROR_NOT_READY:
-            error = (char*) &"SYS_FS_ERROR_NOT_READY";
+            error = "SYS_FS_ERROR_NOT_READY";
             break;
         case SYS_FS_ERROR_NO_FILE:
-            error = (char*) &"SYS_FS_ERROR_NO_FILE";
+            error = "SYS_FS_ERROR_NO_FILE";
             break;
         case SYS_FS_ERROR_NO_PATH:
-            error = (char*) &"SYS_FS_ERROR_NO_PATH";
+            error = "SYS_FS_ERROR_NO_PATH";
             break;
         case SYS_FS_ERROR_INVALID_NAME:
-            error = (char*) &"SYS_FS_ERROR_INVALID_NAME";
+            error = "SYS_FS_ERROR_INVALID_NAME";
             break;
         case SYS_FS_ERROR_DENIED:
-            error = (char*) &"SYS_FS_ERROR_DENIED";
+            error = "SYS_FS_ERROR_DENIED";
             break;
         case SYS_FS_ERROR_EXIST:
-            error = (char*) &"SYS_FS_ERROR_EXIST";
+            error = "SYS_FS_ERROR_EXIST";
             break;
         case SYS_FS_ERROR_INVALID_OBJECT:
-            error = (char*) &"SYS_FS_ERROR_INVALID_OBJECT";
+            error = "SYS_FS_ERROR_INVALID_OBJECT";
             break;
         case SYS_FS_ERROR_WRITE_PROTECTED:
-            error = (char*) &"SYS_FS_ERROR_WRITE_PROTECTED";
+            error = "SYS_FS_ERROR_WRITE_PROTECTED";
             break;
         case SYS_FS_ERROR_INVALID_DRIVE:
-            error = (char*) &"SYS_FS_ERROR_INVALID_DRIVE";
+            error = "SYS_FS_ERROR_INVALID_DRIVE";
             break;
         case SYS_FS_ERROR_NOT_ENABLED:
-            error = (char*) &"SYS_FS_ERROR_NOT_ENABLED";
+            error = "SYS_FS_ERROR_NOT_ENABLED";
             break;
         case SYS_FS_ERROR_NO_FILESYSTEM:
-            error = (char*) &"SYS_FS_ERROR_NO_FILESYSTEM";
+            error = "SYS_FS_ERROR_NO_FILESYSTEM";
             break;
         case SYS_FS_ERROR_FORMAT_ABORTED:
-            error = (char*) &"SYS_FS_ERROR_FORMAT_ABORTED";
+            error = "SYS_FS_ERROR_FORMAT_ABORTED";
             break;
         case SYS_FS_ERROR_TIMEOUT:
-            error = (char*) &"SYS_FS_ERROR_TIMEOUT";
+            error = "SYS_FS_ERROR_TIMEOUT";
             break;
         case SYS_FS_ERROR_LOCKED:
-            error = (char*) &"SYS_FS_ERROR_LOCKED";
+            error = "SYS_FS_ERROR_LOCKED";
             break;
         case SYS_FS_ERROR_NOT_ENOUGH_CORE:
-            error = (char*) &"SYS_FS_ERROR_NOT_ENOUGH_CORE";
+            error = "SYS_FS_ERROR_NOT_ENOUGH_CORE";
             break;
         case SYS_FS_ERROR_TOO_MANY_OPEN_FILES:
-            error = (char*) &"SYS_FS_ERROR_TOO_MANY_OPEN_FILES";
+            error = "SYS_FS_ERROR_TOO_MANY_OPEN_FILES";
             break;
         case SYS_FS_ERROR_INVALID_PARAMETER:
-            error = (char*) &"SYS_FS_ERROR_INVALID_PARAMETER";
+            error = "SYS_FS_ERROR_INVALID_PARAMETER";
             break;
         case SYS_FS_ERROR_NOT_ENOUGH_FREE_VOLUME:
-            error = (char*) &"SYS_FS_ERROR_NOT_ENOUGH_FREE_VOLUME";
+            error = "SYS_FS_ERROR_NOT_ENOUGH_FREE_VOLUME";
             break;
         case SYS_FS_ERROR_FS_NOT_SUPPORTED:
-            error = (char*) &"SYS_FS_ERROR_FS_NOT_SUPPORTED";
+            error = "SYS_FS_ERROR_FS_NOT_SUPPORTED";
             break;
         case SYS_FS_ERROR_FS_NOT_MATCH_WITH_VOLUME:
-            error = (char*) &"SYS_FS_ERROR_FS_NOT_MATCH_WITH_VOLUME";
+            error = "SYS_FS_ERROR_FS_NOT_MATCH_WITH_VOLUME";
             break;
         case SYS_FS_ERROR_NOT_SUPPORTED_IN_NATIVE_FS:
-            error = (char*) &"SYS_FS_ERROR_NOT_SUPPORTED_IN_NATIVE_FS";
+            error = "SYS_FS_ERROR_NOT_SUPPORTED_IN_NATIVE_FS";
             break;
     }
     printf("%s: %s\r\n", functionName, error);
