@@ -42,7 +42,8 @@ void UsbMsdTasks() {
  */
 static void APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void* eventData, uintptr_t context) {
     switch (event) {
-        case USB_DEVICE_EVENT_RESET: // fall-through to next case
+        case USB_DEVICE_EVENT_RESET:
+        case USB_DEVICE_EVENT_SUSPENDED:
         case USB_DEVICE_EVENT_DECONFIGURED:
             isConfigured = false;
             break;
@@ -56,7 +57,6 @@ static void APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void* eventData, u
             break;
         case USB_DEVICE_EVENT_POWER_REMOVED:
             USB_DEVICE_Detach(usbDeviceHandle);
-            isConfigured = false;
             break;
         default:
             break;
