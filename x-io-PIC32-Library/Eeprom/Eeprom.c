@@ -203,7 +203,7 @@ static void PrintLine(const uint16_t address, const uint8_t * const data) {
         if ((data[index] >= 0x20) && (data[index] <= 0x7E)) { // if printable character
             printf(" %c ", (char) data[index]);
         } else {
-            printf("%02X ", (uint8_t) data[index]);
+            printf("%02X ", data[index]);
         }
     }
     printf("\r\n");
