@@ -28,7 +28,7 @@ void Uart3WriteByte(const uint8_t byte);
 void Uart3WriteString(const char* string);
 void Uart3ClearReadBuffer();
 void Uart3ClearWriteBuffer();
-bool Uart3HasReadBufferOverrun();
+bool Uart3HasReceiveBufferOverrun();
 bool Uart3IsTransmitionComplete();
 
 #endif

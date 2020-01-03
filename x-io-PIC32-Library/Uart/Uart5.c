@@ -43,7 +43,7 @@ static inline __attribute__((always_inline)) void TXInterruptTasks();
 //------------------------------------------------------------------------------
 // Variables
 
-static bool readBufferOverrun;
+static bool receiveBufferOverrun;
 static uint8_t readBuffer[READ_WRITE_BUFFER_SIZE];
 static int readBufferWriteIndex;
 static int readBufferReadIndex;
@@ -119,13 +119,14 @@ size_t Uart5GetReadAvailable() {
 
     // Trigger RX interrupt if hardware receive buffer not empty
     if (U5STAbits.URXDA == 1) {
+        SYS_INT_SourceEnable(INT_SOURCE_USART_5_RECEIVE);
         SYS_INT_SourceStatusSet(INT_SOURCE_USART_5_RECEIVE);
     }
 
     // Clear hardware receive buffer overrun flag
     if (U5STAbits.OERR == 1) {
         U5STAbits.OERR = 0;
-        readBufferOverrun = true;
+        receiveBufferOverrun = true;
     }
 
     // Return number of bytes
@@ -226,7 +227,7 @@ void Uart5WriteString(const char* string) {
  */
 void Uart5ClearReadBuffer() {
     readBufferReadIndex = readBufferWriteIndex & READ_WRITE_BUFFER_INDEX_BIT_MASK;
-    Uart5HasReadBufferOverrun();
+    Uart5HasReceiveBufferOverrun();
 }
 
 /**
@@ -237,14 +238,13 @@ void Uart5ClearWriteBuffer() {
 }
 
 /**
- * @brief Returns true if either the hardware receive buffer or software read
- * buffer has overrun.  Calling this function will reset the flag.
- * @return True if either the hardware receive buffer or software read buffer
- * has overrun.
+ * @brief Returns true if the hardware receive buffer has overrun. Calling this
+ * function will reset the flag.
+ * @return True if the hardware receive buffer has overrun.
  */
-bool Uart5HasReadBufferOverrun() {
-    if (readBufferOverrun == true) {
-        readBufferOverrun = false;
+bool Uart5HasReceiveBufferOverrun() {
+    if (receiveBufferOverrun == true) {
+        receiveBufferOverrun = false;
         return true;
     }
     return false;
@@ -302,11 +302,11 @@ void __ISR(_UART5_TX_VECTOR) Uart5TxInterrupt() {
  */
 static inline __attribute__((always_inline)) void RXInterruptTasks() {
     while (U5STAbits.URXDA == 1) { // repeat while data available in receive buffer
-        const uint8_t byte = U5RXREG;
-        if (readBufferWriteIndex == ((readBufferReadIndex & READ_WRITE_BUFFER_INDEX_BIT_MASK) - 1)) {
-            readBufferOverrun = true;
+        if (((readBufferReadIndex - readBufferWriteIndex) & READ_WRITE_BUFFER_INDEX_BIT_MASK) == 1) { // if read buffer full
+            SYS_INT_SourceDisable(INT_SOURCE_USART_5_RECEIVE);
+            break;
         } else {
-            readBuffer[readBufferWriteIndex++ & READ_WRITE_BUFFER_INDEX_BIT_MASK] = byte;
+            readBuffer[readBufferWriteIndex++ & READ_WRITE_BUFFER_INDEX_BIT_MASK] = U5RXREG;
         }
     }
     SYS_INT_SourceStatusClear(INT_SOURCE_USART_5_RECEIVE);

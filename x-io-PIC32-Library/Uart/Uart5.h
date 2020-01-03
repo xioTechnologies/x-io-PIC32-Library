@@ -28,7 +28,7 @@ void Uart5WriteByte(const uint8_t byte);
 void Uart5WriteString(const char* string);
 void Uart5ClearReadBuffer();
 void Uart5ClearWriteBuffer();
-bool Uart5HasReadBufferOverrun();
+bool Uart5HasReceiveBufferOverrun();
 bool Uart5IsTransmitionComplete();
 
 #endif
