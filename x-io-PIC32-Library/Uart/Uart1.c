@@ -32,7 +32,7 @@
 /**
  * @brief TX and RX interrupt priority.
  */
-#define INTERRUPT_PRIORITY (INT_PRIORITY_LEVEL2)
+#define INTERRUPT_PRIORITY (INT_PRIORITY_LEVEL4)
 
 //------------------------------------------------------------------------------
 // Function prototypes
