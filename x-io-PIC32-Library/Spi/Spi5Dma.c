@@ -54,7 +54,7 @@ void Spi5DmaInitialise(const SpiSettings * const settings) {
     DCH1INTbits.CHBCIE = 1; // Channel Block Transfer Complete Interrupt Enable bit
 
     // Configure RX DMA channel interrupt
-    SYS_INT_VectorPrioritySet(_DMA1_VECTOR, INT_PRIORITY_LEVEL5);
+    SYS_INT_VectorPrioritySet(_DMA1_VECTOR, INT_PRIORITY_LEVEL4);
     SYS_INT_SourceStatusClear(INT_SOURCE_DMA_1);
     SYS_INT_SourceEnable(INT_SOURCE_DMA_1);
 }

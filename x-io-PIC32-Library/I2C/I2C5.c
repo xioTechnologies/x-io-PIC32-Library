@@ -56,7 +56,7 @@ void I2C5Initialise(const I2CClockFrequency clockFrequency) {
     I2C5CONbits.I2CEN = 1; // Enables the I2C module and configures the SDA and SCL pins as serial port pins
 
     // Configure interrupt
-    SYS_INT_VectorPrioritySet(INTERRUPT_VECTOR, INT_PRIORITY_LEVEL5);
+    SYS_INT_VectorPrioritySet(INTERRUPT_VECTOR, INT_PRIORITY_LEVEL4);
 }
 
 /**
