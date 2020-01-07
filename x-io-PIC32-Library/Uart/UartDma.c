@@ -41,7 +41,7 @@ const UartDmaReadConditions uartDmaReadConditionsDefault = {
  * @param timeout Timeout in milliseconds.
  * @return Timer reset value.
  */
-uint32_t UartDmaCalculateTimerRestValue(const uint32_t timeout) {
+uint32_t UartDmaCalculateTimerResetValue(const uint32_t timeout) {
     return UINT32_MAX - (timeout * (TIMER_PERIPHERAL_CLOCK / 1000));
 }
 

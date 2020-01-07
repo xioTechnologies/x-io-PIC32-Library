@@ -21,7 +21,7 @@
 /**
  * @brief Buffer size.
  */
-#define WRITE_BUFFER_SIZE (400000)
+#define BUFFER_SIZE (400000)
 
 /**
  * @brief File name used while the file is open.
@@ -29,9 +29,9 @@
 #define FILE_NAME "File"
 
 /**
- * @brief Comment out this definition to disable printing of debug messages.
+ * @brief Comment out this definition to disable printing of statistics.
  */
-#define DEBUG_ENABLED
+//#define PRINT_STATISTICS
 
 /**
  * @brief State.
@@ -53,7 +53,9 @@ static int WriteToFile();
 static int CloseFile();
 static void CreateFileNameUsingNumber(char* const destination, const size_t destinationSize);
 static void CreateFileNameUsingTime(char* const destination, const size_t destinationSize);
+#ifdef PRINT_STATISTICS
 static void PrintStatistics();
+#endif
 
 //------------------------------------------------------------------------------
 // Variables
@@ -63,10 +65,10 @@ static SDCardLoggingCallbacks applicationCallbacks;
 static State state = StateDisabled;
 static uint64_t fileStartTicks;
 static uint32_t fileSize;
-static uint8_t __attribute__((persistent)) buffer[WRITE_BUFFER_SIZE];
+static uint8_t __attribute__((persistent)) buffer[BUFFER_SIZE];
 static int bufferWriteIndex;
 static int bufferReadIndex;
-#ifdef DEBUG_ENABLED
+#ifdef PRINT_STATISTICS
 static uint32_t maxWritePeriod;
 static uint32_t maxbufferUsed;
 static bool bufferOverrun;
@@ -111,7 +113,7 @@ void SDCardLoggingSetCallbacks(const SDCardLoggingCallbacks * const callbacks) {
  * @breif Starts logging.
  */
 void SDCardLoggingStart() {
-#ifdef DEBUG_ENABLED
+#ifdef PRINT_STATISTICS
     printf("Start\r\n");
 #endif
     switch (state) {
@@ -131,7 +133,7 @@ void SDCardLoggingStart() {
  * @breif Stops logging.
  */
 void SDCardLoggingStop() {
-#ifdef DEBUG_ENABLED
+#ifdef PRINT_STATISTICS
     printf("Stop\r\n");
 #endif
     switch (state) {
@@ -209,7 +211,9 @@ static void StateOpenTasks() {
  * @brief Write state tasks.
  */
 static void StateWriteTasks() {
+#ifdef PRINT_STATISTICS
     PrintStatistics();
+#endif
     if (WriteToFile() != 0) {
         state = StateError;
     }
@@ -220,13 +224,13 @@ static void StateWriteTasks() {
  * @return 0 if successful.
  */
 static int OpenFile() {
-#ifdef DEBUG_ENABLED
+#ifdef PRINT_STATISTICS
     printf("Open\r\n");
 #endif
 
     // Open file
     if (SDCardFileOpen(FILE_NAME, true) != SDCardErrorOK) {
-#ifdef DEBUG_ENABLED
+#ifdef PRINT_STATISTICS
         printf("Open failed\r\n");
 #endif
         return 1;
@@ -240,7 +244,7 @@ static int OpenFile() {
     // Reset statistics
     fileStartTicks = TimerGetTicks64();
     fileSize = SDCardFileGetSize();
-#ifdef DEBUG_ENABLED
+#ifdef PRINT_STATISTICS
     maxWritePeriod = 0;
     maxbufferUsed = 0;
     bufferOverrun = false;
@@ -257,7 +261,7 @@ static int WriteToFile() {
     // Restart logging if maximum file period reached
     if (currentSettings.maximumFilePeriod > 0) {
         if (TimerGetTicks64() >= (fileStartTicks + currentSettings.maximumFilePeriod)) {
-#ifdef DEBUG_ENABLED
+#ifdef PRINT_STATISTICS
             printf("Exceeded maximum file period\r\n");
 #endif
             if ((CloseFile() != 0) || (OpenFile() != 0)) {
@@ -277,7 +281,7 @@ static int WriteToFile() {
     size_t numberOfBytes;
     int newbufferReadIndex;
     if (bufferWriteIndexCache < bufferReadIndex) {
-        numberOfBytes = WRITE_BUFFER_SIZE - bufferReadIndex;
+        numberOfBytes = BUFFER_SIZE - bufferReadIndex;
         newbufferReadIndex = 0;
     } else {
         numberOfBytes = bufferWriteIndexCache - bufferReadIndex;
@@ -287,7 +291,7 @@ static int WriteToFile() {
     // Restart logging if maximum file size reached
     if (currentSettings.maximumFileSize > 0) {
         if (((uint64_t) fileSize + (uint64_t) numberOfBytes) >= (uint64_t) currentSettings.maximumFileSize) {
-#ifdef DEBUG_ENABLED
+#ifdef PRINT_STATISTICS
             printf("Exceeded maximum file size\r\n");
 #endif
             if ((CloseFile() != 0) || (OpenFile() != 0)) {
@@ -298,13 +302,13 @@ static int WriteToFile() {
     }
 
     // Write data
-#ifdef DEBUG_ENABLED
+#ifdef PRINT_STATISTICS
     const uint64_t writeStartTicks = TimerGetTicks64();
 #endif
     const SDCardError sdCardError = SDCardFileWrite(&buffer[bufferReadIndex], numberOfBytes);
     bufferReadIndex = newbufferReadIndex;
     fileSize += numberOfBytes;
-#ifdef DEBUG_ENABLED
+#ifdef PRINT_STATISTICS
     const uint64_t writePeriod = TimerGetTicks64() - writeStartTicks;
     if (writePeriod > maxWritePeriod) {
         maxWritePeriod = writePeriod;
@@ -313,7 +317,7 @@ static int WriteToFile() {
 
     // Restart logging if file full
     if (sdCardError == SDCardErrorFileOrSDCardFull) {
-#ifdef DEBUG_ENABLED
+#ifdef PRINT_STATISTICS
         printf("SD card or file full\r\n");
 #endif
         if ((CloseFile() != 0) || (OpenFile() != 0)) {
@@ -324,7 +328,7 @@ static int WriteToFile() {
 
     // Abort if error occurred
     if (sdCardError != SDCardErrorOK) {
-#ifdef DEBUG_ENABLED
+#ifdef PRINT_STATISTICS
         printf("Write failed\r\n");
 #endif
         return 1;
@@ -337,7 +341,7 @@ static int WriteToFile() {
  * @return 0 if successful.
  */
 static int CloseFile() {
-#ifdef DEBUG_ENABLED
+#ifdef PRINT_STATISTICS
     printf("Close\r\n");
 #endif
 
@@ -352,7 +356,7 @@ static int CloseFile() {
         CreateFileNameUsingTime(newFileName, sizeof (newFileName));
     }
     if (strlen(newFileName) == 0) {
-#ifdef DEBUG_ENABLED
+#ifdef PRINT_STATISTICS
         printf("No file names available\r\n");
 #endif
         return 1;
@@ -456,9 +460,9 @@ static void CreateFileNameUsingTime(char* const destination, const size_t destin
  */
 size_t SDCardLoggingGetWriteAvailable() {
     if (bufferWriteIndex < bufferReadIndex) {
-        return (WRITE_BUFFER_SIZE - 1) - (WRITE_BUFFER_SIZE - bufferReadIndex) - bufferWriteIndex;
+        return (BUFFER_SIZE - 1) - (BUFFER_SIZE - bufferReadIndex) - bufferWriteIndex;
     } else {
-        return (WRITE_BUFFER_SIZE - 1) - (bufferWriteIndex - bufferReadIndex);
+        return (BUFFER_SIZE - 1) - (bufferWriteIndex - bufferReadIndex);
     }
 }
 
@@ -482,27 +486,28 @@ void SDCardLoggingWrite(const void* const data, const size_t numberOfBytes) {
 
     // Do nothing if no space avaliable
     if (numberOfBytes > SDCardLoggingGetWriteAvailable()) {
-#ifdef DEBUG_ENABLED
+#ifdef PRINT_STATISTICS
         bufferOverrun = true;
 #endif
         return;
     }
 
     // Write data
-#ifdef DEBUG_ENABLED
-    const uint32_t bufferUsed = WRITE_BUFFER_SIZE - SDCardLoggingGetWriteAvailable();
+#ifdef PRINT_STATISTICS
+    const uint32_t bufferUsed = BUFFER_SIZE - SDCardLoggingGetWriteAvailable();
     if (bufferUsed > maxbufferUsed) {
         maxbufferUsed = bufferUsed;
     }
 #endif
-    CircularBufferWrite(buffer, WRITE_BUFFER_SIZE, &bufferWriteIndex, data, numberOfBytes);
+    CircularBufferWrite(buffer, BUFFER_SIZE, &bufferWriteIndex, data, numberOfBytes);
 }
+
+#ifdef PRINT_STATISTICS
 
 /**
  * @brief Prints statistics.
  */
 static void PrintStatistics() {
-#ifdef DEBUG_ENABLED
 
     // Reset values if new file
     static uint64_t previousTicks;
@@ -530,7 +535,7 @@ static void PrintStatistics() {
 
     // Create buffer usage string
     char bufferUsageString[16];
-    snprintf(bufferUsageString, sizeof (bufferUsageString), "%0.1f %%", (double) ((float) maxbufferUsed * (100.0f / (float) WRITE_BUFFER_SIZE)));
+    snprintf(bufferUsageString, sizeof (bufferUsageString), "%0.1f %%", (double) ((float) maxbufferUsed * (100.0f / (float) BUFFER_SIZE)));
 
     // Create and print statistics string
     printf("%u s, %u KB/s, %u KB, %0.1f ms, %s\r\n",
@@ -544,8 +549,9 @@ static void PrintStatistics() {
     maxWritePeriod = 0;
     maxbufferUsed = 0;
     bufferOverrun = false;
-#endif
 }
+
+#endif
 
 //------------------------------------------------------------------------------
 // End of file

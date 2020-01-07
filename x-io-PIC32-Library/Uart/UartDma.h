@@ -32,7 +32,7 @@ extern const UartDmaReadConditions uartDmaReadConditionsDefault;
 //------------------------------------------------------------------------------
 // Function prototypes
 
-uint32_t UartDmaCalculateTimerRestValue(const uint32_t timeout);
+uint32_t UartDmaCalculateTimerResetValue(const uint32_t timeout);
 
 #endif
 

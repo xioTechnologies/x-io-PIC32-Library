@@ -11,18 +11,6 @@
 #include <xc.h>
 
 //------------------------------------------------------------------------------
-// Definitions
-
-typedef union {
-    uint64_t value;
-
-    struct {
-        uint32_t dword0; // least-significant dword
-        uint32_t dword1; // most-significant dword
-    };
-} Uint64Union;
-
-//------------------------------------------------------------------------------
 // Variables
 
 static uint32_t timerOverflowCounter;
@@ -62,18 +50,28 @@ void TimerDisable() {
 }
 
 /**
- * @brief Gets 32-bit timer value.
+ * @brief Gets the 32-bit timer value.
  * @return 32-bit timer value.
  */
 uint32_t TimerGetTicks32() {
-    return TMR4; // read 32-bit timer value
+    return TMR4; // read TMR4 and TMR5 as 32-bit timer
 }
 
 /**
- * @brief Gets 64-bit timer value.
+ * @brief Gets the 64-bit timer value.
  * @return 64-bit timer value.
  */
 uint64_t TimerGetTicks64() {
+
+    typedef union {
+        uint64_t value;
+
+        struct {
+            uint32_t dword0; // least-significant dword
+            uint32_t dword1; // most-significant dword
+        };
+    } Uint64Union;
+
     Uint64Union uint64Union;
     do {
         uint64Union.dword1 = timerOverflowCounter; // must read this value first

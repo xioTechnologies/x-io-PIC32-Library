@@ -18,13 +18,13 @@
  * @brief Read and write buffers size.  Must be a 2^n number, e.g. 256, 512,
  * 1024, 2048, 4096, etc.
  */
-#define READ_WRITE_BUFFER_SIZE (4096)
+#define BUFFER_SIZE (4096)
 
 /**
  * @brief Read and write buffers index mask.  This value is bitwise anded with
  * buffer indexes for fast overflow operations.
  */
-#define READ_WRITE_BUFFER_INDEX_BIT_MASK (READ_WRITE_BUFFER_SIZE - 1)
+#define BUFFER_INDEX_BIT_MASK (BUFFER_SIZE - 1)
 
 //------------------------------------------------------------------------------
 // Function prototypes
@@ -39,17 +39,13 @@ static void WriteTasks();
 
 static USB_DEVICE_HANDLE usbDeviceHandle = USB_DEVICE_HANDLE_INVALID;
 static bool isConfigured;
-#if defined __PIC32MZ__
-static uint8_t __attribute__((coherent, aligned(16))) readRequestData[512];
-#else
-static uint8_t readRequestData[64];
-#endif
+static uint32_t __attribute__((coherent)) readRequestData[512]; // must be declared __attribute__((coherent)) for PIC32MZ devices
 static bool readInProgress;
 static bool writeInProgress;
-static uint8_t readBuffer[READ_WRITE_BUFFER_SIZE];
+static uint8_t readBuffer[BUFFER_SIZE];
 static int readBufferWriteIndex;
 static int readBufferReadIndex;
-static uint8_t writeBuffer[READ_WRITE_BUFFER_SIZE];
+static uint8_t writeBuffer[BUFFER_SIZE];
 static int writeBufferWriteIndex;
 static int writeBufferReadIndex;
 
@@ -86,13 +82,13 @@ static void APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void* eventData, u
         case USB_DEVICE_EVENT_SUSPENDED:
         case USB_DEVICE_EVENT_DECONFIGURED:
             isConfigured = false;
+            readInProgress = false;
+            writeInProgress = false;
             break;
         case USB_DEVICE_EVENT_CONFIGURED:
             if (((USB_DEVICE_EVENT_DATA_CONFIGURED *) eventData)->configurationValue == 1) {
                 USB_DEVICE_CDC_EventHandlerSet(USB_DEVICE_CDC_INDEX_0, APP_USBDeviceCDCEventHandler, (uintptr_t) NULL);
                 isConfigured = true;
-                readInProgress = false;
-                writeInProgress = false;
             }
             break;
         case USB_DEVICE_EVENT_POWER_DETECTED:
@@ -132,8 +128,8 @@ static void APP_USBDeviceCDCEventHandler(USB_DEVICE_CDC_INDEX instanceIndex, USB
         case USB_DEVICE_CDC_EVENT_READ_COMPLETE:
         {
             const size_t numberOfBytes = ((USB_DEVICE_CDC_EVENT_DATA_READ_COMPLETE*) pData)->length;
-            readBufferWriteIndex &= READ_WRITE_BUFFER_INDEX_BIT_MASK;
-            CircularBufferWrite(readBuffer, READ_WRITE_BUFFER_SIZE, &readBufferWriteIndex, readRequestData, numberOfBytes);
+            readBufferWriteIndex &= BUFFER_INDEX_BIT_MASK;
+            CircularBufferWrite(readBuffer, BUFFER_SIZE, &readBufferWriteIndex, readRequestData, numberOfBytes);
             readInProgress = false;
             break;
         }
@@ -179,22 +175,18 @@ static void WriteTasks() {
     }
 
     // Do nothing if no data available
-    size_t numberOfBytes = (writeBufferWriteIndex - writeBufferReadIndex) & READ_WRITE_BUFFER_INDEX_BIT_MASK;
+    size_t numberOfBytes = (writeBufferWriteIndex - writeBufferReadIndex) & BUFFER_INDEX_BIT_MASK;
     if (numberOfBytes == 0) {
         return;
     }
 
     // Copy data to buffer
-#if defined __PIC32MZ__
-    static uint8_t __attribute__((coherent, aligned(16))) buffer[1024];
-#else
-    static uint8_t buffer[1024];
-#endif
+    static uint32_t __attribute__((coherent)) buffer[1024]; // must be declared __attribute__((coherent)) for PIC32MZ devices
     if (numberOfBytes > sizeof (buffer)) {
         numberOfBytes = sizeof (buffer);
     }
-    int writeBufferReadIndexCache = writeBufferReadIndex & READ_WRITE_BUFFER_INDEX_BIT_MASK;
-    CircularBufferRead(writeBuffer, READ_WRITE_BUFFER_SIZE, &writeBufferReadIndexCache, buffer, numberOfBytes);
+    int writeBufferReadIndexCache = writeBufferReadIndex & BUFFER_INDEX_BIT_MASK;
+    CircularBufferRead(writeBuffer, BUFFER_SIZE, &writeBufferReadIndexCache, buffer, numberOfBytes);
 
     // Schedule write
     writeInProgress = true;
@@ -220,7 +212,7 @@ bool UsbCdcIsHostConnected() {
  * @return Number of bytes available in the read buffer.
  */
 size_t UsbCdcGetReadAvailable() {
-    return (readBufferWriteIndex - readBufferReadIndex) & READ_WRITE_BUFFER_INDEX_BIT_MASK;
+    return (readBufferWriteIndex - readBufferReadIndex) & BUFFER_INDEX_BIT_MASK;
 }
 
 /**
@@ -238,8 +230,8 @@ size_t UsbCdcRead(void* const destination, size_t numberOfBytes) {
     }
 
     // Read data
-    readBufferReadIndex &= READ_WRITE_BUFFER_INDEX_BIT_MASK;
-    CircularBufferRead(readBuffer, READ_WRITE_BUFFER_SIZE, &readBufferReadIndex, destination, numberOfBytes);
+    readBufferReadIndex &= BUFFER_INDEX_BIT_MASK;
+    CircularBufferRead(readBuffer, BUFFER_SIZE, &readBufferReadIndex, destination, numberOfBytes);
     return numberOfBytes;
 }
 
@@ -249,7 +241,7 @@ size_t UsbCdcRead(void* const destination, size_t numberOfBytes) {
  * @return Byte.
  */
 uint8_t UsbCdcReadByte() {
-    return readBuffer[readBufferReadIndex++ & READ_WRITE_BUFFER_INDEX_BIT_MASK];
+    return readBuffer[readBufferReadIndex++ & BUFFER_INDEX_BIT_MASK];
 }
 
 /**
@@ -257,7 +249,7 @@ uint8_t UsbCdcReadByte() {
  * @return Space available in the write buffer.
  */
 size_t UsbCdcGetWriteAvailable() {
-    return (READ_WRITE_BUFFER_SIZE - 1) - ((writeBufferWriteIndex - writeBufferReadIndex) & READ_WRITE_BUFFER_INDEX_BIT_MASK);
+    return (BUFFER_SIZE - 1) - ((writeBufferWriteIndex - writeBufferReadIndex) & BUFFER_INDEX_BIT_MASK);
 }
 
 /**
@@ -273,8 +265,8 @@ void UsbCdcWrite(const void* const data, const size_t numberOfBytes) {
     }
 
     // Write data
-    writeBufferWriteIndex &= READ_WRITE_BUFFER_INDEX_BIT_MASK;
-    CircularBufferWrite(writeBuffer, READ_WRITE_BUFFER_SIZE, &writeBufferWriteIndex, data, numberOfBytes);
+    writeBufferWriteIndex &= BUFFER_INDEX_BIT_MASK;
+    CircularBufferWrite(writeBuffer, BUFFER_SIZE, &writeBufferWriteIndex, data, numberOfBytes);
 }
 
 /**
@@ -289,7 +281,7 @@ void UsbCdcWriteByte(const uint8_t byte) {
     }
 
     // Write byte
-    writeBuffer[writeBufferWriteIndex++ & READ_WRITE_BUFFER_INDEX_BIT_MASK] = byte;
+    writeBuffer[writeBufferWriteIndex++ & BUFFER_INDEX_BIT_MASK] = byte;
 }
 
 //------------------------------------------------------------------------------

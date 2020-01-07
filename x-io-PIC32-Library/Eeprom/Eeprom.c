@@ -41,7 +41,7 @@ void EepromRead(const uint16_t address, void* const destination, const size_t nu
     StartSequence(address);
     EepromHalI2CStop();
     EepromHalI2CStart();
-    EepromHalI2CSend(I2CSlaveAddressRead(EEPROM_I2C_ADDRESS));
+    EepromHalI2CSend(I2CSlaveAddressRead(EEPROM_HAL_I2C_ADDRESS));
     const int endIndex = numberOfBytes - 1;
     int destinationIndex = 0;
     while (destinationIndex < numberOfBytes) {
@@ -62,10 +62,10 @@ void EepromWrite(uint16_t address, const void* const data, const size_t numberOf
     StartSequence(address);
     const uint16_t endAddress = address + numberOfBytes;
     uint8_t* dataByte = (uint8_t*) data;
-    int currentPageIndex = address / EEPROM_PAGE_SIZE;
+    int currentPageIndex = address / EEPROM_HAL_PAGE_SIZE;
     while (address < endAddress) {
         EepromHalI2CSend(*dataByte++);
-        const int nextPageIndex = ++address / EEPROM_PAGE_SIZE;
+        const int nextPageIndex = ++address / EEPROM_HAL_PAGE_SIZE;
         if (nextPageIndex != currentPageIndex) { // if crossing page boundary
             currentPageIndex = nextPageIndex;
             EepromHalI2CStop();
@@ -86,11 +86,11 @@ void EepromUpdate(uint16_t address, const void* const data, const size_t numberO
     const uint16_t endAddress = address + numberOfBytes;
     const uint8_t* dataByte = (uint8_t*) data;
     while (address < endAddress) {
-        size_t chunkSize = EEPROM_PAGE_SIZE - (address % EEPROM_PAGE_SIZE); // number of bytes from address to end of page
+        size_t chunkSize = EEPROM_HAL_PAGE_SIZE - (address % EEPROM_HAL_PAGE_SIZE); // number of bytes from address to end of page
         if ((address + chunkSize) > endAddress) {
             chunkSize = endAddress - address;
         }
-        uint8_t pageData[EEPROM_PAGE_SIZE];
+        uint8_t pageData[EEPROM_HAL_PAGE_SIZE];
         EepromRead(address, pageData, chunkSize);
         if (memcmp(dataByte, pageData, chunkSize) != 0) {
             EepromWrite(address, dataByte, chunkSize);
@@ -110,7 +110,7 @@ static void StartSequence(const uint16_t address) {
     const uint64_t startTicks = TimerGetTicks64();
     while (true) {
         EepromHalI2CStart();
-        if (EepromHalI2CSend(I2CSlaveAddressWrite(EEPROM_I2C_ADDRESS)) == true) {
+        if (EepromHalI2CSend(I2CSlaveAddressWrite(EEPROM_HAL_I2C_ADDRESS)) == true) {
             break;
         }
         if ((TimerGetTicks64() - startTicks) > (TIMER_TICKS_PER_SECOND / 200)) { // 5 ms timeout
@@ -125,10 +125,10 @@ static void StartSequence(const uint16_t address) {
  * @brief Erases the EEPROM.  All data bytes are set to 0xFF.
  */
 void EepromErase() {
-    const uint8_t blankPage[] = {[0 ... (EEPROM_PAGE_SIZE - 1)] = 0xFF};
+    const uint8_t blankPage[] = {[0 ... (EEPROM_HAL_PAGE_SIZE - 1)] = 0xFF};
     int index;
-    for (index = 0; index < (EEPROM_SIZE / EEPROM_PAGE_SIZE); index++) {
-        EepromWrite(index * EEPROM_PAGE_SIZE, (uint8_t*) blankPage, sizeof (blankPage));
+    for (index = 0; index < (EEPROM_HAL_SIZE / EEPROM_HAL_PAGE_SIZE); index++) {
+        EepromWrite(index * EEPROM_HAL_PAGE_SIZE, blankPage, sizeof (blankPage));
     }
 }
 
@@ -138,10 +138,10 @@ void EepromErase() {
  */
 bool EepromIsBlank() {
     int index;
-    for (index = 0; index < (EEPROM_SIZE / EEPROM_PAGE_SIZE); index++) {
-        uint8_t pageData[EEPROM_PAGE_SIZE];
-        EepromRead(index * EEPROM_PAGE_SIZE, pageData, sizeof (pageData));
-        const uint8_t blankPage[] = {[0 ... (EEPROM_PAGE_SIZE - 1)] = 0xFF};
+    for (index = 0; index < (EEPROM_HAL_SIZE / EEPROM_HAL_PAGE_SIZE); index++) {
+        uint8_t pageData[EEPROM_HAL_PAGE_SIZE];
+        EepromRead(index * EEPROM_HAL_PAGE_SIZE, pageData, sizeof (pageData));
+        const uint8_t blankPage[] = {[0 ... (EEPROM_HAL_PAGE_SIZE - 1)] = 0xFF};
         if (memcmp(blankPage, pageData, sizeof (pageData)) != 0) {
             return false;
         }
@@ -155,14 +155,14 @@ bool EepromIsBlank() {
 void EepromPrint() {
     bool printEllipses = true;
     uint16_t address;
-    for (address = 0; address < EEPROM_SIZE; address += PRINT_LINE_LENGTH) {
+    for (address = 0; address < EEPROM_HAL_SIZE; address += PRINT_LINE_LENGTH) {
 
         // Read data
         uint8_t data[PRINT_LINE_LENGTH];
         EepromRead(address, data, sizeof (data));
 
         // Print first and last line
-        if ((address == 0) || (address == (EEPROM_SIZE - PRINT_LINE_LENGTH))) {
+        if ((address == 0) || (address == (EEPROM_HAL_SIZE - PRINT_LINE_LENGTH))) {
             PrintLine(address, data);
             continue;
         }

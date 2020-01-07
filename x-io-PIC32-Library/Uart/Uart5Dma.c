@@ -23,7 +23,7 @@ static inline __attribute__((always_inline)) void TransferAborted();
 // Variables
 
 static void (*readCallback)(const void* const data, const size_t numberOfBytes);
-static uint8_t __attribute__((coherent)) readBuffer[1024];
+static uint8_t __attribute__((coherent)) readBuffer[1024]; // must be declared __attribute__((coherent)) for PIC32MZ devices
 
 //------------------------------------------------------------------------------
 // Functions
@@ -93,7 +93,7 @@ void Uart5DmaInitialise(const UartSettings * const settings, const UartDmaReadCo
 
     // Calculate timer reset value
     static uint32_t __attribute__((coherent)) timerResetValue[1]; // must be declared __attribute__((coherent)) for PIC32MZ devices
-    timerResetValue[0] = UartDmaCalculateTimerRestValue(validReadConditions.timeout);
+    timerResetValue[0] = UartDmaCalculateTimerResetValue(validReadConditions.timeout);
 
     // Configure timer DMA channel
     DCH4CONbits.CHAEN = 1; // Channel is continuously enabled, and not automatically disabled after a block transfer is complete
@@ -111,7 +111,7 @@ void Uart5DmaInitialise(const UartSettings * const settings, const UartDmaReadCo
     T8CONbits.ON = 1;
 
     // Configure RX DMA channel interrupt
-    SYS_INT_VectorPrioritySet(_DMA3_VECTOR, INT_PRIORITY_LEVEL2);
+    SYS_INT_VectorPrioritySet(_DMA3_VECTOR, INT_PRIORITY_LEVEL4);
     SYS_INT_SourceStatusClear(INT_SOURCE_DMA_3);
     SYS_INT_SourceEnable(INT_SOURCE_DMA_3);
 }
@@ -181,7 +181,7 @@ void Uart5DmaDisable() {
  * an interrupt each time a read condition is met.
  * @param read Read callback function.
  */
-void Uart5DmaSetCallback(void (*read)(const void* const data, const size_t numberOfBytes)) {
+void Uart5DmaSetReadCallback(void (*read)(const void* const data, const size_t numberOfBytes)) {
     SYS_INT_SourceDisable(INT_SOURCE_DMA_3);
     readCallback = read;
     SYS_INT_SourceEnable(INT_SOURCE_DMA_3);

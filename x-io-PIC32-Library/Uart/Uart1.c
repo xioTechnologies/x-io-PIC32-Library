@@ -21,13 +21,13 @@
  * @brief Read and write buffers size.  Must be a 2^n number (e.g. 256, 512,
  * 1024, 2048, 4096, etc.).
  */
-#define READ_WRITE_BUFFER_SIZE (4096)
+#define BUFFER_SIZE (4096)
 
 /**
  * @brief Read and write buffers index mask.  This value is bitwise anded with
  * buffer indexes for fast overflow operations.
  */
-#define READ_WRITE_BUFFER_INDEX_BIT_MASK (READ_WRITE_BUFFER_SIZE - 1)
+#define BUFFER_INDEX_BIT_MASK (BUFFER_SIZE - 1)
 
 /**
  * @brief TX and RX interrupt priority.
@@ -44,10 +44,10 @@ static inline __attribute__((always_inline)) void TXInterruptTasks();
 // Variables
 
 static bool receiveBufferOverrun;
-static uint8_t readBuffer[READ_WRITE_BUFFER_SIZE];
+static uint8_t readBuffer[BUFFER_SIZE];
 static int readBufferWriteIndex;
 static int readBufferReadIndex;
-static uint8_t writeBuffer[READ_WRITE_BUFFER_SIZE];
+static uint8_t writeBuffer[BUFFER_SIZE];
 static int writeBufferWriteIndex;
 static int writeBufferReadIndex;
 
@@ -130,7 +130,7 @@ size_t Uart1GetReadAvailable() {
     }
 
     // Return number of bytes
-    return (readBufferWriteIndex - readBufferReadIndex) & READ_WRITE_BUFFER_INDEX_BIT_MASK;
+    return (readBufferWriteIndex - readBufferReadIndex) & BUFFER_INDEX_BIT_MASK;
 }
 
 /**
@@ -148,8 +148,8 @@ size_t Uart1Read(void* const destination, size_t numberOfBytes) {
     }
 
     // Read data
-    readBufferReadIndex &= READ_WRITE_BUFFER_INDEX_BIT_MASK;
-    CircularBufferRead(readBuffer, READ_WRITE_BUFFER_SIZE, &readBufferReadIndex, destination, numberOfBytes);
+    readBufferReadIndex &= BUFFER_INDEX_BIT_MASK;
+    CircularBufferRead(readBuffer, BUFFER_SIZE, &readBufferReadIndex, destination, numberOfBytes);
     return numberOfBytes;
 }
 
@@ -159,7 +159,7 @@ size_t Uart1Read(void* const destination, size_t numberOfBytes) {
  * @return Byte.
  */
 uint8_t Uart1ReadByte() {
-    return readBuffer[readBufferReadIndex++ & READ_WRITE_BUFFER_INDEX_BIT_MASK];
+    return readBuffer[readBufferReadIndex++ & BUFFER_INDEX_BIT_MASK];
 }
 
 /**
@@ -167,7 +167,7 @@ uint8_t Uart1ReadByte() {
  * @return Space available in the write buffer.
  */
 size_t Uart1GetWriteAvailable() {
-    return (READ_WRITE_BUFFER_SIZE - 1) - ((writeBufferWriteIndex - writeBufferReadIndex) & READ_WRITE_BUFFER_INDEX_BIT_MASK);
+    return (BUFFER_SIZE - 1) - ((writeBufferWriteIndex - writeBufferReadIndex) & BUFFER_INDEX_BIT_MASK);
 }
 
 /**
@@ -183,8 +183,8 @@ void Uart1Write(const void* const data, const size_t numberOfBytes) {
     }
 
     // Write data
-    writeBufferWriteIndex &= READ_WRITE_BUFFER_INDEX_BIT_MASK;
-    CircularBufferWrite(writeBuffer, READ_WRITE_BUFFER_SIZE, &writeBufferWriteIndex, data, numberOfBytes);
+    writeBufferWriteIndex &= BUFFER_INDEX_BIT_MASK;
+    CircularBufferWrite(writeBuffer, BUFFER_SIZE, &writeBufferWriteIndex, data, numberOfBytes);
     SYS_INT_SourceEnable(INT_SOURCE_USART_1_TRANSMIT);
 }
 
@@ -200,7 +200,7 @@ void Uart1WriteByte(const uint8_t byte) {
     }
 
     // Write byte
-    writeBuffer[writeBufferWriteIndex++ & READ_WRITE_BUFFER_INDEX_BIT_MASK] = byte;
+    writeBuffer[writeBufferWriteIndex++ & BUFFER_INDEX_BIT_MASK] = byte;
     SYS_INT_SourceEnable(INT_SOURCE_USART_1_TRANSMIT);
 }
 
@@ -217,7 +217,7 @@ void Uart1WriteString(const char* string) {
 
     // Write string
     while (*string != '\0') {
-        writeBuffer[writeBufferWriteIndex++ & READ_WRITE_BUFFER_INDEX_BIT_MASK] = *string++;
+        writeBuffer[writeBufferWriteIndex++ & BUFFER_INDEX_BIT_MASK] = *string++;
     }
     SYS_INT_SourceEnable(INT_SOURCE_USART_1_TRANSMIT);
 }
@@ -226,7 +226,7 @@ void Uart1WriteString(const char* string) {
  * @brief Clears the read buffer and resets the read buffer overrun flag.
  */
 void Uart1ClearReadBuffer() {
-    readBufferReadIndex = readBufferWriteIndex & READ_WRITE_BUFFER_INDEX_BIT_MASK;
+    readBufferReadIndex = readBufferWriteIndex & BUFFER_INDEX_BIT_MASK;
     Uart1HasReceiveBufferOverrun();
 }
 
@@ -234,7 +234,7 @@ void Uart1ClearReadBuffer() {
  * @brief Clears the write buffer.
  */
 void Uart1ClearWriteBuffer() {
-    writeBufferWriteIndex = writeBufferReadIndex & READ_WRITE_BUFFER_INDEX_BIT_MASK;
+    writeBufferWriteIndex = writeBufferReadIndex & BUFFER_INDEX_BIT_MASK;
 }
 
 /**
@@ -302,11 +302,11 @@ void __ISR(_UART1_TX_VECTOR) Uart1TxInterrupt() {
  */
 static inline __attribute__((always_inline)) void RXInterruptTasks() {
     while (U1STAbits.URXDA == 1) { // repeat while data available in receive buffer
-        if (((readBufferReadIndex - readBufferWriteIndex) & READ_WRITE_BUFFER_INDEX_BIT_MASK) == 1) { // if read buffer full
+        if (((readBufferReadIndex - readBufferWriteIndex) & BUFFER_INDEX_BIT_MASK) == 1) { // if read buffer full
             SYS_INT_SourceDisable(INT_SOURCE_USART_1_RECEIVE);
             break;
         } else {
-            readBuffer[readBufferWriteIndex++ & READ_WRITE_BUFFER_INDEX_BIT_MASK] = U1RXREG;
+            readBuffer[readBufferWriteIndex++ & BUFFER_INDEX_BIT_MASK] = U1RXREG;
         }
     }
     SYS_INT_SourceStatusClear(INT_SOURCE_USART_1_RECEIVE);
@@ -319,10 +319,10 @@ static inline __attribute__((always_inline)) void TXInterruptTasks() {
     SYS_INT_SourceDisable(INT_SOURCE_USART_1_TRANSMIT); // disable TX interrupt to avoid nested interrupt
     SYS_INT_SourceStatusClear(INT_SOURCE_USART_1_TRANSMIT);
     while (U1STAbits.UTXBF == 0) { // repeat while transmit buffer not full
-        if (((writeBufferReadIndex - writeBufferWriteIndex) & READ_WRITE_BUFFER_INDEX_BIT_MASK) == 0) { // if write buffer empty
+        if (((writeBufferReadIndex - writeBufferWriteIndex) & BUFFER_INDEX_BIT_MASK) == 0) { // if write buffer empty
             return;
         }
-        U1TXREG = writeBuffer[writeBufferReadIndex++ & READ_WRITE_BUFFER_INDEX_BIT_MASK];
+        U1TXREG = writeBuffer[writeBufferReadIndex++ & BUFFER_INDEX_BIT_MASK];
     }
     SYS_INT_SourceEnable(INT_SOURCE_USART_1_TRANSMIT); // re-enable TX interrupt
 }

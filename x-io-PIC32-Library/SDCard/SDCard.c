@@ -23,7 +23,7 @@
 /**
  * @brief Comment out this definition to disable printing of file system errors.
  */
-#define PRINT_FILE_SYSTEM_ERRORS
+//#define PRINT_FILE_SYSTEM_ERRORS
 
 /**
  * @brief State.
@@ -170,7 +170,7 @@ SDCardError SDCardFileOpen(const char* const fileName, const bool writeMode) {
     }
 
     // Open file
-    fileHandle = SYS_FS_FileOpen(fileName, (writeMode == true) ? SYS_FS_FILE_OPEN_WRITE : SYS_FS_FILE_OPEN_READ);
+    fileHandle = SYS_FS_FileOpen(fileName, writeMode == true ? SYS_FS_FILE_OPEN_WRITE : SYS_FS_FILE_OPEN_READ);
     if (fileHandle == SYS_FS_HANDLE_INVALID) {
         PrintFileSystemError("SYS_FS_FileOpen", SYS_FS_Error());
         return SDCardErrorFileSystemError;

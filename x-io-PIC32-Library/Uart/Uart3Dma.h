@@ -20,7 +20,7 @@
 
 void Uart3DmaInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions);
 void Uart3DmaDisable();
-void Uart3DmaSetCallback(void (*read)(const void* const data, const size_t numberOfBytes));
+void Uart3DmaSetReadCallback(void (*read)(const void* const data, const size_t numberOfBytes));
 void Uart3DmaRead();
 void Uart3DmaWrite(const void* const data, const size_t numberOfBytes);
 bool Uart3DmaIsWriteInProgress();

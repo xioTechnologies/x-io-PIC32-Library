@@ -20,7 +20,7 @@
 
 void Uart5DmaInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions);
 void Uart5DmaDisable();
-void Uart5DmaSetCallback(void (*read)(const void* const data, const size_t numberOfBytes));
+void Uart5DmaSetReadCallback(void (*read)(const void* const data, const size_t numberOfBytes));
 void Uart5DmaRead();
 void Uart5DmaWrite(const void* const data, const size_t numberOfBytes);
 bool Uart5DmaIsWriteInProgress();

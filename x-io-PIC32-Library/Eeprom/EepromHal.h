@@ -19,17 +19,17 @@
 /**
  * @brief EEPROM I2C slave address.
  */
-#define EEPROM_I2C_ADDRESS (0x50)
+#define EEPROM_HAL_I2C_ADDRESS (0x50)
 
 /**
  * @brief EEPROM size.
  */
-#define EEPROM_SIZE (0x1000)
+#define EEPROM_HAL_SIZE (0x1000)
 
 /**
  * @brief EEPROM page size.
  */
-#define EEPROM_PAGE_SIZE (32)
+#define EEPROM_HAL_PAGE_SIZE (32)
 
 //------------------------------------------------------------------------------
 // Inline functions
