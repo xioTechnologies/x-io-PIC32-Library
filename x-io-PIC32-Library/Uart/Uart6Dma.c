@@ -284,9 +284,9 @@ void Uart6DmaWrite(const void* const data, const size_t numberOfBytes) {
 }
 
 /**
- * @brief Returns true while data is being transferred to the hardware TX
+ * @brief Returns true while data is being transferred to the hardware transmit
  * buffer.
- * @return True while data is being transferred to the hardware TX buffer.
+ * @return True while data is being transferred to the hardware transmit buffer.
  */
 bool Uart6DmaIsWriteInProgress() {
     return DCH2CONbits.CHEN == 1;
