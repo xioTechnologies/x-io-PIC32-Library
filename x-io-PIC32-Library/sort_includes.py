@@ -54,5 +54,5 @@ for root, _, files in os.walk(os.path.dirname(os.path.realpath(__file__))):
         continue
     for source_file in files:
         file_name, file_extension = os.path.splitext(source_file)
-        if str(file_extension) == ".h" or str(file_extension) == ".c":
+        if file_extension == ".h" or file_extension == ".c":
             process_file(os.path.join(root, source_file))
