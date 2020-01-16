@@ -49,7 +49,7 @@ def process_file(file_path):
 
 
 # Recursively process each file
-for root, directories, files in os.walk(os.path.dirname(os.path.realpath(__file__))):
+for root, _, files in os.walk(os.path.dirname(os.path.realpath(__file__))):
     if "system_config" in root:
         continue
     for source_file in files:
