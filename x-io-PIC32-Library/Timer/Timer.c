@@ -82,27 +82,21 @@ uint64_t TimerGetTicks64() {
 
 /**
  * @brief Blocking delay in milliseconds.
- * @param milliseconds Delay in milliseconds.
+ * @param milliseconds Milliseconds.
  */
 void TimerDelay(const uint32_t milliseconds) {
-    uint64_t currentTicks = TimerGetTicks64();
-    const uint64_t endTicks = currentTicks + ((uint64_t) milliseconds * (uint64_t) (TIMER_TICKS_PER_SECOND / 1000));
-    do {
-        currentTicks = TimerGetTicks64();
-    } while (currentTicks < endTicks);
+    const uint64_t endTicks = TimerGetTicks64() + ((uint64_t) milliseconds * (uint64_t) (TIMER_TICKS_PER_SECOND / 1000));
+    while (TimerGetTicks64() < endTicks);
 }
 
 /**
  * @brief Blocking delay in microseconds.  This function should not be used for
  * delays approaching 2^32 microseconds.
- * @param microseconds Delay in microseconds.
+ * @param microseconds Microseconds.
  */
 void TimerDelayMicroseconds(const uint32_t microseconds) {
     const uint32_t startTicks = TimerGetTicks32();
-    uint32_t currentTicks;
-    do {
-        currentTicks = TimerGetTicks32();
-    } while ((currentTicks - startTicks) < (microseconds * (TIMER_TICKS_PER_SECOND / 1000000)));
+    while ((TimerGetTicks32() - startTicks) < (microseconds * (TIMER_TICKS_PER_SECOND / 1000000)));
 }
 
 /**
