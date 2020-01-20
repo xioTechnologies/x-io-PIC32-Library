@@ -110,7 +110,7 @@ void SDCardLoggingSetCallbacks(const SDCardLoggingCallbacks * const callbacks) {
 }
 
 /**
- * @breif Starts logging.
+ * @brief Starts logging.
  */
 void SDCardLoggingStart() {
 #ifdef PRINT_STATISTICS
@@ -130,7 +130,7 @@ void SDCardLoggingStart() {
 }
 
 /**
- * @breif Stops logging.
+ * @brief Stops logging.
  */
 void SDCardLoggingStop() {
 #ifdef PRINT_STATISTICS

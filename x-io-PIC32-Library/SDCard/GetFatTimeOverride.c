@@ -18,7 +18,7 @@
 // Functions
 
 /**
- * @breif Returns the current time for use by the file system.
+ * @brief Returns the current time for use by the file system.
  * @return Current time expressed as a single 32-bit value.  This value is equal
  * to the packedTime member of the SYS_FS_TIME structure.
  */

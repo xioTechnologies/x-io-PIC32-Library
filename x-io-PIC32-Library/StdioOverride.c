@@ -17,7 +17,7 @@
 // Functions
 
 /**
- * @breif Writes a character to stdout.
+ * @brief Writes a character to stdout.
  * @param c Character to be written.
  */
 void _mon_putc(char c) {
@@ -27,7 +27,7 @@ void _mon_putc(char c) {
 }
 
 /**
- * @breif Reads the next character from stdin.
+ * @brief Reads the next character from stdin.
  * @param canblock Non-zero to indicate that the function should block.
  * @return Returns the next character from the FILE associated with stdin. -1 is
  * returned to indicate end-of-file.
