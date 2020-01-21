@@ -39,7 +39,7 @@ static void WriteTasks();
 
 static USB_DEVICE_HANDLE usbDeviceHandle = USB_DEVICE_HANDLE_INVALID;
 static bool isConfigured;
-static uint32_t __attribute__((coherent)) readRequestData[512]; // must be declared __attribute__((coherent)) for PIC32MZ devices
+static uint8_t __attribute__((coherent)) readRequestData[512]; // must be declared __attribute__((coherent)) for PIC32MZ devices
 static bool readInProgress;
 static bool writeInProgress;
 static uint8_t readBuffer[BUFFER_SIZE];
@@ -181,7 +181,7 @@ static void WriteTasks() {
     }
 
     // Copy data to buffer
-    static uint32_t __attribute__((coherent)) buffer[1024]; // must be declared __attribute__((coherent)) for PIC32MZ devices
+    static uint8_t __attribute__((coherent)) buffer[1024]; // must be declared __attribute__((coherent)) for PIC32MZ devices
     if (numberOfBytes > sizeof (buffer)) {
         numberOfBytes = sizeof (buffer);
     }
