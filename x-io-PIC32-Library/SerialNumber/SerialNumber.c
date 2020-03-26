@@ -17,22 +17,23 @@
  * @brief Returns the serial number.
  * @return Serial number.
  */
-uint64_t SerialNumberGetUint64() {
+uint64_t SerialNumberGetValue() {
     return ((uint64_t) DEVSN1 << 32) | ((uint64_t) DEVSN0);
 }
 
 /**
- * @brief Creates a serial number string.
- * @param destination Destination.
- * @param destinationSize Destination size.
+ * @brief Returns the serial number string.
+ * @return Serial number string.
  */
-void SerialNumberGetString(char* const destination, const size_t destinationSize) {
-    const uint64_t serialNumber = SerialNumberGetUint64();
-    snprintf(destination, destinationSize, "%04X-%04X-%04X-%04X",
+const char* SerialNumberGetString() {
+    const uint64_t serialNumber = SerialNumberGetValue();
+    static char string[sizeof ("XXXX-XXXX-XXXX-XXXX")];
+    snprintf(string, sizeof (string), "%04X-%04X-%04X-%04X",
             (unsigned int) ((serialNumber >> 48) & 0xFFFF),
             (unsigned int) ((serialNumber >> 32) & 0xFFFF),
             (unsigned int) ((serialNumber >> 16) & 0xFFFF),
             (unsigned int) (serialNumber & 0xFFFF));
+    return string;
 }
 
 //------------------------------------------------------------------------------
