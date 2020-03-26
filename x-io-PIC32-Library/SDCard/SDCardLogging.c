@@ -31,7 +31,7 @@
 /**
  * @brief Comment out this definition to disable printing of statistics.
  */
-#define PRINT_STATISTICS
+//#define PRINT_STATISTICS
 
 /**
  * @brief State.

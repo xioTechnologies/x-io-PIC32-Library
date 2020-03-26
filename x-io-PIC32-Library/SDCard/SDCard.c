@@ -24,7 +24,7 @@
 /**
  * @brief Comment out this definition to disable printing of file system errors.
  */
-#define PRINT_FILE_SYSTEM_ERRORS
+//#define PRINT_FILE_SYSTEM_ERRORS
 
 /**
  * @brief State.
