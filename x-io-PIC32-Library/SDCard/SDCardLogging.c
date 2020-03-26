@@ -26,12 +26,12 @@
 /**
  * @brief File name used while the file is open.
  */
-#define FILE_NAME "File"
+#define FILE_PATH "/Data/File"
 
 /**
  * @brief Comment out this definition to disable printing of statistics.
  */
-//#define PRINT_STATISTICS
+#define PRINT_STATISTICS
 
 /**
  * @brief State.
@@ -65,7 +65,7 @@ static SDCardLoggingCallbacks applicationCallbacks;
 static State state = StateDisabled;
 static uint64_t fileStartTicks;
 static uint32_t fileSize;
-static uint8_t __attribute__((persistent)) buffer[BUFFER_SIZE];
+static uint8_t buffer[BUFFER_SIZE];
 static int bufferWriteIndex;
 static int bufferReadIndex;
 #ifdef PRINT_STATISTICS
@@ -229,7 +229,7 @@ static int OpenFile() {
 #endif
 
     // Open file
-    if (SDCardFileOpen(FILE_NAME, true) != SDCardErrorOK) {
+    if (SDCardFileOpen(FILE_PATH, true) != SDCardErrorOK) {
 #ifdef PRINT_STATISTICS
         printf("Open failed\r\n");
 #endif
@@ -349,7 +349,7 @@ static int CloseFile() {
     SDCardFileClose();
 
     // Create new file name
-    char newFileName[SD_CARD_MAX_FILE_NAME_SIZE];
+    char newFileName[SD_CARD_MAX_PATH_SIZE];
     if (currentSettings.fileNameIsTime == false) {
         CreateFileNameUsingNumber(newFileName, sizeof (newFileName));
     } else {
@@ -363,7 +363,7 @@ static int CloseFile() {
     }
 
     // Rename file
-    SDCardFileRename(FILE_NAME, newFileName);
+    SDCardRename(FILE_PATH, SDCardPathJoin(2, SDCardPathSplitDirectory(FILE_PATH), newFileName));
     return 0;
 }
 
@@ -375,7 +375,7 @@ static int CloseFile() {
 static void CreateFileNameUsingNumber(char* const destination, const size_t destinationSize) {
 
     // Open directory
-    SDCardDirectoryOpen();
+    SDCardDirectoryOpen(SDCardPathSplitDirectory(FILE_PATH));
 
     // Create available file name
     const uint32_t initialFileNameNumber = currentSettings.fileNameNumber;
@@ -408,11 +408,11 @@ static void CreateFileNameUsingNumber(char* const destination, const size_t dest
 static void CreateFileNameUsingTime(char* const destination, const size_t destinationSize) {
 
     // Open directory
-    SDCardDirectoryOpen();
+    SDCardDirectoryOpen(SDCardPathSplitDirectory(FILE_PATH));
 
     // Get file details
     SDCardFileDetails sdCardfileDetails;
-    SDCardDirectorySearch(FILE_NAME, &sdCardfileDetails);
+    SDCardDirectorySearch(SDCardPathSplitFileName(FILE_PATH), &sdCardfileDetails);
 
     // Calculate file period
     const uint64_t filePeriod = (TimerGetTicks64() - fileStartTicks) / TIMER_TICKS_PER_SECOND;
@@ -535,14 +535,14 @@ static void PrintStatistics() {
 
     // Create buffer usage string
     char bufferUsageString[16];
-    snprintf(bufferUsageString, sizeof (bufferUsageString), "%0.1f %%", (double) ((float) maxbufferUsed * (100.0f / (float) BUFFER_SIZE)));
+    snprintf(bufferUsageString, sizeof (bufferUsageString), "%0.1f %%", ((float) maxbufferUsed * (100.0f / (float) BUFFER_SIZE)));
 
     // Create and print statistics string
     printf("%u s, %u KB/s, %u KB, %0.1f ms, %s\r\n",
             (unsigned int) ((currentTicks - fileStartTicks) / TIMER_TICKS_PER_SECOND),
             (unsigned int) (kilobytesPerSecond + 0.5f),
             fileSize >> 10,
-            (double) ((float) maxWritePeriod * (1000.0f / (float) TIMER_TICKS_PER_SECOND)),
+            (float) maxWritePeriod * (1000.0f / (float) TIMER_TICKS_PER_SECOND),
             bufferOverrun ? "Buffer Overrun" : bufferUsageString);
 
     // Reset statistics

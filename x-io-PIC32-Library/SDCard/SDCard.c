@@ -8,22 +8,23 @@
 // Includes
 
 #include "SDCard.h"
+#include <stdarg.h>
 #include <stdio.h> // printf, snprintf
-#include <string.h> // memset, strlen, strncpy
+#include <string.h> // memset, strcpy, strlen, strrchr, strncpy, strtok
 #include "system_definitions.h"
 
 //------------------------------------------------------------------------------
 // Definitions
 
 /**
- * @brief Mount name required by SYS_FS_Mount and SYS_FS_Unmount.
+ * @brief Mount name.
  */
 #define MOUNT_NAME "/mnt/myDrive"
 
 /**
  * @brief Comment out this definition to disable printing of file system errors.
  */
-//#define PRINT_FILE_SYSTEM_ERRORS
+#define PRINT_FILE_SYSTEM_ERRORS
 
 /**
  * @brief State.
@@ -39,6 +40,7 @@ typedef enum {
 
 static void MountingTasks();
 static void MountedTasks();
+static const char* ChangeDirectory(const char* const filePath, const bool createDirectory);
 static void PrintFileSystemError(const char* functionName, const SYS_FS_ERROR sysFSError);
 
 //------------------------------------------------------------------------------
@@ -138,6 +140,15 @@ bool SDCardIsMounted() {
 }
 
 /**
+ * @brief Formats the SD card.
+ */
+void SDCardFormat() {
+    if (SYS_FS_DriveFormat(MOUNT_NAME, SYS_FS_FORMAT_SFD, 0) != SYS_FS_RES_SUCCESS) {
+        PrintFileSystemError("SYS_FS_DriveFormat", SYS_FS_Error());
+    }
+}
+
+/**
  * @brief Sets the volume label.
  * @param label Label.
  */
@@ -148,16 +159,22 @@ void SDCardSetVolumeLabel(const char* const label) {
 }
 
 /**
- * @brief Opens a file in either read or write mode.  Opening a file in write
- * mode will overwrite the file if it already exists.
+ * @brief Opens a file.  Writing a file that already exists will overwrite the
+ * existing file.
  * @param fileName File name.
- * @param writeMode True to open a file in write mode.
+ * @param write True to write a file.
  * @return SD card error.
  */
-SDCardError SDCardFileOpen(const char* const fileName, const bool writeMode) {
+SDCardError SDCardFileOpen(const char* const filePath, const bool write) {
+
+    // Change directory
+    const char* const fileName = ChangeDirectory(filePath, write);
+    if (fileName == NULL) {
+        return SDCardErrorFileSystemError;
+    }
 
     // Check if card full
-    if (writeMode == true) {
+    if (write == true) {
         uint32_t totalSectors;
         uint32_t freeSectors;
         if (SYS_FS_DriveSectorGet(MOUNT_NAME, &totalSectors, &freeSectors) != SYS_FS_RES_SUCCESS) {
@@ -170,12 +187,63 @@ SDCardError SDCardFileOpen(const char* const fileName, const bool writeMode) {
     }
 
     // Open file
-    fileHandle = SYS_FS_FileOpen(fileName, writeMode == true ? SYS_FS_FILE_OPEN_WRITE : SYS_FS_FILE_OPEN_READ);
+    fileHandle = SYS_FS_FileOpen(fileName, write == true ? SYS_FS_FILE_OPEN_WRITE : SYS_FS_FILE_OPEN_READ);
     if (fileHandle == SYS_FS_HANDLE_INVALID) {
         PrintFileSystemError("SYS_FS_FileOpen", SYS_FS_Error());
         return SDCardErrorFileSystemError;
     }
     return SDCardErrorOK;
+}
+
+/**
+ * @brief Changes the directory to that of the file path.
+ * @param filePath File path.
+ * @param createDirectory True to create the directory.
+ * @return File name.  NULL if a file system error occurred.
+ */
+static const char* ChangeDirectory(const char* const filePath, const bool createDirectory) {
+
+    // Change to root directory
+    if (SYS_FS_DirectoryChange("/") != SYS_FS_RES_SUCCESS) {
+        PrintFileSystemError("SYS_FS_DirectoryChange", SYS_FS_Error());
+        return NULL;
+    }
+
+    // Split file name and directory
+    const char* const directory = SDCardPathSplitDirectory(filePath);
+    const char* const fileName = SDCardPathSplitFileName(filePath);
+    if (strlen(directory) == 0) {
+        return fileName;
+    }
+
+    // Change directory
+    if (createDirectory == false) {
+        if (SYS_FS_DirectoryChange(directory) != SYS_FS_RES_SUCCESS) {
+            PrintFileSystemError("SYS_FS_DirectoryChange", SYS_FS_Error());
+            return NULL;
+        }
+        return fileName;
+    }
+
+    // Create directory
+    char incrementingPath[SD_CARD_MAX_PATH_SIZE] = "";
+    char tokenizedPath[SD_CARD_MAX_PATH_SIZE];
+    strncpy(tokenizedPath, directory, sizeof (tokenizedPath));
+    const char* directoryName = strtok(tokenizedPath, "/");
+    while (directoryName != NULL) {
+        if ((SYS_FS_DirectoryMake(directoryName) != SYS_FS_RES_SUCCESS) && (SYS_FS_Error() != SYS_FS_ERROR_EXIST)) {
+            PrintFileSystemError("SYS_FS_DirectoryMake", SYS_FS_Error());
+            return NULL;
+        }
+        strcat(incrementingPath, "/");
+        strcat(incrementingPath, directoryName);
+        if (SYS_FS_DirectoryChange(incrementingPath) != SYS_FS_RES_SUCCESS) {
+            PrintFileSystemError("SYS_FS_DirectoryChange", SYS_FS_Error());
+            return NULL;
+        }
+        directoryName = strtok(NULL, "/");
+    }
+    return fileName;
 }
 
 /**
@@ -261,43 +329,56 @@ void SDCardFileClose() {
 }
 
 /**
- * @brief Renames a file.  The file must be closed before it is renamed.
- * @param fileName File name.
- * @param newFileName New file name.
+ * @brief Renames a file or directory.
+ * @param path File or directory path.
+ * @param newPath New file or directory path.
  */
-void SDCardFileRename(const char* const fileName, const char* const newFileName) {
-    if (SYS_FS_FileDirectoryRenameMove(fileName, newFileName) != SYS_FS_RES_SUCCESS) {
+void SDCardRename(const char* const path, const char* const newPath) {
+    if (SYS_FS_DirectoryChange("/") != SYS_FS_RES_SUCCESS) {
+        PrintFileSystemError("SYS_FS_DirectoryChange", SYS_FS_Error());
+        return;
+    }
+    if (SYS_FS_FileDirectoryRenameMove(path, newPath) != SYS_FS_RES_SUCCESS) {
         PrintFileSystemError("SYS_FS_FileDirectoryRenameMove", SYS_FS_Error());
     }
 }
 
 /**
- * @brief Deletes a file.  The file must be closed before it is deleted.
- * @param fileName File name.
+ * @brief Deletes a file or directory.
+ * @param path File or directory path.
  */
-void SDCardFileDelete(const char* const fileName) {
-    if (SYS_FS_FileDirectoryRemove(fileName) != SYS_FS_RES_SUCCESS) {
+void SDCardDelete(const char* const path) {
+    if (SYS_FS_DirectoryChange("/") != SYS_FS_RES_SUCCESS) {
+        PrintFileSystemError("SYS_FS_DirectoryChange", SYS_FS_Error());
+        return;
+    }
+    if (SYS_FS_FileDirectoryRemove(path) != SYS_FS_RES_SUCCESS) {
         PrintFileSystemError("SYS_FS_FileDirectoryRemove", SYS_FS_Error());
     }
 }
 
 /**
- * @brief Opens the root directory.
+ * @brief Opens a directory.
+ * @param directory Directory.  Empty string if root.
  */
-void SDCardDirectoryOpen() {
-    directoryHandle = SYS_FS_DirOpen(MOUNT_NAME);
+void SDCardDirectoryOpen(const char* const directory) {
+    if (SYS_FS_DirectoryChange("/") != SYS_FS_RES_SUCCESS) {
+        PrintFileSystemError("SYS_FS_DirectoryChange", SYS_FS_Error());
+        return;
+    }
+    directoryHandle = SYS_FS_DirOpen(SDCardPathJoin(2, MOUNT_NAME, directory));
     if (directoryHandle == SYS_FS_HANDLE_INVALID) {
         PrintFileSystemError("SYS_FS_DirOpen", SYS_FS_Error());
     }
 }
 
 /**
- * @brief Searches the root directory for files matching the file name.  The
- * file name can include wild cards (e.g. "*.*" to match all files).  If
- * multiple files match the file name then this function can be called in a loop
- * to retrieve the file details for each file.  If no files match the file name
+ * @brief Searches the directory for files matching the file name.  The file
+ * name can include wild cards (e.g. "*.*" to match all files).  If multiple
+ * files match the file name then this function can be called in a loop to
+ * retrieve the file details for each file.  If no files match the file name
  * then the file name provided in the file details will be an empty string.
- * The root directory must be closed and reopened for each new search.
+ * The directory must be closed and reopened for each new search.
  * @param fileName File name.
  * @param fileDetails File details.
  */
@@ -305,7 +386,7 @@ void SDCardDirectorySearch(const char* const fileName, SDCardFileDetails * const
 
     // Get search result
     SYS_FS_FSTAT sysFSFstat;
-    char longFileName[SD_CARD_MAX_FILE_NAME_SIZE];
+    char longFileName[SD_CARD_MAX_PATH_SIZE];
     sysFSFstat.lfname = longFileName;
     sysFSFstat.lfsize = sizeof (longFileName);
     if (SYS_FS_DirSearch(directoryHandle, fileName, SYS_FS_ATTR_MASK, &sysFSFstat) == SYS_FS_RES_FAILURE) {
@@ -340,7 +421,7 @@ void SDCardDirectorySearch(const char* const fileName, SDCardFileDetails * const
 }
 
 /**
- * @brief Returns true if any files matching the file name exist in the root
+ * @brief Returns true if any files matching the file name exist in the
  * directory.  The file name can include wild cards (e.g. "*.txt" to match all
  * text files).  This function is optimised to be called in a loop to check the
  * exitance of multiple files that were written in the same order as being
@@ -370,12 +451,72 @@ bool SDCardDirectoryExists(const char* const fileName) {
 }
 
 /**
- * @brief Closes the root directory.
+ * @brief Closes the directory.
  */
 void SDCardDirectoryClose() {
     if (SYS_FS_DirClose(directoryHandle) != SYS_FS_RES_SUCCESS) {
         PrintFileSystemError("SYS_FS_DirClose", SYS_FS_FileError(directoryHandle));
     }
+}
+
+/**
+ * @brief Splits the file path to return the file name.
+ * @param filePath File path.
+ * @return File name.
+ */
+const char* SDCardPathSplitFileName(const char* const filePath) {
+    const char* const lastSeparator = strrchr(filePath, '/');
+    if (lastSeparator == NULL) {
+        return filePath;
+    }
+    return lastSeparator + 1;
+}
+
+/**
+ * @brief Splits the file path to return the directory.
+ * @param filePath File path.
+ * @return Directory.
+ */
+const char* SDCardPathSplitDirectory(const char* const filePath) {
+
+    // Copy file path
+    static char directory[SD_CARD_MAX_PATH_SIZE];
+    snprintf(directory, sizeof (directory), "%s", filePath);
+
+    // Truncate to directory
+    char* lastSeparator = strrchr(directory, '/');
+    if (lastSeparator == NULL) {
+        *directory = '\0';
+    } else {
+        *lastSeparator = '\0';
+    }
+    return directory;
+}
+
+/**
+ * @brief Joins parts and returns the resultant path.
+ * @param numberOfParts Number of parts.
+ * @param ... Parts.
+ * @return Path.
+ */
+const char* SDCardPathJoin(const int numberOfParts, ...) {
+    static char path[SD_CARD_MAX_PATH_SIZE];
+    strcpy(path, "");
+    va_list parts;
+    va_start(parts, numberOfParts);
+    int index;
+    for (index = 0; index < numberOfParts; index++) {
+        char tokenizedString[SD_CARD_MAX_PATH_SIZE];
+        strncpy(tokenizedString, va_arg(parts, char*), sizeof (tokenizedString));
+        const char* subPart = strtok(tokenizedString, "/");
+        while (subPart != NULL) {
+            strncat(path, "/", sizeof (path));
+            strncat(path, subPart, sizeof (path));
+            subPart = strtok(NULL, "/");
+        }
+    }
+    va_end(parts);
+    return path;
 }
 
 /**
