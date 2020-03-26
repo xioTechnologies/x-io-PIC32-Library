@@ -1,7 +1,7 @@
 /**
  * @file EepromHal.h
  * @author Seb Madgwick
- * @brief EEPROM driver hardware abstraction layer.
+ * @brief EEPROM driver Hardware Abstraction Layer.
  */
 
 #ifndef EEPROM_HAL_H

@@ -15,7 +15,7 @@
 #include <stddef.h>
 
 //------------------------------------------------------------------------------
-// Function prototypes
+// Function declarations
 
 void Spi2DmaInitialise(const SpiSettings * const settings);
 void Spi2DmaDisable();

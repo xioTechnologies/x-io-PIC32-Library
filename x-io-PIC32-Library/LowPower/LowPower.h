@@ -8,7 +8,7 @@
 #define LOW_POWER_H
 
 //------------------------------------------------------------------------------
-// Function prototypes
+// Function declarations
 
 void LowPowerIdle();
 void LowPowerSleep();

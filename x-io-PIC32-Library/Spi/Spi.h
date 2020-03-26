@@ -46,7 +46,7 @@ typedef struct {
 extern const SpiSettings spiSettingsDefault;
 
 //------------------------------------------------------------------------------
-// Function prototypes
+// Function declarations
 
 uint32_t SpiCalculateSpixbrg(const uint32_t clockFrequency);
 

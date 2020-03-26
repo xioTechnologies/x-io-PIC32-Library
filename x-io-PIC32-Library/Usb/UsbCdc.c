@@ -27,7 +27,7 @@
 #define BUFFER_INDEX_BIT_MASK (BUFFER_SIZE - 1)
 
 //------------------------------------------------------------------------------
-// Function prototypes
+// Function declarations
 
 static void APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void * eventData, uintptr_t context);
 static void APP_USBDeviceCDCEventHandler(USB_DEVICE_CDC_INDEX instanceIndex, USB_DEVICE_CDC_EVENT event, void* pData, uintptr_t context);

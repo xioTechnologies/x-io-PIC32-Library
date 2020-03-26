@@ -25,7 +25,7 @@ typedef enum {
 } ResetReasons;
 
 //------------------------------------------------------------------------------
-// Function prototypes
+// Function declarations
 
 ResetReasons ResetReasonGet();
 void ResetReasonPrint(const ResetReasons reasons);

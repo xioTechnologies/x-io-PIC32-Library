@@ -31,7 +31,7 @@ typedef enum {
 #define I2C_TIMEOUT (TIMER_TICKS_PER_SECOND / (I2CClockFrequency100kHz / 10))
 
 //------------------------------------------------------------------------------
-// Function prototypes
+// Function declarations
 
 uint32_t I2CCalculateI2Cxbrg(const uint32_t fsk);
 

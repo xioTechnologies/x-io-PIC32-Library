@@ -13,7 +13,7 @@
 #include <stdbool.h>
 
 //------------------------------------------------------------------------------
-// Function prototypes
+// Function declarations
 
 void UsbMsdTasks();
 bool UsbMsdIsHostConnected();

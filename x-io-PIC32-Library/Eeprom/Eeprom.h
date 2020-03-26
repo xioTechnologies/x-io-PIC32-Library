@@ -15,7 +15,7 @@
 #include <stdint.h>
 
 //------------------------------------------------------------------------------
-// Function prototypes
+// Function declarations
 
 void EepromRead(const uint16_t address, void* const destination, const size_t numberOfBytes);
 void EepromWrite(uint16_t address, const void* const data, const size_t numberOfBytes);

@@ -52,7 +52,7 @@ typedef struct {
 } SDCardFileDetails;
 
 //------------------------------------------------------------------------------
-// Function prototypes
+// Function declarations
 
 void SDCardTasks();
 void SDCardMount();

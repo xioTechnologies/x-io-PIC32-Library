@@ -35,7 +35,7 @@
 #define INTERRUPT_PRIORITY (INT_PRIORITY_LEVEL4)
 
 //------------------------------------------------------------------------------
-// Function prototypes
+// Function declarations
 
 static inline __attribute__((always_inline)) void RXInterruptTasks();
 static inline __attribute__((always_inline)) void TXInterruptTasks();

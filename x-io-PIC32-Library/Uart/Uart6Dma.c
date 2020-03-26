@@ -14,7 +14,7 @@
 #include <xc.h>
 
 //------------------------------------------------------------------------------
-// Function prototypes
+// Function declarations
 
 static inline __attribute__((always_inline)) void BlockTransferComplete();
 static inline __attribute__((always_inline)) void TransferAborted();

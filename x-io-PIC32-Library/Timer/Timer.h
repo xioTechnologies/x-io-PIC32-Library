@@ -28,7 +28,7 @@
 #endif
 
 //------------------------------------------------------------------------------
-// Function prototypes
+// Function declarations
 
 void TimerInitialise();
 void TimerDisable();

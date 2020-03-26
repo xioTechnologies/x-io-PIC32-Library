@@ -14,7 +14,7 @@
 #include <stdbool.h>
 
 //------------------------------------------------------------------------------
-// Function prototypes
+// Function declarations
 
 bool MsdMediaIsAttachedGet();
 void MsdMediaIsAttachedSet(const bool isAttached);

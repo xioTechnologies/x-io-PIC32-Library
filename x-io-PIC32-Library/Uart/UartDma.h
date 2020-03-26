@@ -30,7 +30,7 @@ typedef struct {
 extern const UartDmaReadConditions uartDmaReadConditionsDefault;
 
 //------------------------------------------------------------------------------
-// Function prototypes
+// Function declarations
 
 uint32_t UartDmaCalculateTimerResetValue(const uint32_t timeout);
 

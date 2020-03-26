@@ -35,7 +35,7 @@ typedef enum {
 } State;
 
 //------------------------------------------------------------------------------
-// Function prototypes
+// Function declarations
 
 static void MountingTasks();
 static void MountedTasks();

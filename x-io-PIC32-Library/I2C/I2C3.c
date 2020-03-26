@@ -26,7 +26,7 @@
 #endif
 
 //------------------------------------------------------------------------------
-// Function prototypes
+// Function declarations
 
 static void WaitForInterruptOrTimeout();
 

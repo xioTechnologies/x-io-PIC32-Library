@@ -12,7 +12,7 @@
 #include "Timer/Timer.h"
 
 //------------------------------------------------------------------------------
-// Function prototypes
+// Function declarations
 
 static inline __attribute__((always_inline)) void WaitHalfClockCycle();
 static inline __attribute__((always_inline)) void WriteScl(const bool state);

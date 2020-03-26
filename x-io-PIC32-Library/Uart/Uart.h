@@ -51,7 +51,7 @@ typedef struct {
 extern const UartSettings uartSettingsDefault;
 
 //------------------------------------------------------------------------------
-// Function prototypes
+// Function declarations
 
 uint32_t UartCalculateUxbrg(const uint32_t baudRate);
 

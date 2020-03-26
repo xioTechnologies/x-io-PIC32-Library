@@ -48,7 +48,7 @@ typedef struct {
 } I2CMessage;
 
 //------------------------------------------------------------------------------
-// Function prototypes
+// Function declarations
 
 void I2CMessageStart(I2CMessage * const message);
 void I2CMessageRestart(I2CMessage * const message);

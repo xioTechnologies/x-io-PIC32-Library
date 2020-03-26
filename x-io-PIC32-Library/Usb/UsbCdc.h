@@ -15,7 +15,7 @@
 #include <stdint.h>
 
 //------------------------------------------------------------------------------
-// Function prototypes
+// Function declarations
 
 void UsbCdcTasks();
 bool UsbCdcIsHostConnected();

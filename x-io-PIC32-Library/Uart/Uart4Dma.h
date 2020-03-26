@@ -16,7 +16,7 @@
 #include "UartDma.h"
 
 //------------------------------------------------------------------------------
-// Function prototypes
+// Function declarations
 
 void Uart4DmaInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions);
 void Uart4DmaDisable();

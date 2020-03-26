@@ -17,7 +17,7 @@
 #include <stdint.h>
 
 //------------------------------------------------------------------------------
-// Function prototypes
+// Function declarations
 
 void I2C3Initialise(const I2CClockFrequency clockFrequency);
 void I2C3Disable();

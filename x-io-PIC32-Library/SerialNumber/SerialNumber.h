@@ -22,7 +22,7 @@
 #define SERIAL_NUMBER_STRING_SIZE (sizeof("XXXX-XXXX-XXXX-XXXX"))
 
 //------------------------------------------------------------------------------
-// Function prototypes
+// Function declarations
 
 uint64_t SerialNumberGetUint64();
 void SerialNumberGetString(char* const destination, const size_t destinationSize);

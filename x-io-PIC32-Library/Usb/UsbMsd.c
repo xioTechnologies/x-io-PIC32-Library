@@ -11,7 +11,7 @@
 #include "UsbMsd.h"
 
 //------------------------------------------------------------------------------
-// Function prototypes
+// Function declarations
 
 static void APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void* eventData, uintptr_t context);
 

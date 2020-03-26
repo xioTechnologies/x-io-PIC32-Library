@@ -13,7 +13,7 @@
 #include <stdint.h>
 
 //------------------------------------------------------------------------------
-// Function prototypes
+// Function declarations
 
 uint8_t I2CSlaveAddressRead(const uint8_t slaveAddress);
 uint8_t I2CSlaveAddressWrite(const uint8_t slaveAddress);

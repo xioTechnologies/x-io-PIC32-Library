@@ -23,7 +23,7 @@
 #define PRINT_LINE_LENGTH (32)
 
 //------------------------------------------------------------------------------
-// Function prototypes
+// Function declarations
 
 static void StartSequence(const uint16_t address);
 static void PrintLine(const uint16_t address, const uint8_t * const data);

@@ -44,7 +44,7 @@ typedef enum {
 } State;
 
 //------------------------------------------------------------------------------
-// Function prototypes
+// Function declarations
 
 static void StateOpenTasks();
 static void StateWriteTasks();

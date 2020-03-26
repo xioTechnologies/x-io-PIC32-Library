@@ -15,7 +15,7 @@
 #include "Uart.h"
 
 //------------------------------------------------------------------------------
-// Function prototypes
+// Function declarations
 
 void Uart1Initialise(const UartSettings * const settings);
 void Uart1Disable();
