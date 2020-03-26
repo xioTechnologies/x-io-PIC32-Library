@@ -42,7 +42,7 @@ void Uart5DmaInitialise(const UartSettings * const settings, const UartDmaReadCo
     if (settings->rtsCtsEnabled == true) {
         U5MODEbits.UEN = 0b10; // UxTX, UxRX, UxCTS and UxRTS pins are enabled and used
     }
-    if (settings->invertDataLines == true) {
+    if (settings->invertTXRX == true) {
         U5MODEbits.RXINV = 1; // UxRX Idle state is '0'
         U5STAbits.UTXINV = 1; // UxTX Idle state is '0'
     }
@@ -66,8 +66,8 @@ void Uart5DmaInitialise(const UartSettings * const settings, const UartDmaReadCo
     if (validReadConditions.numberOfBytes > sizeof (readBuffer)) {
         validReadConditions.numberOfBytes = sizeof (readBuffer);
     }
-    if (validReadConditions.terminatingByte != -1) {
-        validReadConditions.terminatingByte &= 0xFF;
+    if (validReadConditions.terminationByte != -1) {
+        validReadConditions.terminationByte &= 0xFF;
     }
     if (validReadConditions.timeout > 1000) {
         validReadConditions.timeout = 1000;
@@ -78,7 +78,7 @@ void Uart5DmaInitialise(const UartSettings * const settings, const UartDmaReadCo
     DCH3ECONbits.CHSIRQ = INT_VECTOR_UART5_RX;
     DCH3ECONbits.SIRQEN = 1; // Start channel cell transfer if an interrupt matching CHSIRQ occurs
     DCH3ECONbits.AIRQEN = 1; // Channel transfer is aborted if an interrupt matching CHAIRQ occurs
-    if (readConditions->terminatingByte != -1) {
+    if (readConditions->terminationByte != -1) {
         DCH3ECONbits.PATEN = 1; // Abort transfer and clear CHEN on pattern match
     }
     DCH3SSA = KVA_TO_PA(&U5RXREG); // source address
@@ -86,7 +86,7 @@ void Uart5DmaInitialise(const UartSettings * const settings, const UartDmaReadCo
     DCH3SSIZ = 1; // source size
     DCH3DSIZ = validReadConditions.numberOfBytes; // destination size
     DCH3CSIZ = 1; // transfers per event
-    DCH3DAT = validReadConditions.terminatingByte; // pattern data
+    DCH3DAT = validReadConditions.terminationByte; // pattern data
     DCH3INTbits.CHBCIE = 1; // Channel Block Transfer Complete Interrupt Enable bit
     DCH3INTbits.CHTAIE = 1; // Channel Transfer Abort Interrupt Enable bit
     DCH3CONbits.CHEN = 1; // Channel is enabled
@@ -174,6 +174,9 @@ void Uart5DmaDisable() {
     // Disable interrupt
     SYS_INT_SourceDisable(INT_SOURCE_DMA_3);
     SYS_INT_SourceStatusClear(INT_SOURCE_DMA_3);
+
+    // Remove callback
+    readCallback = NULL;
 }
 
 /**
