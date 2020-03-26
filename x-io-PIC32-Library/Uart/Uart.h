@@ -42,7 +42,7 @@ typedef struct {
     bool rtsCtsEnabled;
     UartParityAndData parityAndData;
     UartStopBits stopBits;
-    bool invertDataLines;
+    bool invertTXRX;
 } UartSettings;
 
 //------------------------------------------------------------------------------

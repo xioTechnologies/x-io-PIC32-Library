@@ -29,7 +29,7 @@
 
 const UartDmaReadConditions uartDmaReadConditionsDefault = {
     .numberOfBytes = 1024,
-    .terminatingByte = -1,
+    .terminationByte = -1,
     .timeout = 10,
 };
 

@@ -67,7 +67,7 @@ void Uart4Initialise(const UartSettings * const settings) {
     if (settings->rtsCtsEnabled == true) {
         U4MODEbits.UEN = 0b10; // UxTX, UxRX, UxCTS and UxRTS pins are enabled and used
     }
-    if (settings->invertDataLines == true) {
+    if (settings->invertTXRX == true) {
         U4MODEbits.RXINV = 1; // UxRX Idle state is '0'
         U4STAbits.UTXINV = 1; // UxTX Idle state is '0'
     }
@@ -284,14 +284,14 @@ void __ISR(_UART_4_VECTOR) Uart4Interrupt() {
 /**
  * @brief UART RX interrupt.
  */
-void __ISR(_UART4_RX_VECTOR) Uart4RxInterrupt() {
+void __ISR(_UART4_RX_VECTOR) Uart4RXInterrupt() {
     RXInterruptTasks();
 }
 
 /**
  * @brief UART TX interrupt.
  */
-void __ISR(_UART4_TX_VECTOR) Uart4TxInterrupt() {
+void __ISR(_UART4_TX_VECTOR) Uart4TXInterrupt() {
     TXInterruptTasks();
 }
 

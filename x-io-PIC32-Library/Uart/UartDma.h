@@ -20,7 +20,7 @@
  */
 typedef struct {
     uint32_t numberOfBytes;
-    int terminatingByte; // -1 to disable
+    int terminationByte; // -1 to disable
     uint32_t timeout; // milliseconds
 } UartDmaReadConditions;
 
