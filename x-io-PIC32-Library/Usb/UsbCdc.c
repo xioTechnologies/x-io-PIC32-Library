@@ -38,7 +38,7 @@ static void WriteTasks();
 // Variables
 
 static USB_DEVICE_HANDLE usbDeviceHandle = USB_DEVICE_HANDLE_INVALID;
-static bool isConfigured;
+static bool isHostConnected;
 static uint8_t __attribute__((coherent)) readRequestData[512]; // must be declared __attribute__((coherent)) for PIC32MZ devices
 static bool readInProgress;
 static bool writeInProgress;
@@ -67,7 +67,7 @@ void UsbCdcTasks() {
     }
 
     // CDC read/write tasks
-    if (isConfigured == true) {
+    if (isHostConnected == true) {
         ReadTasks();
         WriteTasks();
     }
@@ -81,14 +81,14 @@ static void APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void* eventData, u
         case USB_DEVICE_EVENT_RESET:
         case USB_DEVICE_EVENT_SUSPENDED:
         case USB_DEVICE_EVENT_DECONFIGURED:
-            isConfigured = false;
+            isHostConnected = false;
             readInProgress = false;
             writeInProgress = false;
             break;
         case USB_DEVICE_EVENT_CONFIGURED:
             if (((USB_DEVICE_EVENT_DATA_CONFIGURED *) eventData)->configurationValue == 1) {
                 USB_DEVICE_CDC_EventHandlerSet(USB_DEVICE_CDC_INDEX_0, APP_USBDeviceCDCEventHandler, (uintptr_t) NULL);
-                isConfigured = true;
+                isHostConnected = true;
             }
             break;
         case USB_DEVICE_EVENT_POWER_DETECTED:
@@ -126,13 +126,13 @@ static void APP_USBDeviceCDCEventHandler(USB_DEVICE_CDC_INDEX instanceIndex, USB
             USB_DEVICE_ControlStatus(usbDeviceHandle, USB_DEVICE_CONTROL_STATUS_OK);
             break;
         case USB_DEVICE_CDC_EVENT_READ_COMPLETE:
-        {
-            const size_t numberOfBytes = ((USB_DEVICE_CDC_EVENT_DATA_READ_COMPLETE*) pData)->length;
-            readBufferWriteIndex &= BUFFER_INDEX_BIT_MASK;
-            CircularBufferWrite(readBuffer, BUFFER_SIZE, &readBufferWriteIndex, readRequestData, numberOfBytes);
-            readInProgress = false;
+            if (readInProgress == true) { // prevent unexpected read event for PIC32MZ devices when host reconnected
+                const size_t numberOfBytes = ((USB_DEVICE_CDC_EVENT_DATA_READ_COMPLETE*) pData)->length;
+                readBufferWriteIndex &= BUFFER_INDEX_BIT_MASK;
+                CircularBufferWrite(readBuffer, BUFFER_SIZE, &readBufferWriteIndex, readRequestData, numberOfBytes);
+                readInProgress = false;
+            }
             break;
-        }
         case USB_DEVICE_CDC_EVENT_CONTROL_TRANSFER_DATA_RECEIVED:
             USB_DEVICE_ControlStatus(usbDeviceHandle, USB_DEVICE_CONTROL_STATUS_OK);
             break;
@@ -204,7 +204,7 @@ static void WriteTasks() {
  * @return True if the USB host is connected.
  */
 bool UsbCdcIsHostConnected() {
-    return isConfigured;
+    return isHostConnected;
 }
 
 /**

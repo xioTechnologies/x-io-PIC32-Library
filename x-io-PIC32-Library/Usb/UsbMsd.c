@@ -19,7 +19,7 @@ static void APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void* eventData, u
 // Variables
 
 static USB_DEVICE_HANDLE usbDeviceHandle = USB_DEVICE_HANDLE_INVALID;
-static bool isConfigured;
+static bool isHostConnected;
 
 //------------------------------------------------------------------------------
 // Functions
@@ -45,11 +45,11 @@ static void APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void* eventData, u
         case USB_DEVICE_EVENT_RESET:
         case USB_DEVICE_EVENT_SUSPENDED:
         case USB_DEVICE_EVENT_DECONFIGURED:
-            isConfigured = false;
+            isHostConnected = false;
             break;
         case USB_DEVICE_EVENT_CONFIGURED:
             if (((USB_DEVICE_EVENT_DATA_CONFIGURED *) eventData)->configurationValue == 1) {
-                isConfigured = true;
+                isHostConnected = true;
             }
             break;
         case USB_DEVICE_EVENT_POWER_DETECTED:
@@ -68,7 +68,7 @@ static void APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void* eventData, u
  * @return True if the USB host is connected.
  */
 bool UsbMsdIsHostConnected() {
-    return isConfigured;
+    return isHostConnected;
 }
 
 //------------------------------------------------------------------------------
