@@ -12,7 +12,7 @@
 
 /**
  * @brief Macro for lambda functions.
- * 
+ *
  * Example:
  * @code
  * void (*callback)(const int x);
@@ -21,7 +21,7 @@
  *     const int xSquared = x * x;
  *     printf("%i", xSquared);
  * });
- * 
+ *
  * callback(5);
  * @endcode
  */

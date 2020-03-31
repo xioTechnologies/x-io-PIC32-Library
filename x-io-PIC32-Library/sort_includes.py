@@ -30,9 +30,11 @@ def process_file(file_path):
     include_lines.sort(key=lambda line: line.upper())
 
     # Use angle brackets for standard libraries (https://en.wikipedia.org/wiki/C_standard_library)
-    standard_libraries = ["\"assert.h\"", "\"complex.h\"", "\"ctype.h\"", "\"errno.h\"", "\"fenv.h\"", "\"float.h\"", "\"inttypes.h\"", "\"iso646.h\"", "\"limits.h\"", "\"locale.h\"", "\"math.h\"", "\"setjmp.h\"", "\"signal.h\"", "\"stdalign.h\"",
-                          "\"stdarg.h\"", "\"stdatomic.h\"", "\"stdbool.h\"", "\"stddef.h\"", "\"stdint.h\"", "\"stdio.h\"", "\"stdlib.h\"", "\"stdnoreturn.h\"", "\"string.h\"", "\"tgmath.h\"", "\"threads.h\"", "\"time.h\"", "\"uchar.h\"", "\"wchar.h\"", "\"wctype.h\"",
-                          "\"xc.h\""]
+    standard_libraries = ["\"assert.h\"", "\"complex.h\"", "\"ctype.h\"", "\"errno.h\"", "\"fenv.h\"", "\"float.h\"", "\"inttypes.h\"",
+                          "\"iso646.h\"", "\"limits.h\"", "\"locale.h\"", "\"math.h\"", "\"setjmp.h\"", "\"signal.h\"", "\"stdalign.h\"",
+                          "\"stdarg.h\"", "\"stdatomic.h\"", "\"stdbool.h\"", "\"stddef.h\"", "\"stdint.h\"", "\"stdio.h\"", "\"stdlib.h\"",
+                          "\"stdnoreturn.h\"", "\"string.h\"", "\"tgmath.h\"", "\"threads.h\"", "\"time.h\"", "\"uchar.h\"", "\"wchar.h\"",
+                          "\"wctype.h\"", "\"xc.h\""]
 
     for index, _ in enumerate(include_lines):
         for standard_library in standard_libraries:
