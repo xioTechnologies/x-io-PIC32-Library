@@ -9,20 +9,22 @@ def process_file(file_path):
 
     # Extract lines
     hash_include = "#include"
-    waiting_for_includes = True
+
     include_lines = []
-    lines_before_includes = []
-    lines_after_includes = []
+    lines_before = []
+    lines_after = []
+
+    waiting_for_includes = True
 
     for line in all_lines:
-        if line.lstrip()[0:len(hash_include)] == hash_include:
+        if line.lstrip().startswith(hash_include):
             include_lines.append(str(line.lstrip()).replace("<", "\"").replace(">", "\""))
             waiting_for_includes = False
             continue
         if waiting_for_includes:
-            lines_before_includes.append(line)
+            lines_before.append(line)
         else:
-            lines_after_includes.append(line)
+            lines_after.append(line)
 
     # Alphabetise includes
     include_lines.sort(key=lambda line: line.upper())
@@ -39,13 +41,12 @@ def process_file(file_path):
 
     # Overwrite original file
     with open(file_path, "w") as source_file:
-        for line in lines_before_includes:
+        for line in lines_before:
             source_file.write(line)
         for line in include_lines:
             source_file.write(line)
-        for line in lines_after_includes:
+        for line in lines_after:
             source_file.write(line)
-        source_file.close()
 
 
 # Recursively process each file
