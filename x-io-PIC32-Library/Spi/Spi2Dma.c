@@ -30,6 +30,7 @@ void Spi2DmaInitialise(const SpiSettings * const settings) {
 
     // Configure SPI
     SPI2CONbits.MSTEN = 1; // Master mode
+    SPI2CONbits.SMP = 1; // Input data sampled at end of data output time
     SPI2CONbits.CKP = settings->clockPolarity;
     SPI2CONbits.CKE = settings->clockPhase;
     SPI2BRG = SpiCalculateSpixbrg(settings->clockFrequency);
