@@ -18,18 +18,6 @@
 // Definitions
 
 /**
- * @brief Read and write buffers size.  Must be a 2^n number (e.g. 256, 512,
- * 1024, 2048, 4096, etc.).
- */
-#define BUFFER_SIZE (4096)
-
-/**
- * @brief Read and write buffers index mask.  This value is bitwise anded with
- * buffer indexes for fast overflow operations.
- */
-#define BUFFER_INDEX_BIT_MASK (BUFFER_SIZE - 1)
-
-/**
  * @brief TX and RX interrupt priority.
  */
 #define INTERRUPT_PRIORITY (INT_PRIORITY_LEVEL4)
@@ -44,12 +32,10 @@ static inline __attribute__((always_inline)) void TXInterruptTasks();
 // Variables
 
 static bool receiveBufferOverrun;
-static uint8_t readBuffer[BUFFER_SIZE];
-static int readBufferWriteIndex;
-static int readBufferReadIndex;
-static uint8_t writeBuffer[BUFFER_SIZE];
-static int writeBufferWriteIndex;
-static int writeBufferReadIndex;
+static uint8_t readBufferData[4096];
+static CircularBuffer readBuffer = {.buffer = readBufferData, .bufferSize = sizeof (readBufferData)};
+static uint8_t writeBufferData[4096];
+static CircularBuffer writeBuffer = {.buffer = writeBufferData, .bufferSize = sizeof (writeBufferData)};
 
 //------------------------------------------------------------------------------
 // Functions
@@ -130,7 +116,7 @@ size_t Uart3GetReadAvailable() {
     }
 
     // Return number of bytes
-    return (readBufferWriteIndex - readBufferReadIndex) & BUFFER_INDEX_BIT_MASK;
+    return CircularBufferGetReadAvaliable(&readBuffer);
 }
 
 /**
@@ -140,17 +126,7 @@ size_t Uart3GetReadAvailable() {
  * @return Number of bytes read.
  */
 size_t Uart3Read(void* const destination, size_t numberOfBytes) {
-
-    // Limit number of bytes to number available
-    const size_t bytesAvailable = Uart3GetReadAvailable();
-    if (numberOfBytes > bytesAvailable) {
-        numberOfBytes = bytesAvailable;
-    }
-
-    // Read data
-    readBufferReadIndex &= BUFFER_INDEX_BIT_MASK;
-    CircularBufferRead(readBuffer, BUFFER_SIZE, &readBufferReadIndex, destination, numberOfBytes);
-    return numberOfBytes;
+    return CircularBufferRead(&readBuffer, destination, numberOfBytes);
 }
 
 /**
@@ -159,7 +135,7 @@ size_t Uart3Read(void* const destination, size_t numberOfBytes) {
  * @return Byte.
  */
 uint8_t Uart3ReadByte() {
-    return readBuffer[readBufferReadIndex++ & BUFFER_INDEX_BIT_MASK];
+    return CircularBufferReadByte(&readBuffer);
 }
 
 /**
@@ -167,7 +143,7 @@ uint8_t Uart3ReadByte() {
  * @return Space available in the write buffer.
  */
 size_t Uart3GetWriteAvailable() {
-    return (BUFFER_SIZE - 1) - ((writeBufferWriteIndex - writeBufferReadIndex) & BUFFER_INDEX_BIT_MASK);
+    return CircularBufferGetWriteAvaliable(&writeBuffer);
 }
 
 /**
@@ -176,15 +152,7 @@ size_t Uart3GetWriteAvailable() {
  * @param numberOfBytes Number of bytes.
  */
 void Uart3Write(const void* const data, const size_t numberOfBytes) {
-
-    // Do nothing if not enough space available
-    if (Uart3GetWriteAvailable() < numberOfBytes) {
-        return;
-    }
-
-    // Write data
-    writeBufferWriteIndex &= BUFFER_INDEX_BIT_MASK;
-    CircularBufferWrite(writeBuffer, BUFFER_SIZE, &writeBufferWriteIndex, data, numberOfBytes);
+    CircularBufferWrite(&writeBuffer, data, numberOfBytes);
     SYS_INT_SourceEnable(INT_SOURCE_USART_3_TRANSMIT);
 }
 
@@ -193,14 +161,7 @@ void Uart3Write(const void* const data, const size_t numberOfBytes) {
  * @param byte Byte.
  */
 void Uart3WriteByte(const uint8_t byte) {
-
-    // Do nothing if not enough space available
-    if (Uart3GetWriteAvailable() == 0) {
-        return;
-    }
-
-    // Write byte
-    writeBuffer[writeBufferWriteIndex++ & BUFFER_INDEX_BIT_MASK] = byte;
+    CircularBufferWriteByte(&writeBuffer, byte);
     SYS_INT_SourceEnable(INT_SOURCE_USART_3_TRANSMIT);
 }
 
@@ -211,13 +172,13 @@ void Uart3WriteByte(const uint8_t byte) {
 void Uart3WriteString(const char* string) {
 
     // Do nothing if not enough space available
-    if (Uart3GetWriteAvailable() < strlen(string)) {
+    if (CircularBufferGetWriteAvaliable(&writeBuffer) < strlen(string)) {
         return;
     }
 
     // Write string
     while (*string != '\0') {
-        writeBuffer[writeBufferWriteIndex++ & BUFFER_INDEX_BIT_MASK] = *string++;
+        CircularBufferWriteByte(&writeBuffer, *string++);
     }
     SYS_INT_SourceEnable(INT_SOURCE_USART_3_TRANSMIT);
 }
@@ -226,7 +187,7 @@ void Uart3WriteString(const char* string) {
  * @brief Clears the read buffer and resets the read buffer overrun flag.
  */
 void Uart3ClearReadBuffer() {
-    readBufferReadIndex = readBufferWriteIndex & BUFFER_INDEX_BIT_MASK;
+    CircularBufferClear(&readBuffer);
     Uart3HasReceiveBufferOverrun();
 }
 
@@ -234,7 +195,7 @@ void Uart3ClearReadBuffer() {
  * @brief Clears the write buffer.
  */
 void Uart3ClearWriteBuffer() {
-    writeBufferWriteIndex = writeBufferReadIndex & BUFFER_INDEX_BIT_MASK;
+    CircularBufferClear(&writeBuffer);
 }
 
 /**
@@ -302,11 +263,11 @@ void __ISR(_UART3_TX_VECTOR) Uart3TXInterrupt() {
  */
 static inline __attribute__((always_inline)) void RXInterruptTasks() {
     while (U3STAbits.URXDA == 1) { // repeat while data available in receive buffer
-        if (((readBufferReadIndex - readBufferWriteIndex) & BUFFER_INDEX_BIT_MASK) == 1) { // if read buffer full
+        if (CircularBufferGetWriteAvaliable(&readBuffer) == 0) { // if read buffer full
             SYS_INT_SourceDisable(INT_SOURCE_USART_3_RECEIVE);
             break;
         } else {
-            readBuffer[readBufferWriteIndex++ & BUFFER_INDEX_BIT_MASK] = U3RXREG;
+            CircularBufferWriteByte(&readBuffer, U3RXREG);
         }
     }
     SYS_INT_SourceStatusClear(INT_SOURCE_USART_3_RECEIVE);
@@ -319,10 +280,10 @@ static inline __attribute__((always_inline)) void TXInterruptTasks() {
     SYS_INT_SourceDisable(INT_SOURCE_USART_3_TRANSMIT); // disable TX interrupt to avoid nested interrupt
     SYS_INT_SourceStatusClear(INT_SOURCE_USART_3_TRANSMIT);
     while (U3STAbits.UTXBF == 0) { // repeat while transmit buffer not full
-        if (((writeBufferReadIndex - writeBufferWriteIndex) & BUFFER_INDEX_BIT_MASK) == 0) { // if write buffer empty
+        if (CircularBufferGetReadAvaliable(&writeBuffer) == 0) { // if write buffer empty
             return;
         }
-        U3TXREG = writeBuffer[writeBufferReadIndex++ & BUFFER_INDEX_BIT_MASK];
+        U3TXREG = CircularBufferReadByte(&writeBuffer);
     }
     SYS_INT_SourceEnable(INT_SOURCE_USART_3_TRANSMIT); // re-enable TX interrupt
 }

@@ -19,11 +19,6 @@
 // Definitions
 
 /**
- * @brief Buffer size.
- */
-#define BUFFER_SIZE (400000)
-
-/**
  * @brief File name used while the file is open.
  */
 #define FILE_PATH "/Data/File"
@@ -65,9 +60,8 @@ static SDCardLoggingCallbacks applicationCallbacks;
 static State state = StateDisabled;
 static uint64_t fileStartTicks;
 static uint32_t fileSize;
-static uint8_t buffer[BUFFER_SIZE];
-static int bufferWriteIndex;
-static int bufferReadIndex;
+static uint8_t bufferData[400000];
+static CircularBuffer buffer = {.buffer = bufferData, .bufferSize = sizeof (bufferData)};
 #ifdef PRINT_STATISTICS
 static uint32_t maxWritePeriod;
 static uint32_t maxbufferUsed;
@@ -125,7 +119,7 @@ void SDCardLoggingStart() {
         case StateError:
             break;
     }
-    bufferWriteIndex = bufferReadIndex; // clear buffer
+    CircularBufferClear(&buffer);
     state = StateOpen;
 }
 
@@ -272,20 +266,20 @@ static int WriteToFile() {
     }
 
     // Do nothing else if no data avaliable
-    const int bufferWriteIndexCache = bufferWriteIndex; // avoid asynchronous hazard
-    if (bufferReadIndex == bufferWriteIndexCache) {
+    const int writeIndex = buffer.writeIndex; // avoid asynchronous hazard
+    if (buffer.readIndex == writeIndex) {
         return 0;
     }
 
     // Calculate number of bytes to write
     size_t numberOfBytes;
-    int newbufferReadIndex;
-    if (bufferWriteIndexCache < bufferReadIndex) {
-        numberOfBytes = BUFFER_SIZE - bufferReadIndex;
-        newbufferReadIndex = 0;
+    int newReadIndex;
+    if (writeIndex < buffer.readIndex) {
+        numberOfBytes = buffer.bufferSize - buffer.readIndex;
+        newReadIndex = 0;
     } else {
-        numberOfBytes = bufferWriteIndexCache - bufferReadIndex;
-        newbufferReadIndex = bufferWriteIndexCache;
+        numberOfBytes = writeIndex - buffer.readIndex;
+        newReadIndex = writeIndex;
     }
 
     // Restart logging if maximum file size reached
@@ -305,8 +299,8 @@ static int WriteToFile() {
 #ifdef PRINT_STATISTICS
     const uint64_t writeStartTicks = TimerGetTicks64();
 #endif
-    const SDCardError sdCardError = SDCardFileWrite(&buffer[bufferReadIndex], numberOfBytes);
-    bufferReadIndex = newbufferReadIndex;
+    const SDCardError sdCardError = SDCardFileWrite(&buffer.buffer[buffer.readIndex], numberOfBytes);
+    buffer.readIndex = newReadIndex;
     fileSize += numberOfBytes;
 #ifdef PRINT_STATISTICS
     const uint64_t writePeriod = TimerGetTicks64() - writeStartTicks;
@@ -459,11 +453,7 @@ static void CreateFileNameUsingTime(char* const destination, const size_t destin
  * @return Space available in the write buffer.
  */
 size_t SDCardLoggingGetWriteAvailable() {
-    if (bufferWriteIndex < bufferReadIndex) {
-        return (BUFFER_SIZE - 1) - (BUFFER_SIZE - bufferReadIndex) - bufferWriteIndex;
-    } else {
-        return (BUFFER_SIZE - 1) - (bufferWriteIndex - bufferReadIndex);
-    }
+    return CircularBufferGetWriteAvaliable(&buffer);
 }
 
 /**
@@ -499,7 +489,7 @@ void SDCardLoggingWrite(const void* const data, const size_t numberOfBytes) {
         maxbufferUsed = bufferUsed;
     }
 #endif
-    CircularBufferWrite(buffer, BUFFER_SIZE, &bufferWriteIndex, data, numberOfBytes);
+    CircularBufferWrite(&buffer, data, numberOfBytes);
 }
 
 #ifdef PRINT_STATISTICS

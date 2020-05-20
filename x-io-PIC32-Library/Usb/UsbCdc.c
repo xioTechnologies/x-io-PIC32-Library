@@ -12,21 +12,6 @@
 #include "UsbCdc.h"
 
 //------------------------------------------------------------------------------
-// Definitions
-
-/**
- * @brief Read and write buffers size.  Must be a 2^n number, e.g. 256, 512,
- * 1024, 2048, 4096, etc.
- */
-#define BUFFER_SIZE (4096)
-
-/**
- * @brief Read and write buffers index mask.  This value is bitwise anded with
- * buffer indexes for fast overflow operations.
- */
-#define BUFFER_INDEX_BIT_MASK (BUFFER_SIZE - 1)
-
-//------------------------------------------------------------------------------
 // Function declarations
 
 static void APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void * eventData, uintptr_t context);
@@ -42,12 +27,10 @@ static bool isHostConnected;
 static uint8_t __attribute__((coherent)) readRequestData[512]; // must be declared __attribute__((coherent)) for PIC32MZ devices
 static bool readInProgress;
 static bool writeInProgress;
-static uint8_t readBuffer[BUFFER_SIZE];
-static int readBufferWriteIndex;
-static int readBufferReadIndex;
-static uint8_t writeBuffer[BUFFER_SIZE];
-static int writeBufferWriteIndex;
-static int writeBufferReadIndex;
+static uint8_t readBufferData[4096];
+static CircularBuffer readBuffer = {.buffer = readBufferData, .bufferSize = sizeof (readBufferData)};
+static uint8_t writeBufferData[4096];
+static CircularBuffer writeBuffer = {.buffer = writeBufferData, .bufferSize = sizeof (writeBufferData)};
 
 //------------------------------------------------------------------------------
 // Functions
@@ -128,8 +111,7 @@ static void APP_USBDeviceCDCEventHandler(USB_DEVICE_CDC_INDEX instanceIndex, USB
         case USB_DEVICE_CDC_EVENT_READ_COMPLETE:
             if (readInProgress == true) { // prevent unexpected read event for PIC32MZ devices when host reconnected
                 const size_t numberOfBytes = ((USB_DEVICE_CDC_EVENT_DATA_READ_COMPLETE*) pData)->length;
-                readBufferWriteIndex &= BUFFER_INDEX_BIT_MASK;
-                CircularBufferWrite(readBuffer, BUFFER_SIZE, &readBufferWriteIndex, readRequestData, numberOfBytes);
+                CircularBufferWrite(&readBuffer, readRequestData, numberOfBytes);
                 readInProgress = false;
             }
             break;
@@ -175,18 +157,13 @@ static void WriteTasks() {
     }
 
     // Do nothing if no data available
-    size_t numberOfBytes = (writeBufferWriteIndex - writeBufferReadIndex) & BUFFER_INDEX_BIT_MASK;
-    if (numberOfBytes == 0) {
+    if (CircularBufferGetReadAvaliable(&writeBuffer) == 0) {
         return;
     }
 
     // Copy data to buffer
     static uint8_t __attribute__((coherent)) buffer[1024]; // must be declared __attribute__((coherent)) for PIC32MZ devices
-    if (numberOfBytes > sizeof (buffer)) {
-        numberOfBytes = sizeof (buffer);
-    }
-    int writeBufferReadIndexCache = writeBufferReadIndex & BUFFER_INDEX_BIT_MASK;
-    CircularBufferRead(writeBuffer, BUFFER_SIZE, &writeBufferReadIndexCache, buffer, numberOfBytes);
+    const size_t numberOfBytes = CircularBufferRead(&writeBuffer, buffer, sizeof (buffer));
 
     // Schedule write
     writeInProgress = true;
@@ -196,7 +173,6 @@ static void WriteTasks() {
         writeInProgress = false;
         return;
     }
-    writeBufferReadIndex = writeBufferReadIndexCache;
 }
 
 /**
@@ -212,7 +188,7 @@ bool UsbCdcIsHostConnected() {
  * @return Number of bytes available in the read buffer.
  */
 size_t UsbCdcGetReadAvailable() {
-    return (readBufferWriteIndex - readBufferReadIndex) & BUFFER_INDEX_BIT_MASK;
+    return CircularBufferGetReadAvaliable(&readBuffer);
 }
 
 /**
@@ -222,17 +198,7 @@ size_t UsbCdcGetReadAvailable() {
  * @return Number of bytes read.
  */
 size_t UsbCdcRead(void* const destination, size_t numberOfBytes) {
-
-    // Limit number of bytes to number available
-    const size_t bytesAvailable = UsbCdcGetReadAvailable();
-    if (numberOfBytes > bytesAvailable) {
-        numberOfBytes = bytesAvailable;
-    }
-
-    // Read data
-    readBufferReadIndex &= BUFFER_INDEX_BIT_MASK;
-    CircularBufferRead(readBuffer, BUFFER_SIZE, &readBufferReadIndex, destination, numberOfBytes);
-    return numberOfBytes;
+    return CircularBufferRead(&readBuffer, destination, numberOfBytes);
 }
 
 /**
@@ -241,7 +207,7 @@ size_t UsbCdcRead(void* const destination, size_t numberOfBytes) {
  * @return Byte.
  */
 uint8_t UsbCdcReadByte() {
-    return readBuffer[readBufferReadIndex++ & BUFFER_INDEX_BIT_MASK];
+    return CircularBufferReadByte(&readBuffer);
 }
 
 /**
@@ -249,7 +215,7 @@ uint8_t UsbCdcReadByte() {
  * @return Space available in the write buffer.
  */
 size_t UsbCdcGetWriteAvailable() {
-    return (BUFFER_SIZE - 1) - ((writeBufferWriteIndex - writeBufferReadIndex) & BUFFER_INDEX_BIT_MASK);
+    return CircularBufferGetWriteAvaliable(&writeBuffer);
 }
 
 /**
@@ -258,15 +224,7 @@ size_t UsbCdcGetWriteAvailable() {
  * @param numberOfBytes Number of bytes.
  */
 void UsbCdcWrite(const void* const data, const size_t numberOfBytes) {
-
-    // Do nothing if no space avaliable
-    if (UsbCdcGetWriteAvailable() < numberOfBytes) {
-        return;
-    }
-
-    // Write data
-    writeBufferWriteIndex &= BUFFER_INDEX_BIT_MASK;
-    CircularBufferWrite(writeBuffer, BUFFER_SIZE, &writeBufferWriteIndex, data, numberOfBytes);
+    CircularBufferWrite(&writeBuffer, data, numberOfBytes);
 }
 
 /**
@@ -274,14 +232,7 @@ void UsbCdcWrite(const void* const data, const size_t numberOfBytes) {
  * @param byte Byte.
  */
 void UsbCdcWriteByte(const uint8_t byte) {
-
-    // Do nothing if not enough space available
-    if (UsbCdcGetWriteAvailable() == 0) {
-        return;
-    }
-
-    // Write byte
-    writeBuffer[writeBufferWriteIndex++ & BUFFER_INDEX_BIT_MASK] = byte;
+    CircularBufferWriteByte(&writeBuffer, byte);
 }
 
 //------------------------------------------------------------------------------
