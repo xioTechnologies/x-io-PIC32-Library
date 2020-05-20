@@ -38,8 +38,6 @@ typedef enum {
 //------------------------------------------------------------------------------
 // Function declarations
 
-static void MountingTasks();
-static void MountedTasks();
 static const char* ChangeDirectory(const char* const filePath, const bool createDirectory);
 static void PrintFileSystemError(const char* functionName, const SYS_FS_ERROR sysFSError);
 
@@ -60,41 +58,23 @@ static SYS_FS_HANDLE directoryHandle = SYS_FS_HANDLE_INVALID;
 void SDCardTasks() {
     switch (state) {
         case StateMounting:
-            MountingTasks();
+            if (DRV_SDCARD_IsAttached(DRV_SDCARD_INDEX_0) == false) {
+                return;
+            }
+            if (SYS_FS_Mount("/dev/mmcblka1", MOUNT_NAME, FAT, 0, NULL) != SYS_FS_RES_SUCCESS) {
+                PrintFileSystemError("SYS_FS_Mount", SYS_FS_Error());
+                return;
+            }
+            state = StateMounted;
             break;
         case StateMounted:
-            MountedTasks();
+            if (DRV_SDCARD_IsAttached(DRV_SDCARD_INDEX_0) == false) {
+                SDCardUnmount();
+                SDCardMount();
+            }
             break;
         case StateUnmounted:
             break;
-    }
-}
-
-/**
- * @brief Mounting tasks.
- */
-static void MountingTasks() {
-
-    // Do nothing if SD card not attached
-    if (DRV_SDCARD_IsAttached(DRV_SDCARD_INDEX_0) == false) {
-        return;
-    }
-
-    // Mount SD card
-    if (SYS_FS_Mount("/dev/mmcblka1", MOUNT_NAME, FAT, 0, NULL) != SYS_FS_RES_SUCCESS) {
-        PrintFileSystemError("SYS_FS_Mount", SYS_FS_Error());
-        return;
-    }
-    state = StateMounted;
-}
-
-/**
- * @brief Mounted tasks.
- */
-static void MountedTasks() {
-    if (DRV_SDCARD_IsAttached(DRV_SDCARD_INDEX_0) == false) {
-        SDCardUnmount();
-        SDCardMount();
     }
 }
 
@@ -228,15 +208,14 @@ static const char* ChangeDirectory(const char* const filePath, const bool create
     // Create directory
     char incrementingPath[SD_CARD_MAX_PATH_SIZE] = "";
     char tokenizedPath[SD_CARD_MAX_PATH_SIZE];
-    strncpy(tokenizedPath, directory, sizeof (tokenizedPath));
+    snprintf(tokenizedPath, sizeof (tokenizedPath), "%s", directory);
     const char* directoryName = strtok(tokenizedPath, "/");
     while (directoryName != NULL) {
         if ((SYS_FS_DirectoryMake(directoryName) != SYS_FS_RES_SUCCESS) && (SYS_FS_Error() != SYS_FS_ERROR_EXIST)) {
             PrintFileSystemError("SYS_FS_DirectoryMake", SYS_FS_Error());
             return NULL;
         }
-        strcat(incrementingPath, "/");
-        strcat(incrementingPath, directoryName);
+        snprintf(incrementingPath, sizeof (incrementingPath), "%s", SDCardPathJoin(2, incrementingPath, directoryName));
         if (SYS_FS_DirectoryChange(incrementingPath) != SYS_FS_RES_SUCCESS) {
             PrintFileSystemError("SYS_FS_DirectoryChange", SYS_FS_Error());
             return NULL;
@@ -329,37 +308,8 @@ void SDCardFileClose() {
 }
 
 /**
- * @brief Renames a file or directory.
- * @param path File or directory path.
- * @param newPath New file or directory path.
- */
-void SDCardRename(const char* const path, const char* const newPath) {
-    if (SYS_FS_DirectoryChange("/") != SYS_FS_RES_SUCCESS) {
-        PrintFileSystemError("SYS_FS_DirectoryChange", SYS_FS_Error());
-        return;
-    }
-    if (SYS_FS_FileDirectoryRenameMove(path, newPath) != SYS_FS_RES_SUCCESS) {
-        PrintFileSystemError("SYS_FS_FileDirectoryRenameMove", SYS_FS_Error());
-    }
-}
-
-/**
- * @brief Deletes a file or directory.
- * @param path File or directory path.
- */
-void SDCardDelete(const char* const path) {
-    if (SYS_FS_DirectoryChange("/") != SYS_FS_RES_SUCCESS) {
-        PrintFileSystemError("SYS_FS_DirectoryChange", SYS_FS_Error());
-        return;
-    }
-    if (SYS_FS_FileDirectoryRemove(path) != SYS_FS_RES_SUCCESS) {
-        PrintFileSystemError("SYS_FS_FileDirectoryRemove", SYS_FS_Error());
-    }
-}
-
-/**
  * @brief Opens a directory.
- * @param directory Directory.  Empty string if root.
+ * @param directory Directory.  "" if root.
  */
 void SDCardDirectoryOpen(const char* const directory) {
     if (SYS_FS_DirectoryChange("/") != SYS_FS_RES_SUCCESS) {
@@ -460,6 +410,114 @@ void SDCardDirectoryClose() {
 }
 
 /**
+ * @brief Prints the contents of a directory.
+ * @param directory Directory.  "" if root.
+ */
+void SDCardPrintDirectory(const char* const directory) {
+    SDCardDirectoryOpen(directory);
+    SDCardFileDetails sdCardFileDetails;
+    SDCardDirectorySearch("*.*", &sdCardFileDetails);
+    while (strlen(sdCardFileDetails.name) > 0) {
+        printf("%-*s %s    %s\r\n", 32, sdCardFileDetails.name, SDCardTimeToString(&sdCardFileDetails.time), SDCardSizeToString(sdCardFileDetails.size));
+        SDCardDirectorySearch("*.*", &sdCardFileDetails);
+    }
+    SDCardDirectoryClose();
+}
+
+/**
+ * @brief Returns the size as a string in the format "1,234,456 KB" or "123
+ * bytes" if the size is less than 1 KB where 1 KB = 1024 bytes.
+ * @param size Size.
+ * @return Size as a string.
+ */
+const char* SDCardSizeToString(const size_t size) {
+
+    // Calculate number of KB
+    static char string[16];
+    unsigned int kb = size >> 10;
+    if (kb == 0) {
+        snprintf(string, sizeof (string), "%u bytes", (unsigned int) size);
+        return string;
+    }
+
+    // Initialise empty string
+    strcpy(string, "");
+
+    // Create unseparated digits
+    char digits[16];
+    snprintf(digits, sizeof (digits), "%u", kb);
+
+    // Build string one character at a time
+    char* digit = digits;
+    while (*digit != '\0') {
+
+        // Add digit to string
+        char newString[sizeof (string)];
+        snprintf(newString, sizeof (newString), "%s%c", string, *digit);
+        snprintf(string, sizeof (string), "%s", newString);
+
+        // Break if no more digits
+        if (*++digit == '\0') {
+            break;
+        }
+
+        // Add comma if number of remaining digits multiple of 3
+        if ((strlen(digit) % 3) == 0) {
+            char newString[sizeof (string)];
+            snprintf(newString, sizeof (newString), "%s,", string);
+            snprintf(string, sizeof (string), "%s", newString);
+        }
+    }
+
+    // Add "KB"
+    char newString[sizeof (string)];
+    snprintf(newString, sizeof (newString), "%s KB", string);
+    snprintf(string, sizeof (string), "%s", newString);
+    return string;
+}
+
+/**
+ * @brief Returns the time as a string in the format "YYYY-MM-DD hh:mm:ss" as
+ * per ISO 8601 and RFC 3339 page 8.
+ * @param time Time.
+ * @return Time as a string.
+ */
+const char* SDCardTimeToString(const SDCardFileTime * const time) {
+    static char string[32] = "";
+    snprintf(string, sizeof (string), "%04u-%02u-%02u %02u:%02u:%02u", time->year, time->month, time->day, time->hour, time->minute, time->second);
+    return string;
+}
+
+/**
+ * @brief Renames a file or directory.
+ * @param path File or directory path.
+ * @param newPath New file or directory path.
+ */
+void SDCardRename(const char* const path, const char* const newPath) {
+    if (SYS_FS_DirectoryChange("/") != SYS_FS_RES_SUCCESS) {
+        PrintFileSystemError("SYS_FS_DirectoryChange", SYS_FS_Error());
+        return;
+    }
+    if (SYS_FS_FileDirectoryRenameMove(path, newPath) != SYS_FS_RES_SUCCESS) {
+        PrintFileSystemError("SYS_FS_FileDirectoryRenameMove", SYS_FS_Error());
+    }
+}
+
+/**
+ * @brief Deletes a file or directory.
+ * @param path File or directory path.
+ */
+void SDCardDelete(const char* const path) {
+    if (SYS_FS_DirectoryChange("/") != SYS_FS_RES_SUCCESS) {
+        PrintFileSystemError("SYS_FS_DirectoryChange", SYS_FS_Error());
+        return;
+    }
+    if (SYS_FS_FileDirectoryRemove(path) != SYS_FS_RES_SUCCESS) {
+        PrintFileSystemError("SYS_FS_FileDirectoryRemove", SYS_FS_Error());
+    }
+}
+
+/**
  * @brief Splits the file path to return the file name.
  * @param filePath File path.
  * @return File name.
@@ -500,18 +558,27 @@ const char* SDCardPathSplitDirectory(const char* const filePath) {
  * @return Path.
  */
 const char* SDCardPathJoin(const int numberOfParts, ...) {
+
+    // Initialise empty string
     static char path[SD_CARD_MAX_PATH_SIZE];
     strcpy(path, "");
+
+    // Loop through each part
     va_list parts;
     va_start(parts, numberOfParts);
     int index;
     for (index = 0; index < numberOfParts; index++) {
-        char tokenizedString[SD_CARD_MAX_PATH_SIZE];
-        strncpy(tokenizedString, va_arg(parts, char*), sizeof (tokenizedString));
-        const char* subPart = strtok(tokenizedString, "/");
+
+        // Copy part for tokenisation
+        char part[SD_CARD_MAX_PATH_SIZE];
+        snprintf(part, sizeof (part), "%s", va_arg(parts, char*));
+
+        // Append each sub part to path
+        const char* subPart = strtok(part, "/");
         while (subPart != NULL) {
-            strncat(path, "/", sizeof (path));
-            strncat(path, subPart, sizeof (path));
+            char newPath[sizeof (path)];
+            snprintf(newPath, sizeof (newPath), "%s/%s", path, subPart);
+            snprintf(path, sizeof (path), "%s", newPath);
             subPart = strtok(NULL, "/");
         }
     }
@@ -600,7 +667,7 @@ static void PrintFileSystemError(const char* functionName, const SYS_FS_ERROR sy
             error = "SYS_FS_ERROR_NOT_SUPPORTED_IN_NATIVE_FS";
             break;
     }
-    printf("%s: %s\r\n", functionName, error);
+    printf("%s failed. %s\r\n", functionName, error);
 #endif
 }
 
