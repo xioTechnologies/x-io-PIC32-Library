@@ -126,6 +126,7 @@ size_t Uart5GetReadAvailable() {
  * @return Number of bytes read.
  */
 size_t Uart5Read(void* const destination, size_t numberOfBytes) {
+    Uart5GetReadAvailable(); // process hardware receive buffer
     return CircularBufferRead(&readBuffer, destination, numberOfBytes);
 }
 

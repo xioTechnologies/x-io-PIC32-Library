@@ -126,6 +126,7 @@ size_t Uart3GetReadAvailable() {
  * @return Number of bytes read.
  */
 size_t Uart3Read(void* const destination, size_t numberOfBytes) {
+    Uart3GetReadAvailable(); // process hardware receive buffer
     return CircularBufferRead(&readBuffer, destination, numberOfBytes);
 }
 
