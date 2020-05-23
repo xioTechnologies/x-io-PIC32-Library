@@ -111,7 +111,7 @@ static inline __attribute__((always_inline)) size_t CircularBufferGetWriteAvalia
 static inline __attribute__((always_inline)) void CircularBufferWrite(CircularBuffer * const circularBuffer, const void* const data, const size_t numberOfBytes) {
 
     // Do nothing if not enough space available
-    if (CircularBufferGetWriteAvaliable(circularBuffer) == 0) {
+    if (numberOfBytes > CircularBufferGetWriteAvaliable(circularBuffer)) {
         return;
     }
 
