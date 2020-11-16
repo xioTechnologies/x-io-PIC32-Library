@@ -42,8 +42,8 @@ for root, _, files in os.walk(os.path.dirname(os.path.realpath(__file__))):
         standard_libraries = ["\"assert.h\"", "\"complex.h\"", "\"ctype.h\"", "\"errno.h\"", "\"fenv.h\"", "\"float.h\"", "\"inttypes.h\"",
                               "\"iso646.h\"", "\"limits.h\"", "\"locale.h\"", "\"math.h\"", "\"setjmp.h\"", "\"signal.h\"", "\"stdalign.h\"",
                               "\"stdarg.h\"", "\"stdatomic.h\"", "\"stdbool.h\"", "\"stddef.h\"", "\"stdint.h\"", "\"stdio.h\"", "\"stdlib.h\"",
-                              "\"stdnoreturn.h\"", "\"string.h\"", "\"tgmath.h\"", "\"threads.h\"", "\"time.h\"", "\"uchar.h\"", "\"wchar.h\"",
-                              "\"wctype.h\"", "\"xc.h\""]
+                              "\"stdnoreturn.h\"", "\"string.h\"", "\"strings.h\"", "\"tgmath.h\"", "\"threads.h\"", "\"time.h\"", "\"uchar.h\"",
+                              "\"wchar.h\"", "\"wctype.h\"", "\"xc.h\""]
 
         for index, _ in enumerate(include_lines):
             for standard_library in standard_libraries:
