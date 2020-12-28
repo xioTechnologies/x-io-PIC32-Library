@@ -16,8 +16,6 @@ for root, _, files in os.walk(os.path.dirname(os.path.realpath(__file__))):
             all_lines = source_file.readlines()
 
         # Extract lines
-        hash_include = "#include"
-
         include_lines = []
         lines_before = []
         lines_after = []
@@ -26,7 +24,7 @@ for root, _, files in os.walk(os.path.dirname(os.path.realpath(__file__))):
 
         for line in all_lines:
             line = line.rstrip() + "\n"  # remove trailing witespace
-            if line.lstrip().startswith(hash_include):
+            if line.lstrip().startswith("#include"):
                 include_lines.append(str(line.lstrip()).replace("<", "\"").replace(">", "\""))
                 waiting_for_includes = False
                 continue
