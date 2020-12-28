@@ -15,7 +15,7 @@
 //------------------------------------------------------------------------------
 // Function declarations
 
-uint64_t SerialNumberGetUint64();
+uint64_t SerialNumberGetValue();
 const char* SerialNumberGetString();
 
 #endif
