@@ -324,11 +324,11 @@ void SDCardDirectoryOpen(const char* const directory) {
 
 /**
  * @brief Searches the directory for files matching the file name.  The file
- * name can include wild cards (e.g. "*.*" to match all files).  If multiple
- * files match the file name then this function can be called in a loop to
- * retrieve the file details for each file.  If no files match the file name
- * then the file name provided in the file details will be an empty string.
- * The directory must be closed and reopened for each new search.
+ * name can include wild cards (e.g. "*" to match all files).  If multiple files
+ * match the file name then this function can be called in a loop to retrieve
+ * the file details for each file.  If no files match the file name then the
+ * file name provided in the file details will be an empty string.  The 
+ * directory must be closed and reopened for each new search.
  * @param fileName File name.
  * @param fileDetails File details.
  */
@@ -416,10 +416,10 @@ void SDCardDirectoryClose() {
 void SDCardPrintDirectory(const char* const directory) {
     SDCardDirectoryOpen(directory);
     SDCardFileDetails sdCardFileDetails;
-    SDCardDirectorySearch("*.*", &sdCardFileDetails);
+    SDCardDirectorySearch("*", &sdCardFileDetails);
     while (strlen(sdCardFileDetails.name) > 0) {
         printf("%-*s %s    %s\r\n", 32, sdCardFileDetails.name, SDCardTimeToString(&sdCardFileDetails.time), SDCardSizeToString(sdCardFileDetails.size));
-        SDCardDirectorySearch("*.*", &sdCardFileDetails);
+        SDCardDirectorySearch("*", &sdCardFileDetails);
     }
     SDCardDirectoryClose();
 }
