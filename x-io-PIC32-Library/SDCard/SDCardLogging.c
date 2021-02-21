@@ -484,7 +484,7 @@ void SDCardLoggingWrite(const void* const data, const size_t numberOfBytes) {
 
     // Write data
 #ifdef PRINT_STATISTICS
-    const uint32_t bufferUsed = BUFFER_SIZE - SDCardLoggingGetWriteAvailable();
+    const uint32_t bufferUsed = sizeof (bufferData) - SDCardLoggingGetWriteAvailable();
     if (bufferUsed > maxbufferUsed) {
         maxbufferUsed = bufferUsed;
     }
@@ -525,7 +525,7 @@ static void PrintStatistics() {
 
     // Create buffer usage string
     char bufferUsageString[16];
-    snprintf(bufferUsageString, sizeof (bufferUsageString), "%0.1f %%", ((float) maxbufferUsed * (100.0f / (float) BUFFER_SIZE)));
+    snprintf(bufferUsageString, sizeof (bufferUsageString), "%0.1f %%", ((float) maxbufferUsed * (100.0f / (float) sizeof (bufferData))));
 
     // Create and print statistics string
     printf("%u s, %u KB/s, %u KB, %0.1f ms, %s\r\n",
