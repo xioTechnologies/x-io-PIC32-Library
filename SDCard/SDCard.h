@@ -10,6 +10,7 @@
 //------------------------------------------------------------------------------
 // Includes
 
+#include "RtcWeak/RtcWeak.h"
 #include <stdbool.h>
 #include <stddef.h>
 
@@ -31,23 +32,11 @@ typedef enum {
 } SDCardError;
 
 /**
- * @brief SD card file time.
- */
-typedef struct {
-    int second;
-    int minute;
-    int hour;
-    int day;
-    int month;
-    int year;
-} SDCardFileTime;
-
-/**
  * @brief SD card file details.
  */
 typedef struct {
     size_t size;
-    SDCardFileTime time;
+    RtcTime time;
     char name[SD_CARD_MAX_PATH_SIZE];
 } SDCardFileDetails;
 
@@ -73,7 +62,6 @@ bool SDCardDirectoryExists(const char* const fileName);
 void SDCardDirectoryClose();
 void SDCardPrintDirectory(const char* const directory);
 const char* SDCardSizeToString(const size_t size);
-const char* SDCardTimeToString(const SDCardFileTime * const time);
 void SDCardRename(const char* const path, const char* const newPath);
 void SDCardDelete(const char* const path);
 const char* SDCardPathSplitFileName(const char* const filePath);

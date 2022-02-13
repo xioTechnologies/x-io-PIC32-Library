@@ -9,7 +9,7 @@
 
 #include "definitions.h"
 #include "ff.h"
-#include "Rtc/Rtc.h"
+#include "RtcWeak/RtcWeak.h"
 
 //------------------------------------------------------------------------------
 // Functions
@@ -21,9 +21,9 @@
  */
 DWORD get_fattime(void) {
 
-    // Read RTC
+    // Get RTC time
     RtcTime rtcTime;
-    RtcReadTime(&rtcTime);
+    RtcGetTime(&rtcTime);
 
     // Parse time
     const SYS_FS_TIME sysFSTime = {

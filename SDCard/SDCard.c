@@ -429,11 +429,11 @@ void SDCardDirectoryClose() {
  */
 void SDCardPrintDirectory(const char* const directory) {
     SDCardDirectoryOpen(directory);
-    SDCardFileDetails sdCardFileDetails;
-    SDCardDirectorySearch("*", &sdCardFileDetails);
-    while (strlen(sdCardFileDetails.name) > 0) {
-        printf("%-*s %s    %s\r\n", 32, sdCardFileDetails.name, SDCardTimeToString(&sdCardFileDetails.time), SDCardSizeToString(sdCardFileDetails.size));
-        SDCardDirectorySearch("*", &sdCardFileDetails);
+    SDCardFileDetails fileDetails;
+    SDCardDirectorySearch("*", &fileDetails);
+    while (strlen(fileDetails.name) > 0) {
+        printf("%-*s %s    %s\r\n", 32, fileDetails.name, RtcTimeToString(&fileDetails.time), SDCardSizeToString(fileDetails.size));
+        SDCardDirectorySearch("*", &fileDetails);
     }
     SDCardDirectoryClose();
 }
@@ -493,18 +493,6 @@ const char* SDCardSizeToString(const size_t size) {
  */
 void Concatenate(char* const destination, const size_t destinationSize, const char* const source) {
     strncat(destination, source, destinationSize - strlen(destination) - 1);
-}
-
-/**
- * @brief Returns the time as a string in the format "YYYY-MM-DD hh:mm:ss" as
- * per ISO 8601 and RFC 3339 page 8.
- * @param time Time.
- * @return Time as a string.
- */
-const char* SDCardTimeToString(const SDCardFileTime * const time) {
-    static char string[32] = "";
-    snprintf(string, sizeof (string), "%04u-%02u-%02u %02u:%02u:%02u", time->year, time->month, time->day, time->hour, time->minute, time->second);
-    return string;
 }
 
 /**

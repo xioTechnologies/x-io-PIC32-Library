@@ -406,8 +406,8 @@ static void CreateFileNameUsingTime(char* const destination, const size_t destin
     SDCardDirectoryOpen(SDCardPathSplitDirectory(FILE_PATH));
 
     // Get file details
-    SDCardFileDetails sdCardfileDetails;
-    SDCardDirectorySearch(SDCardPathSplitFileName(FILE_PATH), &sdCardfileDetails);
+    SDCardFileDetails fileDetails;
+    SDCardDirectorySearch(SDCardPathSplitFileName(FILE_PATH), &fileDetails);
 
     // Calculate file period
     const uint64_t filePeriod = (TimerGetTicks64() - fileStartTicks) / TIMER_TICKS_PER_SECOND;
@@ -425,12 +425,12 @@ static void CreateFileNameUsingTime(char* const destination, const size_t destin
         // Create file name
         snprintf(destination, destinationSize, "%s%04u-%02u-%02u_%02u-%02u-%02u_%u%s%s",
                 settings.fileNamePrefix,
-                sdCardfileDetails.time.year,
-                sdCardfileDetails.time.month,
-                sdCardfileDetails.time.day,
-                sdCardfileDetails.time.hour,
-                sdCardfileDetails.time.minute,
-                sdCardfileDetails.time.second,
+                fileDetails.time.year,
+                fileDetails.time.month,
+                fileDetails.time.day,
+                fileDetails.time.hour,
+                fileDetails.time.minute,
+                fileDetails.time.second,
                 (unsigned int) filePeriod,
                 counterString,
                 settings.fileExtension);
