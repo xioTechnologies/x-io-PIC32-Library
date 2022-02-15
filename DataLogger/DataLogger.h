@@ -1,11 +1,11 @@
 /**
- * @file SDCardLogging.h
+ * @file DataLogger.h
  * @author Seb Madgwick
- * @brief Application interface for continuous logging of data to an SD card.
+ * @brief Data logger.
  */
 
-#ifndef SD_CARD_LOGGING_H
-#define SD_CARD_LOGGING_H
+#ifndef DATA_LOGGER_H
+#define DATA_LOGGER_H
 
 //------------------------------------------------------------------------------
 // Includes
@@ -18,7 +18,7 @@
 // Definitions
 
 /**
- * @brief SD card logging settings.
+ * @brief Data logger settings.
  */
 typedef struct {
     char fileNamePrefix[32];
@@ -27,36 +27,36 @@ typedef struct {
     char fileExtension[16];
     size_t maximumFileSize; // maximum file size in bytes (0 = maximum)
     uint64_t maximumFilePeriod; // maximum file period in timer ticks (0 = infinite)
-} SDCardLoggingSettings;
+} DataLoggerSettings;
 
 /**
- * @brief SD card logging callback functions.
+ * @brief Data logger callback functions.
  */
 typedef struct {
     void (*writePreamble)();
     void (*fileNameNumberChanged)(const uint32_t fileNameNumber);
-} SDCardLoggingCallbacks;
+} DataLoggerCallbacks;
 
 /**
- * @brief SD card logging status.
+ * @brief Data logger status.
  */
 typedef enum {
-    SDCardLoggingStatusDisabled,
-    SDCardLoggingStatusEnabled,
-    SDCardLoggingStatusError,
-} SDCardLoggingStatus;
+    DataLoggerStatusDisabled,
+    DataLoggerStatusEnabled,
+    DataLoggerStatusError,
+} DataLoggerStatus;
 
 //------------------------------------------------------------------------------
 // Function declarations
 
-void SDCardLoggingSetSettings(const SDCardLoggingSettings * const settings_);
-void SDCardLoggingSetCallbacks(const SDCardLoggingCallbacks * const callbacks_);
-void SDCardLoggingStart();
-void SDCardLoggingStop();
-SDCardLoggingStatus SDCardLoggingGetSatus();
-void SDCardLoggingTasks();
-size_t SDCardLoggingGetWriteAvailable();
-void SDCardLoggingWrite(const void* const data, const size_t numberOfBytes);
+void DataLoggerSetSettings(const DataLoggerSettings * const settings_);
+void DataLoggerSetCallbacks(const DataLoggerCallbacks * const callbacks_);
+void DataLoggerStart();
+void DataLoggerStop();
+DataLoggerStatus DataLoggerGetSatus();
+void DataLoggerTasks();
+size_t DataLoggerGetWriteAvailable();
+void DataLoggerWrite(const void* const data, const size_t numberOfBytes);
 
 #endif
 

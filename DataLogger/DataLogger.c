@@ -1,16 +1,16 @@
 /**
- * @file SDCardLogging.c
+ * @file DataLogger.c
  * @author Seb Madgwick
- * @brief Application interface for continuous logging of data to an SD card.
+ * @brief Data logger.
  */
 
 //------------------------------------------------------------------------------
 // Includes
 
 #include "CircularBuffer.h"
+#include "DataLogger.h"
 #include "definitions.h"
-#include "SDCard.h"
-#include "SDCardLogging.h"
+#include "SDCard/SDCard.h"
 #include <stdbool.h>
 #include <stdio.h> // printf, snprintf
 #include <string.h> // strncpy, strlen
@@ -22,7 +22,7 @@
 /**
  * @brief File name used while the file is open.
  */
-#define FILE_PATH "/Data/File"
+#define FILE_PATH "/Data Logger/File"
 
 /**
  * @brief Comment out this definition to disable printing of statistics.
@@ -56,8 +56,8 @@ static void PrintStatistics();
 //------------------------------------------------------------------------------
 // Variables
 
-static SDCardLoggingSettings settings;
-static SDCardLoggingCallbacks callbacks;
+static DataLoggerSettings settings;
+static DataLoggerCallbacks callbacks;
 static State state = StateDisabled;
 static uint64_t fileStartTicks;
 static uint32_t fileSize;
@@ -73,12 +73,12 @@ static bool bufferOverrun;
 // Functions
 
 /**
- * @brief Sets the SD card logging settings.
+ * @brief Sets the data logger settings.
  * @param settings_ Settings.
  */
-void SDCardLoggingSetSettings(const SDCardLoggingSettings * const settings_) {
+void DataLoggerSetSettings(const DataLoggerSettings * const settings_) {
 
-    // Copy structure
+    // Store settings
     settings = *settings_;
 
     // Append underscore to file name prefix
@@ -100,14 +100,14 @@ void SDCardLoggingSetSettings(const SDCardLoggingSettings * const settings_) {
  * @brief Sets the callback functions.
  * @param callbacks_ Callback functions.
  */
-void SDCardLoggingSetCallbacks(const SDCardLoggingCallbacks * const callbacks_) {
+void DataLoggerSetCallbacks(const DataLoggerCallbacks * const callbacks_) {
     callbacks = *callbacks_;
 }
 
 /**
  * @brief Starts logging.
  */
-void SDCardLoggingStart() {
+void DataLoggerStart() {
 #ifdef PRINT_STATISTICS
     printf("Start\r\n");
 #endif
@@ -127,7 +127,7 @@ void SDCardLoggingStart() {
 /**
  * @brief Stops logging.
  */
-void SDCardLoggingStop() {
+void DataLoggerStop() {
 #ifdef PRINT_STATISTICS
     printf("Stop\r\n");
 #endif
@@ -149,27 +149,27 @@ void SDCardLoggingStop() {
 }
 
 /**
- * @brief Returns the SD card logging status.
- * @return SD card logging status.
+ * @brief Returns the data logger status.
+ * @return Data logger status.
  */
-SDCardLoggingStatus SDCardLoggingGetSatus() {
+DataLoggerStatus DataLoggerGetSatus() {
     switch (state) {
         case StateDisabled:
-            return SDCardLoggingStatusDisabled;
+            return DataLoggerStatusDisabled;
         case StateOpen:
         case StateWrite:
-            return SDCardLoggingStatusEnabled;
+            return DataLoggerStatusEnabled;
         case StateError:
-            return SDCardLoggingStatusError;
+            return DataLoggerStatusError;
     }
-    return SDCardLoggingStatusError;
+    return DataLoggerStatusError;
 }
 
 /**
  * @brief Module tasks.  This function should be called repeatedly within the
  * main program loop.
  */
-void SDCardLoggingTasks() {
+void DataLoggerTasks() {
     switch (state) {
         case StateDisabled:
             break;
@@ -453,7 +453,7 @@ static void CreateFileNameUsingTime(char* const destination, const size_t destin
  * @brief Returns the space available in the write buffer.
  * @return Space available in the write buffer.
  */
-size_t SDCardLoggingGetWriteAvailable() {
+size_t DataLoggerGetWriteAvailable() {
     return CircularBufferGetWriteAvailable(&buffer);
 }
 
@@ -462,7 +462,7 @@ size_t SDCardLoggingGetWriteAvailable() {
  * @param data Data.
  * @param numberOfBytes Number of bytes.
  */
-void SDCardLoggingWrite(const void* const data, const size_t numberOfBytes) {
+void DataLoggerWrite(const void* const data, const size_t numberOfBytes) {
 
     //    // Do nothing if logging not started
     //    switch (state) {
@@ -476,7 +476,7 @@ void SDCardLoggingWrite(const void* const data, const size_t numberOfBytes) {
     //    }
 
     // Do nothing if no space available
-    if (numberOfBytes > SDCardLoggingGetWriteAvailable()) {
+    if (numberOfBytes > DataLoggerGetWriteAvailable()) {
 #ifdef PRINT_STATISTICS
         bufferOverrun = true;
 #endif
@@ -485,7 +485,7 @@ void SDCardLoggingWrite(const void* const data, const size_t numberOfBytes) {
 
     // Write data
 #ifdef PRINT_STATISTICS
-    const uint32_t bufferUsed = sizeof (bufferData) - SDCardLoggingGetWriteAvailable();
+    const uint32_t bufferUsed = sizeof (bufferData) - DataLoggerGetWriteAvailable();
     if (bufferUsed > maxbufferUsed) {
         maxbufferUsed = bufferUsed;
     }
