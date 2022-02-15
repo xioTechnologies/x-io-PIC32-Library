@@ -25,8 +25,8 @@ typedef struct {
     uint32_t fileNameNumber;
     bool fileNameIsTime;
     char fileExtension[16];
-    size_t maximumFileSize; // maximum file size in bytes (0 = maximum)
-    uint64_t maximumFilePeriod; // maximum file period in timer ticks (0 = infinite)
+    size_t maxFileSize; // megabytes (0 = FAT32 limit)
+    uint64_t maxFilePeriod; // seconds (0 = unlimited)
 } DataLoggerSettings;
 
 /**

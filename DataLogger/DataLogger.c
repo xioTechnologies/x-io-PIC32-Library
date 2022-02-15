@@ -94,6 +94,20 @@ void DataLoggerSetSettings(const DataLoggerSettings * const settings_) {
         }
         snprintf(settings.fileExtension, sizeof (settings.fileExtension), ".%.*s", (int) sizeof (settings.fileExtension) - 2, fileExtension);
     }
+
+    // Convert maximum file size to bytes
+    if (settings.maxFileSize > (SIZE_MAX >> 20)) {
+        settings.maxFileSize = 0;
+    } else {
+        settings.maxFileSize <<= 20;
+    }
+
+    // Convert maximum file period to ticks  
+    if (settings.maxFilePeriod > (UINT64_MAX / TIMER_TICKS_PER_SECOND)) {
+        settings.maxFilePeriod = 0;
+    } else {
+        settings.maxFilePeriod *= TIMER_TICKS_PER_SECOND;
+    }
 }
 
 /**
@@ -254,8 +268,8 @@ static int OpenFile() {
 static int WriteToFile() {
 
     // Restart logging if maximum file period reached
-    if (settings.maximumFilePeriod > 0) {
-        if (TimerGetTicks64() >= (fileStartTicks + settings.maximumFilePeriod)) {
+    if (settings.maxFilePeriod > 0) {
+        if (TimerGetTicks64() >= (fileStartTicks + settings.maxFilePeriod)) {
 #ifdef PRINT_STATISTICS
             printf("Exceeded maximum file period\r\n");
 #endif
@@ -284,8 +298,8 @@ static int WriteToFile() {
     }
 
     // Restart logging if maximum file size reached
-    if (settings.maximumFileSize > 0) {
-        if (((uint64_t) fileSize + (uint64_t) numberOfBytes) >= (uint64_t) settings.maximumFileSize) {
+    if (settings.maxFileSize > 0) {
+        if (((uint64_t) fileSize + (uint64_t) numberOfBytes) >= (uint64_t) settings.maxFileSize) {
 #ifdef PRINT_STATISTICS
             printf("Exceeded maximum file size\r\n");
 #endif
@@ -463,17 +477,6 @@ size_t DataLoggerGetWriteAvailable() {
  * @param numberOfBytes Number of bytes.
  */
 void DataLoggerWrite(const void* const data, const size_t numberOfBytes) {
-
-    //    // Do nothing if logging not started
-    //    switch (state) {
-    //        case StateDisabled:
-    //            return;
-    //        case StateOpen:
-    //        case StateWrite:
-    //            break;
-    //        case StateError:
-    //            return;
-    //    }
 
     // Do nothing if no space available
     if (numberOfBytes > DataLoggerGetWriteAvailable()) {
