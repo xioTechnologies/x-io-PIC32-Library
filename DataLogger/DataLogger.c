@@ -10,24 +10,30 @@
 #include "CircularBuffer.h"
 #include "DataLogger.h"
 #include "definitions.h"
+#include "Rtc/Rtc.h"
 #include "SDCard/SDCard.h"
 #include <stdbool.h>
-#include <stdio.h> // printf, snprintf
-#include <string.h> // strncpy, strlen
+#include <stdio.h> // printf, snprintf, sscanf
+#include <string.h> // strcpy, strlen
 #include "Timer/Timer.h"
 
 //------------------------------------------------------------------------------
 // Definitions
 
 /**
- * @brief File name used while the file is open.
+ * @brief Directory.
  */
-#define FILE_PATH "/Data Logger/File"
+#define DIRECTORY "Data Logger"
+
+/**
+ * @brief Counter file path.
+ */
+#define COUNTER_FILE_PATH (DIRECTORY "/Counter.txt")
 
 /**
  * @brief Comment out this definition to disable printing of statistics.
  */
-//#define PRINT_STATISTICS
+#define PRINT_STATISTICS
 
 /**
  * @brief State.
@@ -36,7 +42,6 @@ typedef enum {
     StateDisabled,
     StateOpen,
     StateWrite,
-    StateError,
 } State;
 
 //------------------------------------------------------------------------------
@@ -44,11 +49,12 @@ typedef enum {
 
 static void StateOpenTasks();
 static void StateWriteTasks();
-static int OpenFile();
-static int WriteToFile();
-static int CloseFile();
-static void CreateFileNameUsingNumber(char* const destination, const size_t destinationSize);
-static void CreateFileNameUsingTime(char* const destination, const size_t destinationSize);
+static int Open();
+static uint32_t ReadCounter();
+static void WriteCounter(const uint32_t counter);
+static int Write();
+static void Close();
+static void UpdateStatus(const DataLoggerStatus status);
 #ifdef PRINT_STATISTICS
 static void PrintStatistics();
 #endif
@@ -59,6 +65,7 @@ static void PrintStatistics();
 static DataLoggerSettings settings;
 static DataLoggerCallbacks callbacks;
 static State state = StateDisabled;
+char fileName[SD_CARD_MAX_PATH_SIZE];
 static uint64_t fileStartTicks;
 static uint32_t fileSize;
 static uint8_t bufferData[380000];
@@ -81,20 +88,6 @@ void DataLoggerSetSettings(const DataLoggerSettings * const settings_) {
     // Store settings
     settings = *settings_;
 
-    // Append underscore to file name prefix
-    if (strlen(settings_->fileNamePrefix) > 0) {
-        snprintf(settings.fileNamePrefix, sizeof (settings.fileNamePrefix), "%.*s_", (int) sizeof (settings.fileNamePrefix) - 2, settings_->fileNamePrefix);
-    }
-
-    // Prefix dot on file name extension
-    if (strlen(settings_->fileExtension) > 0) {
-        const char* fileExtension = settings_->fileExtension;
-        while (*fileExtension == '.') {
-            fileExtension++; // remove leading dots
-        }
-        snprintf(settings.fileExtension, sizeof (settings.fileExtension), ".%.*s", (int) sizeof (settings.fileExtension) - 2, fileExtension);
-    }
-
     // Convert maximum file size to bytes
     if (settings.maxFileSize > (SIZE_MAX >> 20)) {
         settings.maxFileSize = 0;
@@ -102,7 +95,7 @@ void DataLoggerSetSettings(const DataLoggerSettings * const settings_) {
         settings.maxFileSize <<= 20;
     }
 
-    // Convert maximum file period to ticks  
+    // Convert maximum file period to ticks
     if (settings.maxFilePeriod > (UINT64_MAX / TIMER_TICKS_PER_SECOND)) {
         settings.maxFilePeriod = 0;
     } else {
@@ -119,67 +112,6 @@ void DataLoggerSetCallbacks(const DataLoggerCallbacks * const callbacks_) {
 }
 
 /**
- * @brief Starts logging.
- */
-void DataLoggerStart() {
-#ifdef PRINT_STATISTICS
-    printf("Start\r\n");
-#endif
-    switch (state) {
-        case StateDisabled:
-            break;
-        case StateOpen:
-        case StateWrite:
-            return;
-        case StateError:
-            break;
-    }
-    CircularBufferClear(&buffer);
-    state = StateOpen;
-}
-
-/**
- * @brief Stops logging.
- */
-void DataLoggerStop() {
-#ifdef PRINT_STATISTICS
-    printf("Stop\r\n");
-#endif
-    switch (state) {
-        case StateDisabled:
-            break;
-        case StateOpen:
-            state = StateDisabled;
-            break;
-        case StateWrite:
-            state = StateDisabled;
-            if ((WriteToFile() != 0) || (WriteToFile() != 0) || (CloseFile() != 0)) { // write twice to handle buffer index wraparound
-                state = StateError;
-            }
-            break;
-        case StateError:
-            break;
-    }
-}
-
-/**
- * @brief Returns the data logger status.
- * @return Data logger status.
- */
-DataLoggerStatus DataLoggerGetSatus() {
-    switch (state) {
-        case StateDisabled:
-            return DataLoggerStatusDisabled;
-        case StateOpen:
-        case StateWrite:
-            return DataLoggerStatusEnabled;
-        case StateError:
-            return DataLoggerStatusError;
-    }
-    return DataLoggerStatusError;
-}
-
-/**
  * @brief Module tasks.  This function should be called repeatedly within the
  * main program loop.
  */
@@ -192,8 +124,6 @@ void DataLoggerTasks() {
             break;
         case StateWrite:
             StateWriteTasks();
-            break;
-        case StateError:
             break;
     }
 }
@@ -209,8 +139,8 @@ static void StateOpenTasks() {
     }
 
     // Open file
-    if (OpenFile() != 0) {
-        state = StateError;
+    if (Open() != 0) {
+        state = StateDisabled;
         return;
     }
     state = StateWrite;
@@ -223,31 +153,84 @@ static void StateWriteTasks() {
 #ifdef PRINT_STATISTICS
     PrintStatistics();
 #endif
-    if (WriteToFile() != 0) {
-        state = StateError;
+    if (Write() != 0) {
+        state = StateDisabled;
     }
 }
 
 /**
- * @brief Opens a file.
+ * @brief Opens the file.
  * @return 0 if successful.
  */
-static int OpenFile() {
-#ifdef PRINT_STATISTICS
-    printf("Open\r\n");
-#endif
+static int Open() {
 
-    // Open file
-    if (SDCardFileOpen(FILE_PATH, true) != SDCardErrorOK) {
-#ifdef PRINT_STATISTICS
-        printf("Open failed\r\n");
-#endif
+    // Create time string
+    char timeString[32] = "";
+    if (settings.fileNameTimeEnabled == true) {
+        RtcTime time;
+        RtcGetTime(&time);
+        snprintf(timeString, sizeof (timeString), "_%04u-%02u-%02u_%02u-%02u-%02u", time.year, time.month, time.day, time.hour, time.minute, time.second);
+    }
+
+    // Open directory
+    SDCardDirectoryOpen(DIRECTORY);
+
+    // Create file name without counter
+    if (settings.fileNameCounterEnabled == false) {
+        snprintf(fileName, sizeof (fileName), "%s%s%s", settings.fileNamePrefix, timeString, settings.fileExtension);
+        if (SDCardDirectoryExists(fileName) == true) {
+            strcpy(fileName, "");
+        }
+    }
+
+    // Create file name with counter
+    if ((settings.fileNameCounterEnabled == true) || (strlen(fileName) == 0)) {
+        const uint32_t initialCounter = ReadCounter();
+        uint32_t counter = initialCounter;
+        while (true) {
+            snprintf(fileName, sizeof (fileName), "%s%s_%04u%s", settings.fileNamePrefix, timeString, counter, settings.fileExtension);
+            if (++counter > 9999) {
+                counter = 0;
+            }
+            if (SDCardDirectoryExists(fileName) == false) {
+                break;
+            }
+            if (counter == initialCounter) {
+                strcpy(fileName, "");
+                break;
+            }
+        }
+        WriteCounter(counter);
+    }
+
+    // Close directory
+    SDCardDirectoryClose();
+
+    // Abort if no file names avaliable
+    if (strlen(fileName) == 0) {
+        UpdateStatus(DataLoggerStatusNoFileNamesAvailable);
         return 1;
     }
 
+    // Open file
+    switch (SDCardFileOpen(SDCardPathJoin(2, DIRECTORY, fileName), true)) {
+        case SDCardErrorOK:
+            break;
+        case SDCardErrorFileSystemError:
+            UpdateStatus(DataLoggerStatusSDCardError);
+            return 1;
+        case SDCardErrorFileOrSDCardFull:
+            UpdateStatus(DataLoggerStatusSDCardFull);
+            return 1;
+    }
+    UpdateStatus(DataLoggerStatusOpen);
+#ifdef PRINT_STATISTICS
+    printf("%s\r\n", fileName);
+#endif
+
     // Write preamble
     if (callbacks.writePreamble != NULL) {
-        callbacks.writePreamble(); // use SDCardFileWrite to write preamble
+        callbacks.writePreamble(); // application use SDCardFileWrite to write preamble
     }
 
     // Reset statistics
@@ -262,21 +245,52 @@ static int OpenFile() {
 }
 
 /**
+ * @brief Reads the counter from file.
+ * @return Counter.
+ */
+static uint32_t ReadCounter() {
+    if (SDCardFileOpen(COUNTER_FILE_PATH, false) != SDCardErrorOK) {
+        return 0;
+    }
+    char string[8];
+    const size_t numberOfBytes = SDCardFileRead(string, sizeof (string));
+    SDCardFileClose();
+    if (numberOfBytes == -1) {
+        return 0;
+    }
+    uint32_t counter;
+    if (sscanf(string, "%u", &counter) != 1) {
+        return 0;
+    }
+    return counter;
+}
+
+/**
+ * @brief Writes the counter to file.
+ * @param Counter.
+ */
+static void WriteCounter(const uint32_t counter) {
+    if (SDCardFileOpen(COUNTER_FILE_PATH, true) != SDCardErrorOK) {
+        return;
+    }
+    char string[8];
+    snprintf(string, sizeof (string), "%u", counter);
+    SDCardFileWriteString(string);
+    SDCardFileClose();
+}
+
+/**
  * @brief Writes buffered data to the file.
  * @return 0 if successful.
  */
-static int WriteToFile() {
+static int Write() {
 
     // Restart logging if maximum file period reached
     if (settings.maxFilePeriod > 0) {
         if (TimerGetTicks64() >= (fileStartTicks + settings.maxFilePeriod)) {
-#ifdef PRINT_STATISTICS
-            printf("Exceeded maximum file period\r\n");
-#endif
-            if ((CloseFile() != 0) || (OpenFile() != 0)) {
-                return 1;
-            }
-            return 0;
+            UpdateStatus(DataLoggerStatusMaxFilePeriodExceeded);
+            Close();
+            return Open();
         }
     }
 
@@ -300,13 +314,9 @@ static int WriteToFile() {
     // Restart logging if maximum file size reached
     if (settings.maxFileSize > 0) {
         if (((uint64_t) fileSize + (uint64_t) numberOfBytes) >= (uint64_t) settings.maxFileSize) {
-#ifdef PRINT_STATISTICS
-            printf("Exceeded maximum file size\r\n");
-#endif
-            if ((CloseFile() != 0) || (OpenFile() != 0)) {
-                return 1;
-            }
-            return 0;
+            UpdateStatus(DataLoggerStatusMaxFileSizeExceeded);
+            Close();
+            return Open();
         }
     }
 
@@ -326,20 +336,14 @@ static int WriteToFile() {
 
     // Restart logging if file full
     if (sdCardError == SDCardErrorFileOrSDCardFull) {
-#ifdef PRINT_STATISTICS
-        printf("SD card or file full\r\n");
-#endif
-        if ((CloseFile() != 0) || (OpenFile() != 0)) {
-            return 1;
-        }
-        return 0;
+        UpdateStatus(DataLoggerStatusSDCardOrFileFull);
+        Close();
+        return Open();
     }
 
     // Abort if error occurred
     if (sdCardError != SDCardErrorOK) {
-#ifdef PRINT_STATISTICS
-        printf("Write failed\r\n");
-#endif
+        UpdateStatus(DataLoggerStatusSDCardError);
         return 1;
     }
     return 0;
@@ -347,120 +351,47 @@ static int WriteToFile() {
 
 /**
  * @brief Closes the file.
- * @return 0 if successful.
  */
-static int CloseFile() {
-#ifdef PRINT_STATISTICS
-    printf("Close\r\n");
-#endif
-
-    // Close file
+static void Close() {
+    UpdateStatus(DataLoggerStatusClose);
     SDCardFileClose();
-
-    // Create new file name
-    char newFileName[SD_CARD_MAX_PATH_SIZE];
-    if (settings.fileNameIsTime == false) {
-        CreateFileNameUsingNumber(newFileName, sizeof (newFileName));
-    } else {
-        CreateFileNameUsingTime(newFileName, sizeof (newFileName));
-    }
-    if (strlen(newFileName) == 0) {
-#ifdef PRINT_STATISTICS
-        printf("No file names available\r\n");
-#endif
-        return 1;
-    }
-
-    // Rename file
-    SDCardRename(FILE_PATH, SDCardPathJoin(2, SDCardPathSplitDirectory(FILE_PATH), newFileName));
-    return 0;
 }
 
 /**
- * @brief Creates an available file name using an incrementing number.
- * @param destination Destination.
- * @param destinationSize Destination size.
+ * @brief Starts logging.
  */
-static void CreateFileNameUsingNumber(char* const destination, const size_t destinationSize) {
+void DataLoggerStart() {
+    UpdateStatus(DataLoggerStatusStart);
+    switch (state) {
+        case StateDisabled:
+            break;
+        case StateOpen:
+        case StateWrite:
+            return;
+    }
+    CircularBufferClear(&buffer);
+    state = StateOpen;
+}
 
-    // Open directory
-    SDCardDirectoryOpen(SDCardPathSplitDirectory(FILE_PATH));
-
-    // Create available file name
-    const uint32_t initialFileNameNumber = settings.fileNameNumber;
-    while (true) {
-        snprintf(destination, destinationSize, "%s%04u%s", settings.fileNamePrefix, settings.fileNameNumber, settings.fileExtension);
-        if (++settings.fileNameNumber > 9999) {
-            settings.fileNameNumber = 0;
-        }
-        if (SDCardDirectoryExists(destination) == false) {
-            if (callbacks.fileNameNumberChanged != NULL) {
-                callbacks.fileNameNumberChanged(settings.fileNameNumber);
+/**
+ * @brief Stops logging.
+ */
+void DataLoggerStop() {
+    UpdateStatus(DataLoggerStatusStop);
+    switch (state) {
+        case StateDisabled:
+            break;
+        case StateOpen:
+            state = StateDisabled;
+            break;
+        case StateWrite:
+            state = StateDisabled;
+            if ((Write() != 0) || (Write() != 0)) { // write twice to handle buffer index wraparound
+                break;
             }
+            Close();
             break;
-        }
-        if (settings.fileNameNumber == initialFileNameNumber) {
-            strncpy(destination, "", destinationSize); // no file names available
-            break;
-        }
-    };
-
-    // Close directory
-    SDCardDirectoryClose();
-}
-
-/**
- * @brief Creates an available file name using the time.
- * @param destination Destination.
- * @param destinationSize Destination size.
- */
-static void CreateFileNameUsingTime(char* const destination, const size_t destinationSize) {
-
-    // Open directory
-    SDCardDirectoryOpen(SDCardPathSplitDirectory(FILE_PATH));
-
-    // Get file details
-    SDCardFileDetails fileDetails;
-    SDCardDirectorySearch(SDCardPathSplitFileName(FILE_PATH), &fileDetails);
-
-    // Calculate file period
-    const uint64_t filePeriod = (TimerGetTicks64() - fileStartTicks) / TIMER_TICKS_PER_SECOND;
-
-    // Create available file name
-    int counter = 0;
-    while (true) {
-
-        // Create counter string
-        char counterString[16] = "";
-        if (counter > 0) {
-            snprintf(counterString, sizeof (counterString), "_%04u", counter);
-        }
-
-        // Create file name
-        snprintf(destination, destinationSize, "%s%04u-%02u-%02u_%02u-%02u-%02u_%u%s%s",
-                settings.fileNamePrefix,
-                fileDetails.time.year,
-                fileDetails.time.month,
-                fileDetails.time.day,
-                fileDetails.time.hour,
-                fileDetails.time.minute,
-                fileDetails.time.second,
-                (unsigned int) filePeriod,
-                counterString,
-                settings.fileExtension);
-
-        // Increment counter if file already exists
-        if (SDCardDirectoryExists(destination) == false) {
-            break;
-        }
-        if (++counter > 9999) {
-            strncpy(destination, "", destinationSize); // no file names available
-            break;
-        }
-    };
-
-    // Close directory
-    SDCardDirectoryClose();
+    }
 }
 
 /**
@@ -496,6 +427,58 @@ void DataLoggerWrite(const void* const data, const size_t numberOfBytes) {
     CircularBufferWrite(&buffer, data, numberOfBytes);
 }
 
+/**
+ * @brief Returns the file name of the current file.
+ * @return File name of the current file.
+ */
+const char* DataLoggerGetFileName() {
+    return fileName;
+}
+
+/**
+ * @brief Updates the status.
+ * @param status Status.
+ */
+static void UpdateStatus(const DataLoggerStatus status) {
+#ifdef PRINT_STATISTICS
+    printf("%s\r\n", DataLoggerStatusToString(status));
+#endif
+    if (callbacks.statusUpdate != NULL) {
+        callbacks.statusUpdate(status);
+    }
+}
+
+/**
+ * @brief Returns the status message.
+ * @param status Status
+ * @return Status message.
+ */
+const char* DataLoggerStatusToString(const DataLoggerStatus status) {
+    switch (status) {
+        case DataLoggerStatusStart:
+            return "Start";
+        case DataLoggerStatusStop:
+            return "Stop";
+        case DataLoggerStatusOpen:
+            return "Open";
+        case DataLoggerStatusNoFileNamesAvailable:
+            return "No file names avaliable";
+        case DataLoggerStatusSDCardFull:
+            return "SD card full";
+        case DataLoggerStatusMaxFileSizeExceeded:
+            return "Max file size exceeded";
+        case DataLoggerStatusMaxFilePeriodExceeded:
+            return "Max file period exceeded";
+        case DataLoggerStatusSDCardOrFileFull:
+            return "SD card or file full";
+        case DataLoggerStatusSDCardError:
+            return "SD card error";
+        case DataLoggerStatusClose:
+            return "Close";
+    }
+    return "Unknown status";
+}
+
 #ifdef PRINT_STATISTICS
 
 /**
@@ -529,13 +512,13 @@ static void PrintStatistics() {
 
     // Create buffer usage string
     char bufferUsageString[16];
-    snprintf(bufferUsageString, sizeof (bufferUsageString), "%0.1f %%", ((float) maxbufferUsed * (100.0f / (float) sizeof (bufferData))));
+    snprintf(bufferUsageString, sizeof (bufferUsageString), "%0.1f%%", ((float) maxbufferUsed * (100.0f / (float) sizeof (bufferData))));
 
     // Print statistics
-    printf("%u s, %u KB/s, %u KB, %0.1f ms, %s\r\n",
+    printf("%u s, %u KB, %u KB/s, %0.1f ms, %s\r\n",
             (unsigned int) ((currentTicks - fileStartTicks) / TIMER_TICKS_PER_SECOND),
-            (unsigned int) (kilobytesPerSecond + 0.5f),
             fileSize >> 10,
+            (unsigned int) (kilobytesPerSecond + 0.5f),
             (float) maxWritePeriod * (1000.0f / (float) TIMER_TICKS_PER_SECOND),
             bufferOverrun ? "Buffer Overrun" : bufferUsageString);
 
