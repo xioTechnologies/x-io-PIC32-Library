@@ -79,6 +79,9 @@ static void APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void * eventData, 
             break;
         case USB_DEVICE_EVENT_POWER_REMOVED:
             USB_DEVICE_Detach(usbDeviceHandle);
+            isHostConnected = false;
+            readInProgress = false;
+            writeInProgress = false;
             break;
         default:
             break;

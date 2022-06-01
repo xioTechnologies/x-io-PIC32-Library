@@ -57,6 +57,7 @@ static void APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void * pEventData,
             break;
         case USB_DEVICE_EVENT_POWER_REMOVED:
             USB_DEVICE_Detach(usbDeviceHandle);
+			isHostConnected = false;
             break;
         default:
             break;
