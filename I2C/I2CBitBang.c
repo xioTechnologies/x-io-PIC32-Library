@@ -15,9 +15,6 @@
 // Function declarations
 
 static inline __attribute__((always_inline)) void WaitHalfClockCycle();
-static inline __attribute__((always_inline)) void WriteScl(const bool state);
-static inline __attribute__((always_inline)) bool ReadSda();
-static inline __attribute__((always_inline)) void WriteSda(const bool state);
 
 //------------------------------------------------------------------------------
 // Functions
@@ -29,15 +26,14 @@ static inline __attribute__((always_inline)) void WriteSda(const bool state);
  * 2014.
  */
 void I2CBitBangBusClear() {
-    int index;
-    for (index = 0; index < 9; index++) {
+    for (int index = 0; index < 9; index++) {
         WaitHalfClockCycle();
-        if (ReadSda() == true) { // sample data during clock high period
+        if (GPIO_PinRead(SDA_PIN) == true) { // sample data during clock high period
             break; // stop once SDA is released otherwise it may get stuck again
         }
-        WriteScl(false);
+        GPIO_PinWrite(SCL_PIN, false);
         WaitHalfClockCycle();
-        WriteScl(true);
+        GPIO_PinWrite(SCL_PIN, true);
     }
 }
 
@@ -45,37 +41,37 @@ void I2CBitBangBusClear() {
  * @brief Generates a start event.
  */
 void I2CBitBangStart() {
-    WriteScl(true);
-    WriteSda(true);
+    GPIO_PinWrite(SCL_PIN, true);
+    GPIO_PinWrite(SDA_PIN, true);
     WaitHalfClockCycle();
-    WriteSda(false);
+    GPIO_PinWrite(SDA_PIN, false);
     WaitHalfClockCycle();
-    WriteScl(false);
+    GPIO_PinWrite(SCL_PIN, false);
 }
 
 /**
  * @brief Generates a repeated start event.
  */
 void I2CBitBangRepeatedStart() {
-    WriteScl(false);
-    WriteSda(true);
+    GPIO_PinWrite(SCL_PIN, false);
+    GPIO_PinWrite(SDA_PIN, true);
     WaitHalfClockCycle();
-    WriteScl(true);
+    GPIO_PinWrite(SCL_PIN, true);
     WaitHalfClockCycle();
-    WriteSda(false);
+    GPIO_PinWrite(SDA_PIN, false);
     WaitHalfClockCycle();
-    WriteScl(false);
+    GPIO_PinWrite(SCL_PIN, false);
 }
 
 /**
  * @brief Generates a stop event.
  */
 void I2CBitBangStop() {
-    WriteSda(false);
+    GPIO_PinWrite(SDA_PIN, false);
     WaitHalfClockCycle();
-    WriteScl(true);
+    GPIO_PinWrite(SCL_PIN, true);
     WaitHalfClockCycle();
-    WriteSda(true);
+    GPIO_PinWrite(SDA_PIN, true);
 }
 
 /**
@@ -86,23 +82,22 @@ void I2CBitBangStop() {
 bool I2CBitBangSend(const uint8_t byte) {
 
     // Data
-    int bitNumber;
-    for (bitNumber = 7; bitNumber >= 0; bitNumber--) {
-        WriteSda((byte & (1 << bitNumber)) != 0);
+    for (int bitNumber = 7; bitNumber >= 0; bitNumber--) {
+        GPIO_PinWrite(SDA_PIN, (byte & (1 << bitNumber)) != 0);
         WaitHalfClockCycle();
-        WriteScl(true);
+        GPIO_PinWrite(SCL_PIN, true);
         WaitHalfClockCycle();
-        WriteScl(false);
+        GPIO_PinWrite(SCL_PIN, false);
     }
 
     // ACK
-    WriteSda(true);
+    GPIO_PinWrite(SDA_PIN, true);
     WaitHalfClockCycle();
-    WriteScl(true);
+    GPIO_PinWrite(SCL_PIN, true);
     WaitHalfClockCycle();
-    const bool ack = ReadSda() == false;
-    WriteScl(false);
-    WriteSda(false);
+    const bool ack = GPIO_PinRead(SDA_PIN) == false;
+    GPIO_PinWrite(SCL_PIN, false);
+    GPIO_PinWrite(SDA_PIN, false);
     return ack;
 }
 
@@ -114,23 +109,22 @@ bool I2CBitBangSend(const uint8_t byte) {
 uint8_t I2CBitBangReceive(const bool ack) {
 
     // Data
-    WriteSda(true);
+    GPIO_PinWrite(SDA_PIN, true);
     uint8_t byte = 0;
-    int bitNumber;
-    for (bitNumber = 7; bitNumber >= 0; bitNumber--) {
+    for (int bitNumber = 7; bitNumber >= 0; bitNumber--) {
         WaitHalfClockCycle();
-        WriteScl(true);
+        GPIO_PinWrite(SCL_PIN, true);
         WaitHalfClockCycle();
-        byte |= ReadSda() == true ? (1 << bitNumber) : 0;
-        WriteScl(false);
+        byte |= GPIO_PinRead(SDA_PIN) == true ? (1 << bitNumber) : 0;
+        GPIO_PinWrite(SCL_PIN, false);
     }
 
     // ACK/NACK
-    WriteSda(ack == false);
+    GPIO_PinWrite(SDA_PIN, ack == false);
     WaitHalfClockCycle();
-    WriteScl(true);
+    GPIO_PinWrite(SCL_PIN, true);
     WaitHalfClockCycle();
-    WriteScl(false);
+    GPIO_PinWrite(SCL_PIN, false);
     return byte;
 }
 
@@ -139,38 +133,6 @@ uint8_t I2CBitBangReceive(const bool ack) {
  */
 static inline __attribute__((always_inline)) void WaitHalfClockCycle() {
     TimerDelayMicroseconds(2);
-}
-
-/**
- * @brief Writes the SCL pin.
- * @param state Pin state.
- */
-static inline __attribute__((always_inline)) void WriteScl(const bool state) {
-    if (state) {
-        SCL_Set();
-    } else {
-        SCL_Clear();
-    }
-}
-
-/**
- * @brief Reads the SDA pin.
- * @return Pin state.
- */
-static inline __attribute__((always_inline)) bool ReadSda() {
-    return SDA_Get();
-}
-
-/**
- * @brief Writes the SDA pin.
- * @param state Pin state.
- */
-static inline __attribute__((always_inline)) void WriteSda(const bool state) {
-    if (state) {
-        SDA_Set();
-    } else {
-        SDA_Clear();
-    }
 }
 
 //------------------------------------------------------------------------------
