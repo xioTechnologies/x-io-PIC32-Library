@@ -34,7 +34,7 @@ void TimerInitialise();
 void TimerDisable();
 uint32_t TimerGetTicks32();
 uint64_t TimerGetTicks64();
-void TimerDelay(const uint32_t milliseconds);
+void TimerDelayMilliseconds(const uint32_t milliseconds);
 void TimerDelayMicroseconds(const uint32_t microseconds);
 
 #endif

@@ -83,7 +83,7 @@ uint64_t TimerGetTicks64() {
  * @brief Blocking delay in milliseconds.
  * @param milliseconds Milliseconds.
  */
-void TimerDelay(const uint32_t milliseconds) {
+void TimerDelayMilliseconds(const uint32_t milliseconds) {
     const uint64_t endTicks = TimerGetTicks64() + ((uint64_t) milliseconds * (uint64_t) (TIMER_TICKS_PER_SECOND / 1000));
     while (TimerGetTicks64() < endTicks);
 }
