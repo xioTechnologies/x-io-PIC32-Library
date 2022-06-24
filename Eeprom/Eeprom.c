@@ -125,8 +125,7 @@ static void StartSequence(const uint16_t address) {
  */
 void EepromErase() {
     const uint8_t blankPage[] = {[0 ... (EEPROM_HAL_PAGE_SIZE - 1)] = 0xFF};
-    int index;
-    for (index = 0; index < (EEPROM_HAL_SIZE / EEPROM_HAL_PAGE_SIZE); index++) {
+    for (int index = 0; index < (EEPROM_HAL_SIZE / EEPROM_HAL_PAGE_SIZE); index++) {
         EepromWrite(index * EEPROM_HAL_PAGE_SIZE, blankPage, sizeof (blankPage));
     }
 }
@@ -136,8 +135,7 @@ void EepromErase() {
  * @return True if the EEPROM is blank.
  */
 bool EepromIsBlank() {
-    int index;
-    for (index = 0; index < (EEPROM_HAL_SIZE / EEPROM_HAL_PAGE_SIZE); index++) {
+    for (int index = 0; index < (EEPROM_HAL_SIZE / EEPROM_HAL_PAGE_SIZE); index++) {
         uint8_t pageData[EEPROM_HAL_PAGE_SIZE];
         EepromRead(index * EEPROM_HAL_PAGE_SIZE, pageData, sizeof (pageData));
         const uint8_t blankPage[] = {[0 ... (EEPROM_HAL_PAGE_SIZE - 1)] = 0xFF};
@@ -153,8 +151,7 @@ bool EepromIsBlank() {
  */
 void EepromPrint() {
     bool printEllipses = true;
-    uint16_t address;
-    for (address = 0; address < EEPROM_HAL_SIZE; address += PRINT_LINE_LENGTH) {
+    for (uint16_t address = 0; address < EEPROM_HAL_SIZE; address += PRINT_LINE_LENGTH) {
 
         // Read data
         uint8_t data[PRINT_LINE_LENGTH];
@@ -197,8 +194,7 @@ static void PrintLine(const uint16_t address, const uint8_t * const data) {
     }
 
     // Print data
-    int index;
-    for (index = 0; index < PRINT_LINE_LENGTH; index++) {
+    for (int index = 0; index < PRINT_LINE_LENGTH; index++) {
         if ((data[index] >= 0x20) && (data[index] <= 0x7E)) { // if printable character
             printf(" %c ", (char) data[index]);
         } else {

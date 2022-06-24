@@ -573,8 +573,7 @@ const char* SDCardPathJoin(const int numberOfParts, ...) {
     // Loop through each part
     va_list parts;
     va_start(parts, numberOfParts);
-    int index;
-    for (index = 0; index < numberOfParts; index++) {
+    for (int index = 0; index < numberOfParts; index++) {
 
         // Copy part for tokenisation
         char part[SD_CARD_MAX_PATH_SIZE];
