@@ -121,13 +121,12 @@ uint8_t I2C2Receive(const bool ack) {
  * @brief Waits for the interrupt or timeout.
  */
 static void WaitForInterruptOrTimeout() {
-    const uint64_t startTicks = TimerGetTicks64();
-    const uint64_t timeout = TIMER_TICKS_PER_SECOND / (I2CClockFrequency100kHz / 10); // 10 clock cycles timeout for slowest clock
+    const uint64_t timeout = TimerGetTicks64() + (TIMER_TICKS_PER_SECOND / (I2CClockFrequency100kHz / 10)); // 10 clock cycles timeout for slowest clock
     while (true) {
         if (EVIC_SourceStatusGet(INT_SOURCE_I2C2_MASTER) == true) {
             break;
         }
-        if ((TimerGetTicks64() - startTicks) > timeout) {
+        if (TimerGetTicks64() > timeout) {
             break;
         }
     }

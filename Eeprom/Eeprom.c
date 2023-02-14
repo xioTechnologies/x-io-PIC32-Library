@@ -106,13 +106,13 @@ void EepromUpdate(uint16_t address, const void* const data, const size_t numberO
  * @param address Address.
  */
 static void StartSequence(const uint16_t address) {
-    const uint64_t startTicks = TimerGetTicks64();
+    const uint64_t timeout = TimerGetTicks64() + (TIMER_TICKS_PER_SECOND / 200); // 5 ms
     while (true) {
         EepromHalI2CStart();
         if (EepromHalI2CSend(I2CSlaveAddressWrite(EEPROM_HAL_I2C_ADDRESS)) == true) {
             break;
         }
-        if ((TimerGetTicks64() - startTicks) > (TIMER_TICKS_PER_SECOND / 200)) { // 5 ms timeout
+        if (TimerGetTicks64() > timeout) {
             break;
         }
     }
