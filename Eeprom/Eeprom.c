@@ -9,10 +9,11 @@
 
 #include "Eeprom.h"
 #include "EepromHal.h"
+#include "I2C/I2CSlaveAddress.h"
+#include "I2C/I2CStartSequence.h"
 #include <stdbool.h>
 #include <stdio.h> // printf
 #include <string.h> // memcmp
-#include "Timer/Timer.h"
 
 //------------------------------------------------------------------------------
 // Definitions
@@ -106,16 +107,7 @@ void EepromUpdate(uint16_t address, const void* const data, const size_t numberO
  * @param address Address.
  */
 static void StartSequence(const uint16_t address) {
-    const uint64_t timeout = TimerGetTicks64() + (TIMER_TICKS_PER_SECOND / 200); // 5 ms
-    while (true) {
-        EepromHalI2CStart();
-        if (EepromHalI2CSend(I2CSlaveAddressWrite(EEPROM_HAL_I2C_ADDRESS)) == true) {
-            break;
-        }
-        if (TimerGetTicks64() > timeout) {
-            break;
-        }
-    }
+    I2CStartSequence(EepromHalI2CStart, EepromHalI2CSend, EEPROM_HAL_I2C_ADDRESS, 5); // 5 ms
     EepromHalI2CSend(address >> 8);
     EepromHalI2CSend(address & 0xFF);
 }
