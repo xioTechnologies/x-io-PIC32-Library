@@ -17,7 +17,7 @@
 // Definitions
 
 /**
- * @bief Timer ticks per second.
+ * @brief Timer ticks per second.
  */
 #if defined __PIC32MX__
 #define TIMER_TICKS_PER_SECOND (PERIPHERAL_BUS_CLOCK_FREQUENCY)
