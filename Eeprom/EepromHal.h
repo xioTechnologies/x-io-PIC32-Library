@@ -11,8 +11,9 @@
 // Includes
 
 #include "definitions.h"
-#include "I2C/I2cBitBang.h"
+#include "I2C/I2C1.h"
 #include <stdbool.h>
+#include <stdint.h>
 
 //------------------------------------------------------------------------------
 // Definitions
@@ -39,21 +40,21 @@
  * @brief Performs the start condition.
  */
 static inline __attribute__((always_inline)) void EepromHalI2CStart() {
-    I2CBitBangStart();
+    I2C1Start();
 }
 
 /**
  * @brief Performs the start condition.
  */
 static inline __attribute__((always_inline)) void EepromHalI2CRepeatedStart() {
-    I2CBitBangRepeatedStart();
+    I2C1RepeatedStart();
 }
 
 /**
  * @brief Performs the stop condition.
  */
 static inline __attribute__((always_inline)) void EepromHalI2CStop() {
-    I2CBitBangStop();
+    I2C1Stop();
 }
 
 /**
@@ -62,7 +63,7 @@ static inline __attribute__((always_inline)) void EepromHalI2CStop() {
  * @return True if an ACK was generated.
  */
 static inline __attribute__((always_inline)) bool EepromHalI2CSend(const uint8_t byte) {
-    return I2CBitBangSend(byte);
+    return I2C1Send(byte);
 }
 
 /**
@@ -71,7 +72,7 @@ static inline __attribute__((always_inline)) bool EepromHalI2CSend(const uint8_t
  * @return Byte.
  */
 static inline __attribute__((always_inline)) uint8_t EepromHalI2CReceive(const bool ack) {
-    return I2CBitBangReceive(ack);
+    return I2C1Receive(ack);
 }
 
 #endif
