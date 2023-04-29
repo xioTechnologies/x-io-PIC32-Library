@@ -20,7 +20,7 @@
 
 void Uart5DmaRXInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions);
 void Uart5DmaRXDisable();
-void Uart5DmaRXSetReadCallback(void (*read)(const void* const data, const size_t numberOfBytes));
+void Uart5DmaRXSetReadCallback(void (*read_)(const void* const data, const size_t numberOfBytes));
 void Uart5DmaRXRead();
 size_t Uart5DmaRXGetWriteAvailable();
 void Uart5DmaRXWrite(const void* const data, const size_t numberOfBytes);

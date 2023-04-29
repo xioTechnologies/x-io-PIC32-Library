@@ -201,8 +201,8 @@ void I2C4InterruptHandler() {
             break;
         case I2CMessageEventEnd:
             EVIC_SourceDisable(INT_SOURCE_I2C4_MASTER);
-            if (currentmessage->messageComplete != NULL) {
-                currentmessage->messageComplete();
+            if (currentmessage->complete != NULL) {
+                currentmessage->complete();
             }
             break;
     }

@@ -20,7 +20,7 @@
 
 void Uart2DmaRXInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions);
 void Uart2DmaRXDisable();
-void Uart2DmaRXSetReadCallback(void (*read)(const void* const data, const size_t numberOfBytes));
+void Uart2DmaRXSetReadCallback(void (*read_)(const void* const data, const size_t numberOfBytes));
 void Uart2DmaRXRead();
 size_t Uart2DmaRXGetWriteAvailable();
 void Uart2DmaRXWrite(const void* const data, const size_t numberOfBytes);

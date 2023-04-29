@@ -23,7 +23,7 @@ static inline __attribute__((always_inline)) void TXInterruptTasks();
 //------------------------------------------------------------------------------
 // Variables
 
-static void (*readCallback)(const void* const data, const size_t numberOfBytes);
+static void (*read)(const void* const data, const size_t numberOfBytes);
 static uint8_t __attribute__((coherent)) readBuffer[1024]; // must be declared __attribute__((coherent)) for PIC32MZ devices
 static uint8_t writeBufferData[4096];
 static CircularBuffer writeBuffer = {.buffer = writeBufferData, .bufferSize = sizeof (writeBufferData)};
@@ -158,7 +158,7 @@ void Uart6DmaRXDisable() {
     EVIC_SourceStatusClear(INT_SOURCE_DMA0);
 
     // Remove callback
-    readCallback = NULL;
+    read = NULL;
 }
 
 /**
@@ -166,9 +166,9 @@ void Uart6DmaRXDisable() {
  * an interrupt each time a read condition is met.
  * @param read Read callback function.
  */
-void Uart6DmaRXSetReadCallback(void (*read)(const void* const data, const size_t numberOfBytes)) {
+void Uart6DmaRXSetReadCallback(void (*read_)(const void* const data, const size_t numberOfBytes)) {
     EVIC_SourceDisable(INT_SOURCE_DMA0);
-    readCallback = read;
+    read = read_;
     EVIC_SourceEnable(INT_SOURCE_DMA0);
 }
 
@@ -229,8 +229,8 @@ static inline __attribute__((always_inline)) void BlockTransferComplete() {
     }
 
     // Callback function
-    if (readCallback != NULL) {
-        readCallback(readBuffer, numberOfBytes);
+    if (read != NULL) {
+        read(readBuffer, numberOfBytes);
     }
 }
 
@@ -251,8 +251,8 @@ static inline __attribute__((always_inline)) void TransferAborted() {
     DCH0ECONbits.CABORT = 1;
 
     // Callback function
-    if (readCallback != NULL) {
-        readCallback(readBuffer, numberOfBytes);
+    if (read != NULL) {
+        read(readBuffer, numberOfBytes);
     }
 }
 

@@ -44,7 +44,7 @@ typedef struct {
     I2CMessageEvent event[I2C_MESSAGE_MAX_LENGTH + 1];
     uint8_t data[I2C_MESSAGE_MAX_LENGTH];
     uint8_t* destination[I2C_MESSAGE_MAX_LENGTH];
-    void (*messageComplete)();
+    void (*complete)();
 } I2CMessage;
 
 //------------------------------------------------------------------------------
@@ -54,7 +54,7 @@ void I2CMessageStart(I2CMessage * const message);
 void I2CMessageRepeatedStart(I2CMessage * const message);
 void I2CMessageSend(I2CMessage * const message, const uint8_t byte);
 void I2CMessageReceive(I2CMessage * const message, uint8_t * const destination, const bool ack);
-void I2CMessageStop(I2CMessage * const message, void (*messageComplete)());
+void I2CMessageStop(I2CMessage * const message, void (*complete)());
 
 #endif
 

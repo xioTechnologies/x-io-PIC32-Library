@@ -22,7 +22,7 @@ void I2CMessageStart(I2CMessage * const message) {
     // Initialise I2C message
     message->index = 0;
     message->event[0] = I2CMessageEventEnd;
-    message->messageComplete = NULL;
+    message->complete = NULL;
 
     // Add start event
     if (message->index >= I2C_MESSAGE_MAX_LENGTH) {
@@ -85,7 +85,7 @@ void I2CMessageReceive(I2CMessage * const message, uint8_t * const destination, 
  * called from within an interrupt once the message is complete.
  * @param message Message.
  */
-void I2CMessageStop(I2CMessage * const message, void (*messageComplete)()) {
+void I2CMessageStop(I2CMessage * const message, void (*complete)()) {
 
     // Add stop event
     if (message->index >= I2C_MESSAGE_MAX_LENGTH) {
@@ -95,7 +95,7 @@ void I2CMessageStop(I2CMessage * const message, void (*messageComplete)()) {
     message->event[++message->index] = I2CMessageEventEnd;
 
     // Set callback function
-    message->messageComplete = messageComplete;
+    message->complete = complete;
 }
 
 //------------------------------------------------------------------------------
