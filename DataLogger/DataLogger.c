@@ -519,7 +519,7 @@ static void PrintStatistics() {
             (unsigned int) ((currentTicks - fileStartTicks) / TIMER_TICKS_PER_SECOND),
             fileSize >> 10,
             (unsigned int) (kilobytesPerSecond + 0.5f),
-            (float) maxWritePeriod * (1000.0f / (float) TIMER_TICKS_PER_SECOND),
+            (float) maxWritePeriod * (1.0f / (float) TIMER_TICKS_PER_MILLISECOND),
             bufferOverrun ? "Buffer Overrun" : bufferUsageString);
 
     // Reset statistics

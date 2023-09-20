@@ -84,7 +84,7 @@ uint64_t TimerGetTicks64() {
  * @param milliseconds Milliseconds.
  */
 void TimerDelayMilliseconds(const uint32_t milliseconds) {
-    const uint64_t endTicks = TimerGetTicks64() + ((uint64_t) milliseconds * (uint64_t) (TIMER_TICKS_PER_SECOND / 1000));
+    const uint64_t endTicks = TimerGetTicks64() + ((uint64_t) milliseconds * (uint64_t) TIMER_TICKS_PER_MILLISECOND);
     while (TimerGetTicks64() < endTicks);
 }
 
@@ -95,7 +95,7 @@ void TimerDelayMilliseconds(const uint32_t milliseconds) {
  */
 void TimerDelayMicroseconds(const uint32_t microseconds) {
     const uint32_t startTicks = TimerGetTicks32();
-    while ((TimerGetTicks32() - startTicks) < (microseconds * (TIMER_TICKS_PER_SECOND / 1000000)));
+    while ((TimerGetTicks32() - startTicks) < (microseconds * TIMER_TICKS_PER_MICROSECOND));
 }
 
 /**

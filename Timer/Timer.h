@@ -27,6 +27,16 @@
 #error "Unsupported device."
 #endif
 
+/**
+ * @brief Timer ticks per millisecond.
+ */
+#define TIMER_TICKS_PER_MILLISECOND (TIMER_TICKS_PER_SECOND / 1000)
+
+/**
+ * @brief Timer ticks per microsecond.
+ */
+#define TIMER_TICKS_PER_MICROSECOND (TIMER_TICKS_PER_SECOND / 1000000)
+
 //------------------------------------------------------------------------------
 // Function declarations
 
