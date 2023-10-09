@@ -15,7 +15,7 @@
 //------------------------------------------------------------------------------
 // Definitions
 
-#if defined __PIC32MX__
+#if (defined __PIC32MX__) || (defined __PIC32MM__)
 #define PERIPHERAL_BUS_CLOCK_FREQUENCY (CPU_CLOCK_FREQUENCY)
 #elif defined __PIC32MZ__
 #define PERIPHERAL_BUS_CLOCK_1_FREQUENCY (CPU_CLOCK_FREQUENCY / 2)

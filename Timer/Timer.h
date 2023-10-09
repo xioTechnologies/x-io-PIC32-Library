@@ -19,7 +19,7 @@
 /**
  * @brief Timer ticks per second.
  */
-#if defined __PIC32MX__
+#if (defined __PIC32MX__) || (defined __PIC32MM__)
 #define TIMER_TICKS_PER_SECOND (PERIPHERAL_BUS_CLOCK_FREQUENCY)
 #elif defined __PIC32MZ__
 #define TIMER_TICKS_PER_SECOND (PERIPHERAL_BUS_CLOCK_3_FREQUENCY)

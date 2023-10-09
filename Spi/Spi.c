@@ -16,7 +16,7 @@
 /**
  * @brief Value used for SPIxBRG calculation.
  */
-#if defined __PIC32MX__
+#if (defined __PIC32MX__) || (defined __PIC32MM__)
 #define FPB (PERIPHERAL_BUS_CLOCK_FREQUENCY)
 #elif defined __PIC32MZ__
 #define FPB (PERIPHERAL_BUS_CLOCK_2_FREQUENCY)
