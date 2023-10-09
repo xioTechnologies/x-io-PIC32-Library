@@ -44,7 +44,7 @@ typedef struct {
 static inline __attribute__((always_inline)) bool TimerEventPoll(TimerEvent * const timerEvent, const float period) {
 
     // Recalculate internal variables if period changed
-    if (*(uint32_t*) & timerEvent->periodSeconds != *(uint32_t*) & period) { // fast float comparison
+    if (timerEvent->periodSeconds != period) {
 
         // Disable if period invalid
         timerEvent->periodSeconds = period;
