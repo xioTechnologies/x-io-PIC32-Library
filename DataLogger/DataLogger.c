@@ -225,7 +225,7 @@ static int Open() {
     }
     UpdateStatus(DataLoggerStatusOpen);
 #ifdef PRINT_STATISTICS
-    printf("%s\r\n", fileName);
+    printf("%s\n", fileName);
 #endif
 
     // Write preamble
@@ -441,7 +441,7 @@ const char* DataLoggerGetFileName() {
  */
 static void UpdateStatus(const DataLoggerStatus status) {
 #ifdef PRINT_STATISTICS
-    printf("%s\r\n", DataLoggerStatusToString(status));
+    printf("%s\n", DataLoggerStatusToString(status));
 #endif
     if (callbacks.statusUpdate != NULL) {
         callbacks.statusUpdate(status);
@@ -515,7 +515,7 @@ static void PrintStatistics() {
     snprintf(bufferUsageString, sizeof (bufferUsageString), "%0.1f%%", ((float) maxbufferUsed * (100.0f / (float) sizeof (bufferData))));
 
     // Print statistics
-    printf("%u s, %u KB, %u KB/s, %0.1f ms, %s\r\n",
+    printf("%u s, %u KB, %u KB/s, %0.1f ms, %s\n",
             (unsigned int) ((currentTicks - fileStartTicks) / TIMER_TICKS_PER_SECOND),
             fileSize >> 10,
             (unsigned int) (kilobytesPerSecond + 0.5f),

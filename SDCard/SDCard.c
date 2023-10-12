@@ -432,7 +432,7 @@ void SDCardPrintDirectory(const char* const directory) {
     SDCardFileDetails fileDetails;
     SDCardDirectorySearch("*", &fileDetails);
     while (strlen(fileDetails.name) > 0) {
-        printf("%-*s %s    %s\r\n", 32, fileDetails.name, RtcTimeToString(&fileDetails.time), SDCardSizeToString(fileDetails.size));
+        printf("%-*s %s    %s\n", 32, fileDetails.name, RtcTimeToString(&fileDetails.time), SDCardSizeToString(fileDetails.size));
         SDCardDirectorySearch("*", &fileDetails);
     }
     SDCardDirectoryClose();
@@ -672,7 +672,7 @@ static void PrintFileSystemError(const char* functionName, const SYS_FS_ERROR sy
             error = "SYS_FS_ERROR_NOT_SUPPORTED_IN_NATIVE_FS";
             break;
     }
-    printf("%s failed. %s\r\n", functionName, error);
+    printf("%s failed. %s\n", functionName, error);
 #endif
 }
 

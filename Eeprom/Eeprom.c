@@ -193,7 +193,7 @@ static void PrintLine(const uint16_t address, const uint8_t * const data) {
             printf("%02X ", data[index]);
         }
     }
-    printf("\r\n");
+    printf("\n");
 }
 
 //------------------------------------------------------------------------------
