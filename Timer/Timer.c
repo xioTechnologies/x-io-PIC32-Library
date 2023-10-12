@@ -24,7 +24,7 @@ static uint32_t overflowCounter;
 void TimerInitialise() {
 
     // Ensure default register states
-    TimerDisable();
+    TimerDeinitialise();
 
     // Configure timer
 #if defined __PIC32MM__
@@ -46,9 +46,9 @@ void TimerInitialise() {
 }
 
 /**
- * @brief Disables the module.
+ * @brief Deinitialises the module.
  */
-void TimerDisable() {
+void TimerDeinitialise() {
 
     // Disable timer and restore default register states
 #if defined __PIC32MM__

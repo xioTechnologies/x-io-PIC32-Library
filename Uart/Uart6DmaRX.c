@@ -39,7 +39,7 @@ static CircularBuffer writeBuffer = {.buffer = writeBufferData, .bufferSize = si
 void Uart6DmaRXInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions) {
 
     // Ensure default register states
-    Uart6DmaRXDisable();
+    Uart6DmaRXDeinitialise();
 
     // Configure UART
     if (settings->rtsCtsEnabled == true) {
@@ -113,9 +113,9 @@ void Uart6DmaRXInitialise(const UartSettings * const settings, const UartDmaRead
 }
 
 /**
- * @brief Disables the module.
+ * @brief Deinitialises the module.
  */
-void Uart6DmaRXDisable() {
+void Uart6DmaRXDeinitialise() {
 
     // Disable UART and restore default register states
     U6MODE = 0;

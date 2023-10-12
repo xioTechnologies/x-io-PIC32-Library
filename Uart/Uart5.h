@@ -18,7 +18,7 @@
 // Function declarations
 
 void Uart5Initialise(const UartSettings * const settings);
-void Uart5Disable();
+void Uart5Deinitialise();
 size_t Uart5GetReadAvailable();
 size_t Uart5Read(void* const destination, size_t numberOfBytes);
 uint8_t Uart5ReadByte();

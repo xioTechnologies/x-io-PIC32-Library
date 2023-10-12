@@ -18,7 +18,7 @@
 // Function declarations
 
 void Uart3Initialise(const UartSettings * const settings);
-void Uart3Disable();
+void Uart3Deinitialise();
 size_t Uart3GetReadAvailable();
 size_t Uart3Read(void* const destination, size_t numberOfBytes);
 uint8_t Uart3ReadByte();

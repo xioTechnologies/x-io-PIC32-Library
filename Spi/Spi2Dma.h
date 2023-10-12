@@ -18,7 +18,7 @@
 // Function declarations
 
 void Spi2DmaInitialise(const SpiSettings * const settings);
-void Spi2DmaDisable();
+void Spi2DmaDeinitialise();
 void Spi2DmaSetTransferCompleteCallback(void (*transferComplete_)());
 void Spi2DmaTransfer(void* const data, const size_t numberOfBytes);
 bool Spi2DmaIsTransferInProgress();

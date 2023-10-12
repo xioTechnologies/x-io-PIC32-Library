@@ -19,7 +19,7 @@
 // Function declarations
 
 void Uart3DmaInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions);
-void Uart3DmaDisable();
+void Uart3DmaDeinitialise();
 void Uart3DmaSetReadCallback(void (*read_)(const void* const data, const size_t numberOfBytes));
 void Uart3DmaRead();
 void Uart3DmaWrite(const void* const data, const size_t numberOfBytes);

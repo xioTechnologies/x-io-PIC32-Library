@@ -41,7 +41,7 @@
 // Function declarations
 
 void TimerInitialise();
-void TimerDisable();
+void TimerDeinitialise();
 uint32_t TimerGetTicks32();
 uint64_t TimerGetTicks64();
 void TimerDelayMilliseconds(const uint32_t milliseconds);

@@ -34,7 +34,7 @@ static CircularBuffer readBuffer = {.buffer = readBufferData, .bufferSize = size
 void Uart3DmaTXInitialise(const UartSettings * const settings) {
 
     // Ensure default register states
-    Uart3DmaTXDisable();
+    Uart3DmaTXDeinitialise();
 
     // Configure UART
     if (settings->rtsCtsEnabled == true) {
@@ -65,9 +65,9 @@ void Uart3DmaTXInitialise(const UartSettings * const settings) {
 }
 
 /**
- * @brief Disables the module.
+ * @brief Deinitialises the module.
  */
-void Uart3DmaTXDisable() {
+void Uart3DmaTXDeinitialise() {
 
     // Disable UART and restore default register states
     U3MODE = 0;

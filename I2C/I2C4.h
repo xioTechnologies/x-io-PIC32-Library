@@ -20,7 +20,7 @@
 // Function declarations
 
 void I2C4Initialise(const I2CClockFrequency clockFrequency);
-void I2C4Disable();
+void I2C4Deinitialise();
 void I2C4Start();
 void I2C4RepeatedStart();
 void I2C4Stop();

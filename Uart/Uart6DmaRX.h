@@ -19,7 +19,7 @@
 // Function declarations
 
 void Uart6DmaRXInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions);
-void Uart6DmaRXDisable();
+void Uart6DmaRXDeinitialise();
 void Uart6DmaRXSetReadCallback(void (*read_)(const void* const data, const size_t numberOfBytes));
 void Uart6DmaRXRead();
 size_t Uart6DmaRXGetWriteAvailable();

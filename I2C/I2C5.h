@@ -20,7 +20,7 @@
 // Function declarations
 
 void I2C5Initialise(const I2CClockFrequency clockFrequency);
-void I2C5Disable();
+void I2C5Deinitialise();
 void I2C5Start();
 void I2C5RepeatedStart();
 void I2C5Stop();

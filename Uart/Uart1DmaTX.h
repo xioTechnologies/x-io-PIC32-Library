@@ -18,7 +18,7 @@
 // Function declarations
 
 void Uart1DmaTXInitialise(const UartSettings * const settings);
-void Uart1DmaTXDisable();
+void Uart1DmaTXDeinitialise();
 size_t Uart1DmaTXGetReadAvailable();
 size_t Uart1DmaTXRead(void* const destination, size_t numberOfBytes);
 uint8_t Uart1DmaTXReadByte();

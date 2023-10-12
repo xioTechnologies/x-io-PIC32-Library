@@ -37,7 +37,7 @@ static CircularBuffer writeBuffer = {.buffer = writeBufferData, .bufferSize = si
 void Uart2Initialise(const UartSettings * const settings) {
 
     // Ensure default register states
-    Uart2Disable();
+    Uart2Deinitialise();
 
     // Configure UART
     if (settings->rtsCtsEnabled == true) {
@@ -62,9 +62,9 @@ void Uart2Initialise(const UartSettings * const settings) {
 }
 
 /**
- * @brief Disables the module.
+ * @brief Deinitialises the module.
  */
-void Uart2Disable() {
+void Uart2Deinitialise() {
 
     // Disable UART and restore default register states
     U2MODE = 0;

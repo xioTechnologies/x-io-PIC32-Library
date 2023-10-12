@@ -18,7 +18,7 @@
 // Function declarations
 
 void Uart6Initialise(const UartSettings * const settings);
-void Uart6Disable();
+void Uart6Deinitialise();
 size_t Uart6GetReadAvailable();
 size_t Uart6Read(void* const destination, size_t numberOfBytes);
 uint8_t Uart6ReadByte();

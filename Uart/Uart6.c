@@ -37,7 +37,7 @@ static CircularBuffer writeBuffer = {.buffer = writeBufferData, .bufferSize = si
 void Uart6Initialise(const UartSettings * const settings) {
 
     // Ensure default register states
-    Uart6Disable();
+    Uart6Deinitialise();
 
     // Configure UART
     if (settings->rtsCtsEnabled == true) {
@@ -62,9 +62,9 @@ void Uart6Initialise(const UartSettings * const settings) {
 }
 
 /**
- * @brief Disables the module.
+ * @brief Deinitialises the module.
  */
-void Uart6Disable() {
+void Uart6Deinitialise() {
 
     // Disable UART and restore default register states
     U6MODE = 0;

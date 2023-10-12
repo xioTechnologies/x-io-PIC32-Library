@@ -33,7 +33,7 @@ static uint64_t messageTimeout;
 void I2C2Initialise(const I2CClockFrequency clockFrequency) {
 
     // Ensure default register states
-    I2C2Disable();
+    I2C2Deinitialise();
 
     // Configure I2C
     I2C2BRG = I2CCalculateI2Cxbrg(clockFrequency);
@@ -46,7 +46,7 @@ void I2C2Initialise(const I2CClockFrequency clockFrequency) {
 /**
  * @brief Disable the module.
  */
-void I2C2Disable() {
+void I2C2Deinitialise() {
 
     // Disable I2C and restore default register states
     I2C2CON = 0;

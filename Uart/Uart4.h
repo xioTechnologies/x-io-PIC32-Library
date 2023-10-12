@@ -18,7 +18,7 @@
 // Function declarations
 
 void Uart4Initialise(const UartSettings * const settings);
-void Uart4Disable();
+void Uart4Deinitialise();
 size_t Uart4GetReadAvailable();
 size_t Uart4Read(void* const destination, size_t numberOfBytes);
 uint8_t Uart4ReadByte();

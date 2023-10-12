@@ -26,7 +26,7 @@ static void (*transferComplete)();
 void Spi6DmaInitialise(const SpiSettings * const settings) {
 
     // Ensure default register states
-    Spi6DmaDisable();
+    Spi6DmaDeinitialise();
 
     // Configure SPI
     SPI6CONbits.MSTEN = 1; // Master mode
@@ -68,9 +68,9 @@ void Spi6DmaInitialise(const SpiSettings * const settings) {
 }
 
 /**
- * @brief Disables the module.
+ * @brief Deinitialises the module.
  */
-void Spi6DmaDisable() {
+void Spi6DmaDeinitialise() {
 
     // Disable SPI and restore default register states
     SPI6CON = 0;

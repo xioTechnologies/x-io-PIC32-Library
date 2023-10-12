@@ -36,7 +36,7 @@ static uint8_t __attribute__((coherent)) readBuffer[1024]; // must be declared _
 void Uart1DmaInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions) {
 
     // Ensure default register states
-    Uart1DmaDisable();
+    Uart1DmaDeinitialise();
 
     // Configure UART
     if (settings->rtsCtsEnabled == true) {
@@ -116,9 +116,9 @@ void Uart1DmaInitialise(const UartSettings * const settings, const UartDmaReadCo
 }
 
 /**
- * @brief Disables the module.
+ * @brief Deinitialises the module.
  */
-void Uart1DmaDisable() {
+void Uart1DmaDeinitialise() {
 
     // Disable UART and restore default register states
     U1MODE = 0;

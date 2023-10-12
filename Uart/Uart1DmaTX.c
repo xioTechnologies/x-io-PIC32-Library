@@ -34,7 +34,7 @@ static CircularBuffer readBuffer = {.buffer = readBufferData, .bufferSize = size
 void Uart1DmaTXInitialise(const UartSettings * const settings) {
 
     // Ensure default register states
-    Uart1DmaTXDisable();
+    Uart1DmaTXDeinitialise();
 
     // Configure UART
     if (settings->rtsCtsEnabled == true) {
@@ -65,9 +65,9 @@ void Uart1DmaTXInitialise(const UartSettings * const settings) {
 }
 
 /**
- * @brief Disables the module.
+ * @brief Deinitialises the module.
  */
-void Uart1DmaTXDisable() {
+void Uart1DmaTXDeinitialise() {
 
     // Disable UART and restore default register states
     U1MODE = 0;
