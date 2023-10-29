@@ -56,18 +56,18 @@ if not os.path.exists(file_path):
 with open(file_path) as file:
     lines = file.readlines()
 
-enum_values = []
+definitions = []
 
 for line in lines:
     if "RCON_RESET_CAUSE_" in line:
-        enum_values.append(line.split("=")[0].replace(" ", ""))
+        definitions.append(line.split(" ")[1].replace(" ", ""))
 
 # Insert code in ResetCauseGet()
 file_path = "ResetCause.c"
 
 code = "    const RCON_RESET_CAUSE mask = "
 
-for enum_value in enum_values:
+for enum_value in definitions:
     code += enum_value + " | "
 
 code = code[0:-len(" | ")]
@@ -78,7 +78,7 @@ insert(file_path, code, "0")
 # Insert code in ResetCausePrint()
 code = ""
 
-for enum_value in enum_values:
+for enum_value in definitions:
     code += "    if ((cause & " + enum_value + ") != 0) {\n"
     code += "        printf(\"" + enum_value.replace("RCON_RESET_CAUSE_", "") + " \");\n"
     code += "    }\n"
