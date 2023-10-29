@@ -28,7 +28,7 @@ static bool isHostConnected;
  * @brief Module tasks.  This function should be called repeatedly within the
  * main program loop.
  */
-void UsbMsdTasks() {
+void UsbMsdTasks(void) {
     if (usbDeviceHandle == USB_DEVICE_HANDLE_INVALID) {
         usbDeviceHandle = USB_DEVICE_Open(USB_DEVICE_INDEX_0, DRV_IO_INTENT_READWRITE);
         if (usbDeviceHandle != USB_DEVICE_HANDLE_INVALID) {
@@ -68,7 +68,7 @@ static void APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void * pEventData,
  * @brief Returns true if the USB host is connected.
  * @return True if the USB host is connected.
  */
-bool UsbMsdIsHostConnected() {
+bool UsbMsdIsHostConnected(void) {
     return isHostConnected;
 }
 

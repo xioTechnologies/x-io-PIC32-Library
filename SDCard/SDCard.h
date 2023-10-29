@@ -43,23 +43,23 @@ typedef struct {
 //------------------------------------------------------------------------------
 // Function declarations
 
-void SDCardTasks();
-void SDCardMount();
-void SDCardUnmount();
-bool SDCardIsMounted();
-void SDCardFormat();
+void SDCardTasks(void);
+void SDCardMount(void);
+void SDCardUnmount(void);
+bool SDCardIsMounted(void);
+void SDCardFormat(void);
 void SDCardSetVolumeLabel(const char* const label);
 SDCardError SDCardFileOpen(const char* const filePath, const bool write);
 size_t SDCardFileRead(void* const destination, const size_t destinationSize);
 void SDCardFileReadString(void* const destination, const size_t destinationSize);
 SDCardError SDCardFileWrite(const void* const data, const size_t numberOfBytes);
 SDCardError SDCardFileWriteString(const char* const string);
-size_t SDCardFileGetSize();
-void SDCardFileClose();
+size_t SDCardFileGetSize(void);
+void SDCardFileClose(void);
 void SDCardDirectoryOpen(const char* const directory);
 void SDCardDirectorySearch(const char* const fileName, SDCardFileDetails * const fileDetails);
 bool SDCardDirectoryExists(const char* const fileName);
-void SDCardDirectoryClose();
+void SDCardDirectoryClose(void);
 void SDCardPrintDirectory(const char* const directory);
 const char* SDCardSizeToString(const size_t size);
 void SDCardRename(const char* const path, const char* const newPath);

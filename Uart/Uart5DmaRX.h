@@ -19,15 +19,15 @@
 // Function declarations
 
 void Uart5DmaRXInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions);
-void Uart5DmaRXDeinitialise();
+void Uart5DmaRXDeinitialise(void);
 void Uart5DmaRXSetReadCallback(void (*read_)(const void* const data, const size_t numberOfBytes));
-void Uart5DmaRXRead();
-size_t Uart5DmaRXGetWriteAvailable();
+void Uart5DmaRXRead(void);
+size_t Uart5DmaRXGetWriteAvailable(void);
 void Uart5DmaRXWrite(const void* const data, const size_t numberOfBytes);
 void Uart5DmaRXWriteByte(const uint8_t byte);
-void Uart5DmaRXClearWriteBuffer();
-bool Uart5DmaRXHasReceiveBufferOverrun();
-bool Uart5DmaRXIsTransmitionComplete();
+void Uart5DmaRXClearWriteBuffer(void);
+bool Uart5DmaRXHasReceiveBufferOverrun(void);
+bool Uart5DmaRXIsTransmitionComplete(void);
 
 #endif
 

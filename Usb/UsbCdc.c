@@ -16,8 +16,8 @@
 
 static void APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void * eventData, uintptr_t context);
 static void APP_USBDeviceCDCEventHandler(USB_DEVICE_CDC_INDEX instanceIndex, USB_DEVICE_CDC_EVENT event, void* pData, uintptr_t context);
-static void ReadTasks();
-static void WriteTasks();
+static void ReadTasks(void);
+static void WriteTasks(void);
 
 //------------------------------------------------------------------------------
 // Variables
@@ -39,7 +39,7 @@ static CircularBuffer writeBuffer = {.buffer = writeBufferData, .bufferSize = si
  * @brief Module tasks.  This function should be called repeatedly within the
  * main program loop.
  */
-void UsbCdcTasks() {
+void UsbCdcTasks(void) {
 
     // Open USB device driver
     if (usbDeviceHandle == USB_DEVICE_HANDLE_INVALID) {
@@ -132,7 +132,7 @@ static void APP_USBDeviceCDCEventHandler(USB_DEVICE_CDC_INDEX index, USB_DEVICE_
 /**
  * @brief Read tasks.
  */
-static void ReadTasks() {
+static void ReadTasks(void) {
 
     // Do nothing if read in progress
     if (readInProgress == true) {
@@ -152,7 +152,7 @@ static void ReadTasks() {
 /**
  * @brief Write tasks.
  */
-static void WriteTasks() {
+static void WriteTasks(void) {
 
     // Do nothing if write in progress
     if (writeInProgress == true) {
@@ -182,7 +182,7 @@ static void WriteTasks() {
  * @brief Returns true if the USB host is connected.
  * @return True if the USB host is connected.
  */
-bool UsbCdcIsHostConnected() {
+bool UsbCdcIsHostConnected(void) {
     return isHostConnected;
 }
 
@@ -190,7 +190,7 @@ bool UsbCdcIsHostConnected() {
  * @brief Returns the number of bytes available in the read buffer.
  * @return Number of bytes available in the read buffer.
  */
-size_t UsbCdcGetReadAvailable() {
+size_t UsbCdcGetReadAvailable(void) {
     return CircularBufferGetReadAvailable(&readBuffer);
 }
 
@@ -209,7 +209,7 @@ size_t UsbCdcRead(void* const destination, size_t numberOfBytes) {
  * if there are bytes available in the read buffer.
  * @return Byte.
  */
-uint8_t UsbCdcReadByte() {
+uint8_t UsbCdcReadByte(void) {
     return CircularBufferReadByte(&readBuffer);
 }
 
@@ -217,7 +217,7 @@ uint8_t UsbCdcReadByte() {
  * @brief Returns the space available in the write buffer.
  * @return Space available in the write buffer.
  */
-size_t UsbCdcGetWriteAvailable() {
+size_t UsbCdcGetWriteAvailable(void) {
     return CircularBufferGetWriteAvailable(&writeBuffer);
 }
 

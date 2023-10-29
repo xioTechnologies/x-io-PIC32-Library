@@ -39,21 +39,21 @@
 /**
  * @brief Performs the start condition.
  */
-static inline __attribute__((always_inline)) void EepromHalI2CStart() {
+static inline __attribute__((always_inline)) void EepromHalI2CStart(void) {
     I2C1Start();
 }
 
 /**
  * @brief Performs the start condition.
  */
-static inline __attribute__((always_inline)) void EepromHalI2CRepeatedStart() {
+static inline __attribute__((always_inline)) void EepromHalI2CRepeatedStart(void) {
     I2C1RepeatedStart();
 }
 
 /**
  * @brief Performs the stop condition.
  */
-static inline __attribute__((always_inline)) void EepromHalI2CStop() {
+static inline __attribute__((always_inline)) void EepromHalI2CStop(void) {
     I2C1Stop();
 }
 

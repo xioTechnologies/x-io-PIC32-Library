@@ -115,7 +115,7 @@ static void StartSequence(const uint16_t address) {
 /**
  * @brief Erases the EEPROM.  All data bytes are set to 0xFF.
  */
-void EepromErase() {
+void EepromErase(void) {
     const uint8_t blankPage[] = {[0 ... (EEPROM_HAL_PAGE_SIZE - 1)] = 0xFF};
     for (int index = 0; index < (EEPROM_HAL_SIZE / EEPROM_HAL_PAGE_SIZE); index++) {
         EepromWrite(index * EEPROM_HAL_PAGE_SIZE, blankPage, sizeof (blankPage));
@@ -126,7 +126,7 @@ void EepromErase() {
  * @brief Returns true if the EEPROM is blank.
  * @return True if the EEPROM is blank.
  */
-bool EepromIsBlank() {
+bool EepromIsBlank(void) {
     for (int index = 0; index < (EEPROM_HAL_SIZE / EEPROM_HAL_PAGE_SIZE); index++) {
         uint8_t pageData[EEPROM_HAL_PAGE_SIZE];
         EepromRead(index * EEPROM_HAL_PAGE_SIZE, pageData, sizeof (pageData));
@@ -141,7 +141,7 @@ bool EepromIsBlank() {
 /**
  * @brief Prints the EEPROM.
  */
-void EepromPrint() {
+void EepromPrint(void) {
     bool printEllipses = true;
     for (uint16_t address = 0; address < EEPROM_HAL_SIZE; address += PRINT_LINE_LENGTH) {
 

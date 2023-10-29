@@ -85,7 +85,7 @@ void I2CMessageReceive(I2CMessage * const message, uint8_t * const destination, 
  * called from within an interrupt once the message is complete.
  * @param message Message.
  */
-void I2CMessageStop(I2CMessage * const message, void (*complete)()) {
+void I2CMessageStop(I2CMessage * const message, void (*complete)(void)) {
 
     // Add stop event
     if (message->index >= I2C_MESSAGE_MAX_LENGTH) {

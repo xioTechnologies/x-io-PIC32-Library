@@ -18,15 +18,15 @@
 // Function declarations
 
 void Uart6DmaTXInitialise(const UartSettings * const settings);
-void Uart6DmaTXDeinitialise();
-size_t Uart6DmaTXGetReadAvailable();
+void Uart6DmaTXDeinitialise(void);
+size_t Uart6DmaTXGetReadAvailable(void);
 size_t Uart6DmaTXRead(void* const destination, size_t numberOfBytes);
-uint8_t Uart6DmaTXReadByte();
+uint8_t Uart6DmaTXReadByte(void);
 void Uart6DmaTXWrite(const void* const data, const size_t numberOfBytes);
-bool Uart6DmaTXIsWriteInProgress();
-void Uart6DmaTXClearReadBuffer();
-bool Uart6DmaTXHasReceiveBufferOverrun();
-bool Uart6DmaTXIsTransmitionComplete();
+bool Uart6DmaTXIsWriteInProgress(void);
+void Uart6DmaTXClearReadBuffer(void);
+bool Uart6DmaTXHasReceiveBufferOverrun(void);
+bool Uart6DmaTXIsTransmitionComplete(void);
 
 #endif
 

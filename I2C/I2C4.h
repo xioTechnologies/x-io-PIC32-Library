@@ -20,14 +20,14 @@
 // Function declarations
 
 void I2C4Initialise(const I2CClockFrequency clockFrequency);
-void I2C4Deinitialise();
-void I2C4Start();
-void I2C4RepeatedStart();
-void I2C4Stop();
+void I2C4Deinitialise(void);
+void I2C4Start(void);
+void I2C4RepeatedStart(void);
+void I2C4Stop(void);
 bool I2C4Send(const uint8_t byte);
 uint8_t I2C4Receive(const bool ack);
 void I2C4BeginMessage(I2CMessage * const message);
-bool I2C4IsMessageInProgress();
+bool I2C4IsMessageInProgress(void);
 
 #endif
 

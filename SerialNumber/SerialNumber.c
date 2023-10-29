@@ -17,7 +17,7 @@
  * @brief Returns the serial number.
  * @return Serial number.
  */
-uint64_t SerialNumberGetValue() {
+uint64_t SerialNumberGetValue(void) {
     return ((uint64_t) DEVSN1 << 32) | ((uint64_t) DEVSN0);
 }
 
@@ -25,7 +25,7 @@ uint64_t SerialNumberGetValue() {
  * @brief Returns the serial number string.
  * @return Serial number string.
  */
-const char* SerialNumberGetString() {
+const char* SerialNumberGetString(void) {
     const uint64_t serialNumber = SerialNumberGetValue();
     static char string[sizeof ("XXXX-XXXX-XXXX-XXXX")];
     snprintf(string, sizeof (string), "%04X-%04X-%04X-%04X",

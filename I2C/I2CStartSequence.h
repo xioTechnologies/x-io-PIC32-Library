@@ -16,7 +16,7 @@
 //------------------------------------------------------------------------------
 // Function declarations
 
-bool I2CStartSequence(void (*i2cStart)(), bool(*i2cSend)(const uint8_t byte), const uint8_t slaveAddress, const uint32_t timeout_);
+bool I2CStartSequence(void (*i2cStart)(void), bool(*i2cSend)(const uint8_t byte), const uint8_t slaveAddress, const uint32_t timeout_);
 
 #endif
 

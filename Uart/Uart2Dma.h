@@ -19,13 +19,13 @@
 // Function declarations
 
 void Uart2DmaInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions);
-void Uart2DmaDeinitialise();
+void Uart2DmaDeinitialise(void);
 void Uart2DmaSetReadCallback(void (*read_)(const void* const data, const size_t numberOfBytes));
-void Uart2DmaRead();
+void Uart2DmaRead(void);
 void Uart2DmaWrite(const void* const data, const size_t numberOfBytes);
-bool Uart2DmaIsWriteInProgress();
-bool Uart2DmaHasReceiveBufferOverrun();
-bool Uart2DmaIsTransmitionComplete();
+bool Uart2DmaIsWriteInProgress(void);
+bool Uart2DmaHasReceiveBufferOverrun(void);
+bool Uart2DmaIsTransmitionComplete(void);
 
 #endif
 

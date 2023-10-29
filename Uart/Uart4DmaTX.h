@@ -18,15 +18,15 @@
 // Function declarations
 
 void Uart4DmaTXInitialise(const UartSettings * const settings);
-void Uart4DmaTXDeinitialise();
-size_t Uart4DmaTXGetReadAvailable();
+void Uart4DmaTXDeinitialise(void);
+size_t Uart4DmaTXGetReadAvailable(void);
 size_t Uart4DmaTXRead(void* const destination, size_t numberOfBytes);
-uint8_t Uart4DmaTXReadByte();
+uint8_t Uart4DmaTXReadByte(void);
 void Uart4DmaTXWrite(const void* const data, const size_t numberOfBytes);
-bool Uart4DmaTXIsWriteInProgress();
-void Uart4DmaTXClearReadBuffer();
-bool Uart4DmaTXHasReceiveBufferOverrun();
-bool Uart4DmaTXIsTransmitionComplete();
+bool Uart4DmaTXIsWriteInProgress(void);
+void Uart4DmaTXClearReadBuffer(void);
+bool Uart4DmaTXHasReceiveBufferOverrun(void);
+bool Uart4DmaTXIsTransmitionComplete(void);
 
 #endif
 

@@ -20,9 +20,9 @@
 void EepromRead(const uint16_t address, void* const destination, const size_t numberOfBytes);
 void EepromWrite(uint16_t address, const void* const data, const size_t numberOfBytes);
 void EepromUpdate(uint16_t address, const void* const data, const size_t numberOfBytes);
-void EepromErase();
-bool EepromIsBlank();
-void EepromPrint();
+void EepromErase(void);
+bool EepromIsBlank(void);
+void EepromPrint(void);
 
 #endif
 

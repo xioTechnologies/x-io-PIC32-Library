@@ -18,17 +18,17 @@
 // Function declarations
 
 void Uart3Initialise(const UartSettings * const settings);
-void Uart3Deinitialise();
-size_t Uart3GetReadAvailable();
+void Uart3Deinitialise(void);
+size_t Uart3GetReadAvailable(void);
 size_t Uart3Read(void* const destination, size_t numberOfBytes);
-uint8_t Uart3ReadByte();
-size_t Uart3GetWriteAvailable();
+uint8_t Uart3ReadByte(void);
+size_t Uart3GetWriteAvailable(void);
 void Uart3Write(const void* const data, const size_t numberOfBytes);
 void Uart3WriteByte(const uint8_t byte);
-void Uart3ClearReadBuffer();
-void Uart3ClearWriteBuffer();
-bool Uart3HasReceiveBufferOverrun();
-bool Uart3IsTransmitionComplete();
+void Uart3ClearReadBuffer(void);
+void Uart3ClearWriteBuffer(void);
+bool Uart3HasReceiveBufferOverrun(void);
+bool Uart3IsTransmitionComplete(void);
 
 #endif
 

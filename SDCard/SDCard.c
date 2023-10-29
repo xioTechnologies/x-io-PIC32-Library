@@ -61,7 +61,7 @@ static SYS_FS_HANDLE directoryHandle = SYS_FS_HANDLE_INVALID;
  * @brief Module tasks.  This function should be called repeatedly within the
  * main program loop.
  */
-void SDCardTasks() {
+void SDCardTasks(void) {
     switch (state) {
         case StateMounting:
             if (SYS_FS_MEDIA_MANAGER_MediaStatusGet(DEV_NAME) == false) {
@@ -87,7 +87,7 @@ void SDCardTasks() {
 /**
  * @brief Mounts the SD card.
  */
-void SDCardMount() {
+void SDCardMount(void) {
     switch (state) {
         case StateMounting:
         case StateMounted:
@@ -101,7 +101,7 @@ void SDCardMount() {
 /**
  * @brief Unmounts the SD card.
  */
-void SDCardUnmount() {
+void SDCardUnmount(void) {
     switch (state) {
         case StateMounting:
             state = StateUnmounted;
@@ -121,14 +121,14 @@ void SDCardUnmount() {
  * @brief Returns true if the SD card is mounted.
  * @return True if the SD card is mounted.
  */
-bool SDCardIsMounted() {
+bool SDCardIsMounted(void) {
     return state == StateMounted;
 }
 
 /**
  * @brief Formats the SD card.
  */
-void SDCardFormat() {
+void SDCardFormat(void) {
     const SYS_FS_FORMAT_PARAM opt = (SYS_FS_FORMAT_PARAM){
         .fmt = SYS_FS_FORMAT_FAT32,
         .n_fat = 1,
@@ -303,7 +303,7 @@ SDCardError SDCardFileWriteString(const char* const string) {
  * @brief Gets the file size.
  * @return File size.
  */
-size_t SDCardFileGetSize() {
+size_t SDCardFileGetSize(void) {
     const int32_t fileSize = SYS_FS_FileSize(fileHandle);
     if (fileSize == -1) {
         PrintFileSystemError("SYS_FS_FileSize", SYS_FS_FileError(fileHandle));
@@ -315,7 +315,7 @@ size_t SDCardFileGetSize() {
 /**
  * @brief Closes the file.
  */
-void SDCardFileClose() {
+void SDCardFileClose(void) {
     if (SYS_FS_FileClose(fileHandle) != SYS_FS_RES_SUCCESS) {
         PrintFileSystemError("SYS_FS_FileClose", SYS_FS_FileError(fileHandle));
     }
@@ -417,7 +417,7 @@ bool SDCardDirectoryExists(const char* const fileName) {
 /**
  * @brief Closes the directory.
  */
-void SDCardDirectoryClose() {
+void SDCardDirectoryClose(void) {
     if (SYS_FS_DirClose(directoryHandle) != SYS_FS_RES_SUCCESS) {
         PrintFileSystemError("SYS_FS_DirClose", SYS_FS_FileError(directoryHandle));
     }

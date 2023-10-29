@@ -15,7 +15,7 @@
 //------------------------------------------------------------------------------
 // Function declarations
 
-RCON_RESET_CAUSE ResetCauseGet();
+RCON_RESET_CAUSE ResetCauseGet(void);
 void ResetCausePrint(const RCON_RESET_CAUSE cause);
 
 #endif

@@ -18,10 +18,10 @@
 // Function declarations
 
 void Spi5DmaInitialise(const SpiSettings * const settings);
-void Spi5DmaDeinitialise();
-void Spi5DmaSetTransferCompleteCallback(void (*transferComplete_)());
+void Spi5DmaDeinitialise(void);
+void Spi5DmaSetTransferCompleteCallback(void (*transferComplete_)(void));
 void Spi5DmaTransfer(void* const data, const size_t numberOfBytes);
-bool Spi5DmaIsTransferInProgress();
+bool Spi5DmaIsTransferInProgress(void);
 
 #endif
 

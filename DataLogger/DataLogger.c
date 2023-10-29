@@ -47,16 +47,16 @@ typedef enum {
 //------------------------------------------------------------------------------
 // Function declarations
 
-static void StateOpenTasks();
-static void StateWriteTasks();
-static int Open();
-static uint32_t ReadCounter();
+static void StateOpenTasks(void);
+static void StateWriteTasks(void);
+static int Open(void);
+static uint32_t ReadCounter(void);
 static void WriteCounter(const uint32_t counter);
-static int Write();
-static void Close();
+static int Write(void);
+static void Close(void);
 static void UpdateStatus(const DataLoggerStatus status);
 #ifdef PRINT_STATISTICS
-static void PrintStatistics();
+static void PrintStatistics(void);
 #endif
 
 //------------------------------------------------------------------------------
@@ -115,7 +115,7 @@ void DataLoggerSetCallbacks(const DataLoggerCallbacks * const callbacks_) {
  * @brief Module tasks.  This function should be called repeatedly within the
  * main program loop.
  */
-void DataLoggerTasks() {
+void DataLoggerTasks(void) {
     switch (state) {
         case StateDisabled:
             break;
@@ -131,7 +131,7 @@ void DataLoggerTasks() {
 /**
  * @brief Open state tasks.
  */
-static void StateOpenTasks() {
+static void StateOpenTasks(void) {
 
     // Do nothing if SD card not mounted
     if (SDCardIsMounted() == false) {
@@ -149,7 +149,7 @@ static void StateOpenTasks() {
 /**
  * @brief Write state tasks.
  */
-static void StateWriteTasks() {
+static void StateWriteTasks(void) {
 #ifdef PRINT_STATISTICS
     PrintStatistics();
 #endif
@@ -162,7 +162,7 @@ static void StateWriteTasks() {
  * @brief Opens the file.
  * @return 0 if successful.
  */
-static int Open() {
+static int Open(void) {
 
     // Create time string
     char timeString[32] = "";
@@ -248,7 +248,7 @@ static int Open() {
  * @brief Reads the counter from file.
  * @return Counter.
  */
-static uint32_t ReadCounter() {
+static uint32_t ReadCounter(void) {
     if (SDCardFileOpen(COUNTER_FILE_PATH, false) != SDCardErrorOK) {
         return 0;
     }
@@ -283,7 +283,7 @@ static void WriteCounter(const uint32_t counter) {
  * @brief Writes buffered data to the file.
  * @return 0 if successful.
  */
-static int Write() {
+static int Write(void) {
 
     // Restart logging if maximum file period reached
     if (settings.maxFilePeriod > 0) {
@@ -352,7 +352,7 @@ static int Write() {
 /**
  * @brief Closes the file.
  */
-static void Close() {
+static void Close(void) {
     UpdateStatus(DataLoggerStatusClose);
     SDCardFileClose();
 }
@@ -360,7 +360,7 @@ static void Close() {
 /**
  * @brief Starts logging.
  */
-void DataLoggerStart() {
+void DataLoggerStart(void) {
     UpdateStatus(DataLoggerStatusStart);
     switch (state) {
         case StateDisabled:
@@ -376,7 +376,7 @@ void DataLoggerStart() {
 /**
  * @brief Stops logging.
  */
-void DataLoggerStop() {
+void DataLoggerStop(void) {
     UpdateStatus(DataLoggerStatusStop);
     switch (state) {
         case StateDisabled:
@@ -398,7 +398,7 @@ void DataLoggerStop() {
  * @brief Returns the space available in the write buffer.
  * @return Space available in the write buffer.
  */
-size_t DataLoggerGetWriteAvailable() {
+size_t DataLoggerGetWriteAvailable(void) {
     return CircularBufferGetWriteAvailable(&buffer);
 }
 
@@ -431,7 +431,7 @@ void DataLoggerWrite(const void* const data, const size_t numberOfBytes) {
  * @brief Returns the file name of the current file.
  * @return File name of the current file.
  */
-const char* DataLoggerGetFileName() {
+const char* DataLoggerGetFileName(void) {
     return fileName;
 }
 
@@ -484,7 +484,7 @@ const char* DataLoggerStatusToString(const DataLoggerStatus status) {
 /**
  * @brief Prints statistics.
  */
-static void PrintStatistics() {
+static void PrintStatistics(void) {
 
     // Reset values if new file
     static uint64_t previousTicks;

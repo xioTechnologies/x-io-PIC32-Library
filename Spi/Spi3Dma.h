@@ -18,10 +18,10 @@
 // Function declarations
 
 void Spi3DmaInitialise(const SpiSettings * const settings);
-void Spi3DmaDeinitialise();
-void Spi3DmaSetTransferCompleteCallback(void (*transferComplete_)());
+void Spi3DmaDeinitialise(void);
+void Spi3DmaSetTransferCompleteCallback(void (*transferComplete_)(void));
 void Spi3DmaTransfer(void* const data, const size_t numberOfBytes);
-bool Spi3DmaIsTransferInProgress();
+bool Spi3DmaIsTransferInProgress(void);
 
 #endif
 

@@ -17,12 +17,12 @@
 //------------------------------------------------------------------------------
 // Function declarations
 
-void UsbCdcTasks();
-bool UsbCdcIsHostConnected();
-size_t UsbCdcGetReadAvailable();
+void UsbCdcTasks(void);
+bool UsbCdcIsHostConnected(void);
+size_t UsbCdcGetReadAvailable(void);
 size_t UsbCdcRead(void* const destination, size_t numberOfBytes);
-uint8_t UsbCdcReadByte();
-size_t UsbCdcGetWriteAvailable();
+uint8_t UsbCdcReadByte(void);
+size_t UsbCdcGetWriteAvailable(void);
 void UsbCdcWrite(const void* const data, const size_t numberOfBytes);
 void UsbCdcWriteByte(const uint8_t byte);
 

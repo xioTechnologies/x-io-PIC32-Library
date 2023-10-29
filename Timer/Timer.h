@@ -40,10 +40,10 @@
 //------------------------------------------------------------------------------
 // Function declarations
 
-void TimerInitialise();
-void TimerDeinitialise();
-uint32_t TimerGetTicks32();
-uint64_t TimerGetTicks64();
+void TimerInitialise(void);
+void TimerDeinitialise(void);
+uint32_t TimerGetTicks32(void);
+uint64_t TimerGetTicks64(void);
 void TimerDelayMilliseconds(const uint32_t milliseconds);
 void TimerDelayMicroseconds(const uint32_t microseconds);
 

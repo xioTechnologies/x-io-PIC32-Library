@@ -50,7 +50,7 @@ typedef enum {
  */
 typedef struct {
     void (*statusUpdate)(const DataLoggerStatus status);
-    void (*writePreamble)();
+    void (*writePreamble)(void);
 } DataLoggerCallbacks;
 
 //------------------------------------------------------------------------------
@@ -58,12 +58,12 @@ typedef struct {
 
 void DataLoggerSetSettings(const DataLoggerSettings * const settings_);
 void DataLoggerSetCallbacks(const DataLoggerCallbacks * const callbacks_);
-void DataLoggerTasks();
-void DataLoggerStart();
-void DataLoggerStop();
-size_t DataLoggerGetWriteAvailable();
+void DataLoggerTasks(void);
+void DataLoggerStart(void);
+void DataLoggerStop(void);
+size_t DataLoggerGetWriteAvailable(void);
 void DataLoggerWrite(const void* const data, const size_t numberOfBytes);
-const char* DataLoggerGetFileName();
+const char* DataLoggerGetFileName(void);
 const char* DataLoggerStatusToString(const DataLoggerStatus status);
 
 #endif

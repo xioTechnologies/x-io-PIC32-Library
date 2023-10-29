@@ -15,8 +15,8 @@
 //------------------------------------------------------------------------------
 // Function declarations
 
-void UsbMsdTasks();
-bool UsbMsdIsHostConnected();
+void UsbMsdTasks(void);
+bool UsbMsdIsHostConnected(void);
 
 #endif
 

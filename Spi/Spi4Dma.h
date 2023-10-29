@@ -18,10 +18,10 @@
 // Function declarations
 
 void Spi4DmaInitialise(const SpiSettings * const settings);
-void Spi4DmaDeinitialise();
-void Spi4DmaSetTransferCompleteCallback(void (*transferComplete_)());
+void Spi4DmaDeinitialise(void);
+void Spi4DmaSetTransferCompleteCallback(void (*transferComplete_)(void));
 void Spi4DmaTransfer(void* const data, const size_t numberOfBytes);
-bool Spi4DmaIsTransferInProgress();
+bool Spi4DmaIsTransferInProgress(void);
 
 #endif
 
