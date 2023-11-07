@@ -8,6 +8,7 @@
 // Includes
 
 #include "CircularBuffer.h"
+#include <ctype.h> // isalnum
 #include "DataLogger.h"
 #include "definitions.h"
 #include "Rtc/Rtc.h"
@@ -206,6 +207,17 @@ static int Open(void) {
     // Close directory
     SDCardDirectoryClose();
 
+    // Remove invalid characters
+    int readIndex = 0;
+    int writeIndex = 0;
+    while (fileName[readIndex] != '\0') {
+        const char character = fileName[readIndex++];
+        if ((isalnum(character) == true) || (character == '-') || (character == '.') || (character == '_')) {
+            fileName[writeIndex++] = character;
+        }
+    }
+    fileName[writeIndex] = '\0';
+
     // Abort if no file names avaliable
     if (strlen(fileName) == 0) {
         UpdateStatus(DataLoggerStatusNoFileNamesAvailable);
@@ -217,7 +229,7 @@ static int Open(void) {
         case SDCardErrorOK:
             break;
         case SDCardErrorFileSystemError:
-            UpdateStatus(DataLoggerStatusSDCardError);
+            UpdateStatus(DataLoggerStatusFileSystemError);
             return 1;
         case SDCardErrorFileOrSDCardFull:
             UpdateStatus(DataLoggerStatusSDCardFull);
@@ -343,7 +355,7 @@ static int Write(void) {
 
     // Abort if error occurred
     if (sdCardError != SDCardErrorOK) {
-        UpdateStatus(DataLoggerStatusSDCardError);
+        UpdateStatus(DataLoggerStatusFileSystemError);
         return 1;
     }
     return 0;
@@ -471,8 +483,8 @@ const char* DataLoggerStatusToString(const DataLoggerStatus status) {
             return "Max file period exceeded";
         case DataLoggerStatusSDCardOrFileFull:
             return "SD card or file full";
-        case DataLoggerStatusSDCardError:
-            return "SD card error";
+        case DataLoggerStatusFileSystemError:
+            return "File system error";
         case DataLoggerStatusClose:
             return "Close";
     }

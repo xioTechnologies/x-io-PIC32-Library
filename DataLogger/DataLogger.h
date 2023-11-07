@@ -41,7 +41,7 @@ typedef enum {
     DataLoggerStatusMaxFileSizeExceeded,
     DataLoggerStatusMaxFilePeriodExceeded,
     DataLoggerStatusSDCardOrFileFull,
-    DataLoggerStatusSDCardError,
+    DataLoggerStatusFileSystemError,
     DataLoggerStatusClose,
 } DataLoggerStatus;
 
