@@ -407,6 +407,21 @@ void DataLoggerStop(void) {
 }
 
 /**
+ * @brief Returns true if logging is enabled.
+ * @return True if logging is enabled.
+ */
+bool DataLoggerIsEnabled(void) {
+    switch (state) {
+        case StateDisabled:
+            return false;
+        case StateOpen:
+        case StateWrite:
+            break;
+    }
+    return true;
+}
+
+/**
  * @brief Returns the space available in the write buffer.
  * @return Space available in the write buffer.
  */

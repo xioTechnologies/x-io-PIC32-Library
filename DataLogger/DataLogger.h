@@ -61,6 +61,7 @@ void DataLoggerSetCallbacks(const DataLoggerCallbacks * const callbacks_);
 void DataLoggerTasks(void);
 void DataLoggerStart(void);
 void DataLoggerStop(void);
+bool DataLoggerIsEnabled(void);
 size_t DataLoggerGetWriteAvailable(void);
 void DataLoggerWrite(const void* const data, const size_t numberOfBytes);
 const char* DataLoggerGetFileName(void);
