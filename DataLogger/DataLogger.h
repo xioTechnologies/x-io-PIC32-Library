@@ -36,21 +36,28 @@ typedef enum {
     DataLoggerStatusStart,
     DataLoggerStatusStop,
     DataLoggerStatusOpen,
-    DataLoggerStatusNoFileNamesAvailable,
-    DataLoggerStatusSDCardFull,
     DataLoggerStatusMaxFileSizeExceeded,
     DataLoggerStatusMaxFilePeriodExceeded,
     DataLoggerStatusSDCardOrFileFull,
-    DataLoggerStatusFileSystemError,
     DataLoggerStatusClose,
 } DataLoggerStatus;
+
+/**
+ * @brief Data logger error.
+ */
+typedef enum {
+    DataLoggerErrorNoFileNamesAvailable,
+    DataLoggerErrorSDCardFull,
+    DataLoggerErrorFileSystemError,
+} DataLoggerError;
 
 /**
  * @brief Data logger callback functions.
  */
 typedef struct {
-    void (*statusUpdate)(const DataLoggerStatus status);
     void (*writePreamble)(void);
+    void (*status)(const DataLoggerStatus status);
+    void (*error)(const DataLoggerError error);
 } DataLoggerCallbacks;
 
 //------------------------------------------------------------------------------
@@ -66,6 +73,7 @@ size_t DataLoggerGetWriteAvailable(void);
 void DataLoggerWrite(const void* const data, const size_t numberOfBytes);
 const char* DataLoggerGetFileName(void);
 const char* DataLoggerStatusToString(const DataLoggerStatus status);
+const char* DataLoggerErrorToString(const DataLoggerError error);
 
 #endif
 

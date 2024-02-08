@@ -55,7 +55,8 @@ static uint32_t ReadCounter(void);
 static void WriteCounter(const uint32_t counter);
 static int Write(void);
 static void Close(void);
-static void UpdateStatus(const DataLoggerStatus status);
+static void StatusCallback(const DataLoggerStatus status);
+static void ErrorCallback(const DataLoggerError error);
 #ifdef PRINT_STATISTICS
 static void PrintStatistics(void);
 #endif
@@ -220,7 +221,7 @@ static int Open(void) {
 
     // Abort if no file names avaliable
     if (strlen(fileName) == 0) {
-        UpdateStatus(DataLoggerStatusNoFileNamesAvailable);
+        ErrorCallback(DataLoggerErrorNoFileNamesAvailable);
         return 1;
     }
 
@@ -229,13 +230,13 @@ static int Open(void) {
         case SDCardErrorOK:
             break;
         case SDCardErrorFileSystemError:
-            UpdateStatus(DataLoggerStatusFileSystemError);
+            StatusCallback(DataLoggerErrorFileSystemError);
             return 1;
         case SDCardErrorFileOrSDCardFull:
-            UpdateStatus(DataLoggerStatusSDCardFull);
+            StatusCallback(DataLoggerErrorSDCardFull);
             return 1;
     }
-    UpdateStatus(DataLoggerStatusOpen);
+    StatusCallback(DataLoggerStatusOpen);
 #ifdef PRINT_STATISTICS
     printf("%s\n", fileName);
 #endif
@@ -300,7 +301,7 @@ static int Write(void) {
     // Restart logging if maximum file period reached
     if (settings.maxFilePeriod > 0) {
         if (TimerGetTicks64() >= (fileStartTicks + settings.maxFilePeriod)) {
-            UpdateStatus(DataLoggerStatusMaxFilePeriodExceeded);
+            StatusCallback(DataLoggerStatusMaxFilePeriodExceeded);
             Close();
             return Open();
         }
@@ -326,7 +327,7 @@ static int Write(void) {
     // Restart logging if maximum file size reached
     if (settings.maxFileSize > 0) {
         if (((uint64_t) fileSize + (uint64_t) numberOfBytes) >= (uint64_t) settings.maxFileSize) {
-            UpdateStatus(DataLoggerStatusMaxFileSizeExceeded);
+            StatusCallback(DataLoggerStatusMaxFileSizeExceeded);
             Close();
             return Open();
         }
@@ -348,14 +349,14 @@ static int Write(void) {
 
     // Restart logging if file full
     if (sdCardError == SDCardErrorFileOrSDCardFull) {
-        UpdateStatus(DataLoggerStatusSDCardOrFileFull);
+        StatusCallback(DataLoggerStatusSDCardOrFileFull);
         Close();
         return Open();
     }
 
     // Abort if error occurred
     if (sdCardError != SDCardErrorOK) {
-        UpdateStatus(DataLoggerStatusFileSystemError);
+        ErrorCallback(DataLoggerErrorFileSystemError);
         return 1;
     }
     return 0;
@@ -365,7 +366,7 @@ static int Write(void) {
  * @brief Closes the file.
  */
 static void Close(void) {
-    UpdateStatus(DataLoggerStatusClose);
+    StatusCallback(DataLoggerStatusClose);
     SDCardFileClose();
 }
 
@@ -373,7 +374,7 @@ static void Close(void) {
  * @brief Starts logging.
  */
 void DataLoggerStart(void) {
-    UpdateStatus(DataLoggerStatusStart);
+    StatusCallback(DataLoggerStatusStart);
     switch (state) {
         case StateDisabled:
             break;
@@ -389,7 +390,7 @@ void DataLoggerStart(void) {
  * @brief Stops logging.
  */
 void DataLoggerStop(void) {
-    UpdateStatus(DataLoggerStatusStop);
+    StatusCallback(DataLoggerStatusStop);
     switch (state) {
         case StateDisabled:
             break;
@@ -463,15 +464,28 @@ const char* DataLoggerGetFileName(void) {
 }
 
 /**
- * @brief Updates the status.
+ * @brief Calls the status callback.
  * @param status Status.
  */
-static void UpdateStatus(const DataLoggerStatus status) {
+static void StatusCallback(const DataLoggerStatus status) {
 #ifdef PRINT_STATISTICS
     printf("%s\n", DataLoggerStatusToString(status));
 #endif
-    if (callbacks.statusUpdate != NULL) {
-        callbacks.statusUpdate(status);
+    if (callbacks.status != NULL) {
+        callbacks.status(status);
+    }
+}
+
+/**
+ * @brief Calls the error callback.
+ * @param error Error.
+ */
+static void ErrorCallback(const DataLoggerError error) {
+#ifdef PRINT_STATISTICS
+    printf("%s\n", DataLoggerErrorToString(error));
+#endif
+    if (callbacks.error != NULL) {
+        callbacks.error(error);
     }
 }
 
@@ -488,22 +502,33 @@ const char* DataLoggerStatusToString(const DataLoggerStatus status) {
             return "Stop";
         case DataLoggerStatusOpen:
             return "Open";
-        case DataLoggerStatusNoFileNamesAvailable:
-            return "No file names avaliable";
-        case DataLoggerStatusSDCardFull:
-            return "SD card full";
         case DataLoggerStatusMaxFileSizeExceeded:
             return "Max file size exceeded";
         case DataLoggerStatusMaxFilePeriodExceeded:
             return "Max file period exceeded";
         case DataLoggerStatusSDCardOrFileFull:
             return "SD card or file full";
-        case DataLoggerStatusFileSystemError:
-            return "File system error";
         case DataLoggerStatusClose:
             return "Close";
     }
-    return "Unknown status";
+    return ""; // avoid compiler warning
+}
+
+/**
+ * @brief Returns the error message.
+ * @param error Error
+ * @return Error message.
+ */
+const char* DataLoggerErrorToString(const DataLoggerError error) {
+    switch (error) {
+        case DataLoggerErrorNoFileNamesAvailable:
+            return "No file names avaliable";
+        case DataLoggerErrorSDCardFull:
+            return "SD card full";
+        case DataLoggerErrorFileSystemError:
+            return "File system error";
+    }
+    return ""; // avoid compiler warning
 }
 
 #ifdef PRINT_STATISTICS
