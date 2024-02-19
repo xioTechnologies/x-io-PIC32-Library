@@ -8,7 +8,6 @@
 // Includes
 
 #include "CircularBuffer.h"
-#include <ctype.h> // isalnum
 #include "DataLogger.h"
 #include "definitions.h"
 #include "Rtc/Rtc.h"
@@ -22,14 +21,9 @@
 // Definitions
 
 /**
- * @brief Directory.
+ * @brief Counter file name.
  */
-#define DIRECTORY "Data Logger"
-
-/**
- * @brief Counter file path.
- */
-#define COUNTER_FILE_PATH (DIRECTORY "/Counter.txt")
+#define COUNTER_FILE_NAME "Counter.txt"
 
 /**
  * @brief Comment out this definition to disable printing of statistics.
@@ -51,8 +45,8 @@ typedef enum {
 static void StateOpenTasks(void);
 static void StateWriteTasks(void);
 static int Open(void);
-static uint32_t ReadCounter(void);
-static void WriteCounter(const uint32_t counter);
+static unsigned int ReadCounter(void);
+static void WriteCounter(const unsigned int counter);
 static int Write(void);
 static void Close(void);
 static void StatusCallback(const DataLoggerStatus status);
@@ -166,74 +160,68 @@ static void StateWriteTasks(void) {
  */
 static int Open(void) {
 
-    // Create time string
-    char timeString[32] = "";
-    if (settings.fileNameTimeEnabled == true) {
-        RtcTime time;
-        RtcGetTime(&time);
-        snprintf(timeString, sizeof (timeString), "_%04u-%02u-%02u_%02u-%02u-%02u", time.year, time.month, time.day, time.hour, time.minute, time.second);
-    }
-
     // Open directory
-    SDCardDirectoryOpen(DIRECTORY);
+    SDCardDirectoryOpen(settings.directory);
 
-    // Create file name without counter
-    if (settings.fileNameCounterEnabled == false) {
-        snprintf(fileName, sizeof (fileName), "%s%s%s", settings.fileNamePrefix, timeString, settings.fileExtension);
-        if (SDCardDirectoryExists(fileName) == true) {
-            strcpy(fileName, "");
+    // Create file name
+    bool fileNameUnavailable = false;
+    switch (settings.fileNameSuffix) {
+        case DataLoggerSuffixNone:
+            snprintf(fileName, sizeof (fileName), "%s%s", settings.fileNamePrefix, settings.fileExtension);
+            fileNameUnavailable = SDCardDirectoryExists(fileName);
+            break;
+        case DataLoggerSuffixCounter:
+        {
+            const uint32_t initialCounter = ReadCounter();
+            uint32_t counter = initialCounter;
+            while (true) {
+                snprintf(fileName, sizeof (fileName), "%s%s%04u%s", settings.fileNamePrefix, strlen(settings.fileNamePrefix) > 0 ? "_" : "", counter, settings.fileExtension);
+                if (++counter > 9999) {
+                    counter = 0;
+                }
+                if (SDCardDirectoryExists(fileName) == false) {
+                    break;
+                }
+                if (counter == initialCounter) {
+                    fileNameUnavailable = true;
+                    break;
+                }
+            }
+            WriteCounter(counter);
+            break;
         }
-    }
-
-    // Create file name with counter
-    if ((settings.fileNameCounterEnabled == true) || (strlen(fileName) == 0)) {
-        const uint32_t initialCounter = ReadCounter();
-        uint32_t counter = initialCounter;
-        while (true) {
-            snprintf(fileName, sizeof (fileName), "%s%s_%04u%s", settings.fileNamePrefix, timeString, counter, settings.fileExtension);
-            if (++counter > 9999) {
-                counter = 0;
-            }
-            if (SDCardDirectoryExists(fileName) == false) {
-                break;
-            }
-            if (counter == initialCounter) {
-                strcpy(fileName, "");
-                break;
-            }
+        case DataLoggerSuffixTime:
+        {
+            RtcTime time;
+            RtcGetTime(&time);
+            snprintf(fileName, sizeof (fileName), "%s%s%04u-%02u-%02u_%02u-%02u-%02u%s",
+                    settings.fileNamePrefix,
+                    strlen(settings.fileNamePrefix) > 0 ? "_" : "",
+                    time.year, time.month, time.day, time.hour, time.minute, time.second,
+                    settings.fileExtension);
+            fileNameUnavailable = SDCardDirectoryExists(fileName);
+            break;
         }
-        WriteCounter(counter);
     }
 
     // Close directory
     SDCardDirectoryClose();
 
-    // Remove invalid characters
-    int readIndex = 0;
-    int writeIndex = 0;
-    while (fileName[readIndex] != '\0') {
-        const char character = fileName[readIndex++];
-        if ((isalnum(character) == true) || (character == '-') || (character == '.') || (character == '_')) {
-            fileName[writeIndex++] = character;
-        }
-    }
-    fileName[writeIndex] = '\0';
-
-    // Abort if no file names avaliable
-    if (strlen(fileName) == 0) {
-        ErrorCallback(DataLoggerErrorNoFileNamesAvailable);
+    // Abort if file name unavailable
+    if (fileNameUnavailable == true) {
+        ErrorCallback(DataLoggerErrorFileNameUnavailable);
         return 1;
     }
 
     // Open file
-    switch (SDCardFileOpen(SDCardPathJoin(2, DIRECTORY, fileName), true)) {
+    switch (SDCardFileOpen(SDCardPathJoin(2, settings.directory, fileName), true)) {
         case SDCardErrorOK:
             break;
         case SDCardErrorFileSystemError:
-            StatusCallback(DataLoggerErrorFileSystemError);
+            ErrorCallback(DataLoggerErrorFileSystemError);
             return 1;
         case SDCardErrorFileOrSDCardFull:
-            StatusCallback(DataLoggerErrorSDCardFull);
+            ErrorCallback(DataLoggerErrorSDCardFull);
             return 1;
     }
     StatusCallback(DataLoggerStatusOpen);
@@ -243,7 +231,7 @@ static int Open(void) {
 
     // Write preamble
     if (callbacks.writePreamble != NULL) {
-        callbacks.writePreamble(); // application use SDCardFileWrite to write preamble
+        callbacks.writePreamble(); // use SDCardFileWrite to write preamble
     }
 
     // Reset statistics
@@ -261,8 +249,8 @@ static int Open(void) {
  * @brief Reads the counter from file.
  * @return Counter.
  */
-static uint32_t ReadCounter(void) {
-    if (SDCardFileOpen(COUNTER_FILE_PATH, false) != SDCardErrorOK) {
+static unsigned int ReadCounter(void) {
+    if (SDCardFileOpen(SDCardPathJoin(2, settings.directory, COUNTER_FILE_NAME), false) != SDCardErrorOK) {
         return 0;
     }
     char string[8];
@@ -271,7 +259,7 @@ static uint32_t ReadCounter(void) {
     if (numberOfBytes == -1) {
         return 0;
     }
-    uint32_t counter;
+    unsigned int counter;
     if (sscanf(string, "%u", &counter) != 1) {
         return 0;
     }
@@ -282,12 +270,12 @@ static uint32_t ReadCounter(void) {
  * @brief Writes the counter to file.
  * @param Counter.
  */
-static void WriteCounter(const uint32_t counter) {
-    if (SDCardFileOpen(COUNTER_FILE_PATH, true) != SDCardErrorOK) {
+static void WriteCounter(const unsigned int counter) {
+    if (SDCardFileOpen(SDCardPathJoin(2, settings.directory, COUNTER_FILE_NAME), true) != SDCardErrorOK) {
         return;
     }
     char string[8];
-    snprintf(string, sizeof (string), "%u", counter);
+    snprintf(string, sizeof (string), "%04u", counter);
     SDCardFileWriteString(string);
     SDCardFileClose();
 }
@@ -335,27 +323,27 @@ static int Write(void) {
 
     // Write data
 #ifdef PRINT_STATISTICS
-    const uint64_t writeStartTicks = TimerGetTicks64();
+    const uint64_t writeStart = TimerGetTicks64();
 #endif
-    const SDCardError sdCardError = SDCardFileWrite(&buffer.buffer[buffer.readIndex], numberOfBytes);
+    const SDCardError error = SDCardFileWrite(&buffer.buffer[buffer.readIndex], numberOfBytes);
     buffer.readIndex = newReadIndex;
     fileSize += numberOfBytes;
 #ifdef PRINT_STATISTICS
-    const uint64_t writePeriod = TimerGetTicks64() - writeStartTicks;
+    const uint64_t writePeriod = TimerGetTicks64() - writeStart;
     if (writePeriod > maxWritePeriod) {
         maxWritePeriod = writePeriod;
     }
 #endif
 
     // Restart logging if file full
-    if (sdCardError == SDCardErrorFileOrSDCardFull) {
+    if (error == SDCardErrorFileOrSDCardFull) {
         StatusCallback(DataLoggerStatusSDCardOrFileFull);
         Close();
         return Open();
     }
 
     // Abort if error occurred
-    if (sdCardError != SDCardErrorOK) {
+    if (error != SDCardErrorOK) {
         ErrorCallback(DataLoggerErrorFileSystemError);
         return 1;
     }
@@ -521,8 +509,8 @@ const char* DataLoggerStatusToString(const DataLoggerStatus status) {
  */
 const char* DataLoggerErrorToString(const DataLoggerError error) {
     switch (error) {
-        case DataLoggerErrorNoFileNamesAvailable:
-            return "No file names avaliable";
+        case DataLoggerErrorFileNameUnavailable:
+            return "File name unavailable";
         case DataLoggerErrorSDCardFull:
             return "SD card full";
         case DataLoggerErrorFileSystemError:

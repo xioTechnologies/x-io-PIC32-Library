@@ -18,12 +18,21 @@
 // Definitions
 
 /**
+ * @brief Data logger file name suffix.
+ */
+typedef enum {
+    DataLoggerSuffixNone,
+    DataLoggerSuffixCounter,
+    DataLoggerSuffixTime,
+} DataLoggerSuffix;
+
+/**
  * @brief Data logger settings.
  */
 typedef struct {
+    char directory[32];
     char fileNamePrefix[32];
-    bool fileNameTimeEnabled;
-    bool fileNameCounterEnabled;
+    DataLoggerSuffix fileNameSuffix;
     char fileExtension[8];
     size_t maxFileSize; // megabytes (0 = FAT32 limit)
     uint64_t maxFilePeriod; // seconds (0 = unlimited)
@@ -46,7 +55,7 @@ typedef enum {
  * @brief Data logger error.
  */
 typedef enum {
-    DataLoggerErrorNoFileNamesAvailable,
+    DataLoggerErrorFileNameUnavailable,
     DataLoggerErrorSDCardFull,
     DataLoggerErrorFileSystemError,
 } DataLoggerError;
