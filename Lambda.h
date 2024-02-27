@@ -12,6 +12,8 @@
 
 /**
  * @brief Macro for lambda functions.
+ * @param returnType Return type.
+ * @param ... Function parameter list and function body.
  *
  * Example:
  * @code
