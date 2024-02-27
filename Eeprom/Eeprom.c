@@ -164,7 +164,7 @@ void EepromPrint(void) {
         }
 
         // Print ellipses
-        if (printEllipses == true) {
+        if (printEllipses) {
             PrintLine(0xFFFF, data);
             printEllipses = false;
         }

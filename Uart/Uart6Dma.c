@@ -39,10 +39,10 @@ void Uart6DmaInitialise(const UartSettings * const settings, const UartDmaReadCo
     Uart6DmaDeinitialise();
 
     // Configure UART
-    if (settings->rtsCtsEnabled == true) {
+    if (settings->rtsCtsEnabled) {
         U6MODEbits.UEN = 0b10; // UxTX, UxRX, UxCTS and UxRTS pins are enabled and used
     }
-    if (settings->invertTXRX == true) {
+    if (settings->invertTXRX) {
         U6MODEbits.RXINV = 1; // UxRX Idle state is '0'
         U6STAbits.UTXINV = 1; // UxTX Idle state is '0'
     }

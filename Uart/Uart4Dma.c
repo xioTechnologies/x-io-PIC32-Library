@@ -39,10 +39,10 @@ void Uart4DmaInitialise(const UartSettings * const settings, const UartDmaReadCo
     Uart4DmaDeinitialise();
 
     // Configure UART
-    if (settings->rtsCtsEnabled == true) {
+    if (settings->rtsCtsEnabled) {
         U4MODEbits.UEN = 0b10; // UxTX, UxRX, UxCTS and UxRTS pins are enabled and used
     }
-    if (settings->invertTXRX == true) {
+    if (settings->invertTXRX) {
         U4MODEbits.RXINV = 1; // UxRX Idle state is '0'
         U4STAbits.UTXINV = 1; // UxTX Idle state is '0'
     }

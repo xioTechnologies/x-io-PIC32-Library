@@ -40,7 +40,7 @@ typedef struct {
 static inline __attribute__((always_inline)) void I2CBitBangBusClear(const I2CBitBang * const i2cBitBang) {
     for (int index = 0; index < 9; index++) {
         TimerDelayMicroseconds(i2cBitBang->halfClockCycle);
-        if (GPIO_PinRead(i2cBitBang->sda) == true) { // sample data during clock high period
+        if (GPIO_PinRead(i2cBitBang->sda)) { // sample data during clock high period
             break; // stop once SDA is released otherwise it may get stuck again
         }
         GPIO_PinWrite(i2cBitBang->scl, false);
@@ -132,7 +132,7 @@ static inline __attribute__((always_inline)) uint8_t I2CBitBangReceive(const I2C
         TimerDelayMicroseconds(i2cBitBang->halfClockCycle);
         GPIO_PinWrite(i2cBitBang->scl, true);
         TimerDelayMicroseconds(i2cBitBang->halfClockCycle);
-        byte |= GPIO_PinRead(i2cBitBang->sda) == true ? (1 << bitNumber) : 0;
+        byte |= GPIO_PinRead(i2cBitBang->sda) ? (1 << bitNumber) : 0;
         GPIO_PinWrite(i2cBitBang->scl, false);
     }
 

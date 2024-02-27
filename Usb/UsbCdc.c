@@ -50,7 +50,7 @@ void UsbCdcTasks(void) {
     }
 
     // CDC read/write tasks
-    if (isHostConnected == true) {
+    if (isHostConnected) {
         ReadTasks();
         WriteTasks();
     }
@@ -112,7 +112,7 @@ static void APP_USBDeviceCDCEventHandler(USB_DEVICE_CDC_INDEX index, USB_DEVICE_
             USB_DEVICE_ControlStatus(usbDeviceHandle, USB_DEVICE_CONTROL_STATUS_OK);
             break;
         case USB_DEVICE_CDC_EVENT_READ_COMPLETE:
-            if (readInProgress == true) { // prevent unexpected read event for PIC32MZ devices when host reconnected
+            if (readInProgress) { // prevent unexpected read event for PIC32MZ devices when host reconnected
                 const size_t numberOfBytes = ((USB_DEVICE_CDC_EVENT_DATA_READ_COMPLETE*) pData)->length;
                 CircularBufferWrite(&readBuffer, readRequestData, numberOfBytes);
                 readInProgress = false;
@@ -135,7 +135,7 @@ static void APP_USBDeviceCDCEventHandler(USB_DEVICE_CDC_INDEX index, USB_DEVICE_
 static void ReadTasks(void) {
 
     // Do nothing if read in progress
-    if (readInProgress == true) {
+    if (readInProgress) {
         return;
     }
 
@@ -155,7 +155,7 @@ static void ReadTasks(void) {
 static void WriteTasks(void) {
 
     // Do nothing if write in progress
-    if (writeInProgress == true) {
+    if (writeInProgress) {
         return;
     }
 

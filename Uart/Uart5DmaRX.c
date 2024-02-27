@@ -42,10 +42,10 @@ void Uart5DmaRXInitialise(const UartSettings * const settings, const UartDmaRead
     Uart5DmaRXDeinitialise();
 
     // Configure UART
-    if (settings->rtsCtsEnabled == true) {
+    if (settings->rtsCtsEnabled) {
         U5MODEbits.UEN = 0b10; // UxTX, UxRX, UxCTS and UxRTS pins are enabled and used
     }
-    if (settings->invertTXRX == true) {
+    if (settings->invertTXRX) {
         U5MODEbits.RXINV = 1; // UxRX Idle state is '0'
         U5STAbits.UTXINV = 1; // UxTX Idle state is '0'
     }

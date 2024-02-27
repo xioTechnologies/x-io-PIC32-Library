@@ -111,7 +111,7 @@ uint8_t I2C3Receive(const bool ack) {
 
     // ACK/NACK
     EVIC_SourceStatusClear(INT_SOURCE_I2C3_MASTER);
-    I2C3CONbits.ACKDT = (ack == true) ? 0 : 1;
+    I2C3CONbits.ACKDT = ack ? 0 : 1;
     I2C3CONbits.ACKEN = 1;
     WaitForInterruptOrTimeout();
     return I2C3RCV;
@@ -123,7 +123,7 @@ uint8_t I2C3Receive(const bool ack) {
 static void WaitForInterruptOrTimeout(void) {
     const uint64_t timeout = TimerGetTicks64() + (TIMER_TICKS_PER_SECOND / (I2CClockFrequency100kHz / 10)); // 10 clock cycles timeout for slowest clock
     while (true) {
-        if (EVIC_SourceStatusGet(INT_SOURCE_I2C3_MASTER) == true) {
+        if (EVIC_SourceStatusGet(INT_SOURCE_I2C3_MASTER)) {
             break;
         }
         if (TimerGetTicks64() > timeout) {
@@ -139,7 +139,7 @@ static void WaitForInterruptOrTimeout(void) {
 void I2C3BeginMessage(I2CMessage * const message) {
 
     // Do nothing if message in progress
-    if (I2C3IsMessageInProgress() == true) {
+    if (I2C3IsMessageInProgress()) {
         return;
     }
 

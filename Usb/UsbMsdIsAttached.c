@@ -27,7 +27,7 @@ static bool isAttached;
  * the USB stack from detecting this.
  */
 bool UsbMsdIsAttachedGet(const DRV_HANDLE handle) {
-    return (isAttached == true) && (DRV_SDSPI_IsAttached(handle) == true);
+    return isAttached && (DRV_SDSPI_IsAttached(handle));
 }
 
 /**

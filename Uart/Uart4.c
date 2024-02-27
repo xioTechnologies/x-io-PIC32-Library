@@ -40,10 +40,10 @@ void Uart4Initialise(const UartSettings * const settings) {
     Uart4Deinitialise();
 
     // Configure UART
-    if (settings->rtsCtsEnabled == true) {
+    if (settings->rtsCtsEnabled) {
         U4MODEbits.UEN = 0b10; // UxTX, UxRX, UxCTS and UxRTS pins are enabled and used
     }
-    if (settings->invertTXRX == true) {
+    if (settings->invertTXRX) {
         U4MODEbits.RXINV = 1; // UxRX Idle state is '0'
         U4STAbits.UTXINV = 1; // UxTX Idle state is '0'
     }
@@ -171,7 +171,7 @@ void Uart4ClearWriteBuffer(void) {
  * @return True if the hardware receive buffer has overrun.
  */
 bool Uart4HasReceiveBufferOverrun(void) {
-    if (receiveBufferOverrun == true) {
+    if (receiveBufferOverrun) {
         receiveBufferOverrun = false;
         return true;
     }
@@ -195,7 +195,7 @@ bool Uart4IsTransmitionComplete(void) {
 void Uart4InterruptHandler(void) {
 
     // RX interrupt
-    if (EVIC_SourceStatusGet(INT_SOURCE_UART4_RX) == true) {
+    if (EVIC_SourceStatusGet(INT_SOURCE_UART4_RX)) {
         RXInterruptTasks();
     }
 
@@ -203,7 +203,7 @@ void Uart4InterruptHandler(void) {
     if (EVIC_SourceIsEnabled(INT_SOURCE_UART4_TX) == false) {
         return; // return if TX interrupt disabled because TX interrupt flag will remain set while the transmit buffer is empty
     }
-    if (EVIC_SourceStatusGet(INT_SOURCE_UART4_TX) == true) {
+    if (EVIC_SourceStatusGet(INT_SOURCE_UART4_TX)) {
         TXInterruptTasks();
     }
 }

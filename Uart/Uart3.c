@@ -40,10 +40,10 @@ void Uart3Initialise(const UartSettings * const settings) {
     Uart3Deinitialise();
 
     // Configure UART
-    if (settings->rtsCtsEnabled == true) {
+    if (settings->rtsCtsEnabled) {
         U3MODEbits.UEN = 0b10; // UxTX, UxRX, UxCTS and UxRTS pins are enabled and used
     }
-    if (settings->invertTXRX == true) {
+    if (settings->invertTXRX) {
         U3MODEbits.RXINV = 1; // UxRX Idle state is '0'
         U3STAbits.UTXINV = 1; // UxTX Idle state is '0'
     }
@@ -171,7 +171,7 @@ void Uart3ClearWriteBuffer(void) {
  * @return True if the hardware receive buffer has overrun.
  */
 bool Uart3HasReceiveBufferOverrun(void) {
-    if (receiveBufferOverrun == true) {
+    if (receiveBufferOverrun) {
         receiveBufferOverrun = false;
         return true;
     }
@@ -195,7 +195,7 @@ bool Uart3IsTransmitionComplete(void) {
 void Uart3InterruptHandler(void) {
 
     // RX interrupt
-    if (EVIC_SourceStatusGet(INT_SOURCE_UART3_RX) == true) {
+    if (EVIC_SourceStatusGet(INT_SOURCE_UART3_RX)) {
         RXInterruptTasks();
     }
 
@@ -203,7 +203,7 @@ void Uart3InterruptHandler(void) {
     if (EVIC_SourceIsEnabled(INT_SOURCE_UART3_TX) == false) {
         return; // return if TX interrupt disabled because TX interrupt flag will remain set while the transmit buffer is empty
     }
-    if (EVIC_SourceStatusGet(INT_SOURCE_UART3_TX) == true) {
+    if (EVIC_SourceStatusGet(INT_SOURCE_UART3_TX)) {
         TXInterruptTasks();
     }
 }

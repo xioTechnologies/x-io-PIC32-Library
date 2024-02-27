@@ -168,7 +168,7 @@ SDCardError SDCardFileOpen(const char* const filePath, const bool write) {
     }
 
     // Check if card full
-    if (write == true) {
+    if (write) {
         uint32_t totalSectors;
         uint32_t freeSectors;
         if (SYS_FS_DriveSectorGet(MOUNT_NAME, &totalSectors, &freeSectors) != SYS_FS_RES_SUCCESS) {
@@ -181,7 +181,7 @@ SDCardError SDCardFileOpen(const char* const filePath, const bool write) {
     }
 
     // Open file
-    fileHandle = SYS_FS_FileOpen(fileName, write == true ? SYS_FS_FILE_OPEN_WRITE : SYS_FS_FILE_OPEN_READ);
+    fileHandle = SYS_FS_FileOpen(fileName, write ? SYS_FS_FILE_OPEN_WRITE : SYS_FS_FILE_OPEN_READ);
     if (fileHandle == SYS_FS_HANDLE_INVALID) {
         PrintFileSystemError("SYS_FS_FileOpen", SYS_FS_Error());
         return SDCardErrorFileSystemError;
