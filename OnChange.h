@@ -43,7 +43,7 @@ typedef struct {
  */
 #define ON_CHANGE_POLL(input) ({ \
     static OnChange onChange; \
-    OnChangePoll(&onChange, input, 0); \
+    OnChangePoll(&onChange, 0, input); \
 })
 
 /**
@@ -53,7 +53,7 @@ typedef struct {
  */
 #define ON_CHANGE_POLL_DEBOUNCE(input) ({ \
     static OnChange onChange; \
-    OnChangePoll(&onChange, input, 20); \
+    OnChangePoll(&onChange, 20, input); \
 })
 
 //------------------------------------------------------------------------------
