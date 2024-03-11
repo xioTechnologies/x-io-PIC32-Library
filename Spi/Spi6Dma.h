@@ -19,8 +19,7 @@
 
 void Spi6DmaInitialise(const SpiSettings * const settings);
 void Spi6DmaDeinitialise(void);
-void Spi6DmaSetTransferCompleteCallback(void (*transferComplete_)(void));
-void Spi6DmaTransfer(void* const data, const size_t numberOfBytes);
+void Spi6DmaTransfer(void* const data_, const size_t numberOfBytes_, void (*transferComplete_)(void));
 bool Spi6DmaIsTransferInProgress(void);
 
 #endif

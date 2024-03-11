@@ -26,7 +26,7 @@
 #define COUNTER_FILE_NAME "Counter.txt"
 
 /**
- * @brief Comment out this definition to disable printing of statistics.
+ * @brief Uncomment this line to enable printing of statistics.
  */
 //#define PRINT_STATISTICS
 
@@ -208,7 +208,7 @@ static int Open(void) {
     SDCardDirectoryClose();
 
     // Abort if file name unavailable
-    if (fileNameUnavailable == true) {
+    if (fileNameUnavailable) {
         ErrorCallback(DataLoggerErrorFileNameUnavailable);
         return 1;
     }

@@ -9,11 +9,31 @@
 
 #include "definitions.h"
 #include "Spi4Dma.h"
+#include <stdio.h> // printf
 #include "sys/kmem.h"
+
+//------------------------------------------------------------------------------
+// Definitions
+
+/**
+ * @brief Uncomment this line to enable printing of transfers.
+ */
+//#define PRINT_TRANSFERS
+
+//------------------------------------------------------------------------------
+// Function declarations
+
+#ifdef PRINT_TRANSFERS
+static void PrintData(void);
+#endif
 
 //------------------------------------------------------------------------------
 // Variables
 
+#ifdef PRINT_TRANSFERS
+static void* data;
+static size_t numberOfBytes;
+#endif
 static void (*transferComplete)(void);
 
 //------------------------------------------------------------------------------
@@ -112,33 +132,35 @@ void Spi4DmaDeinitialise(void) {
 }
 
 /**
- * @brief Sets the transfer complete callback function.  This callback function
- * will be called from within an interrupt once the transfer is complete.
- * @param transferComplete Transfer complete callback function.
+ * @brief Transfers data.  The data will be overwritten with the received data.
+ * The data must be declared __attribute__((coherent)) for PIC32MZ devices.
+ * This function must not be called while a transfer is in progress.  The
+ * callback function will be called from within an interrupt once the transfer
+ * is complete.
+ * @param data_ Data.
+ * @param numberOfBytes_ Number of bytes.
+ * @param transferComplete_ Transfer complete callback function.
  */
-void Spi4DmaSetTransferCompleteCallback(void (*transferComplete_)(void)) {
-    EVIC_SourceDisable(INT_SOURCE_DMA1);
-    transferComplete = transferComplete_;
-    EVIC_SourceEnable(INT_SOURCE_DMA1);
-}
+void Spi4DmaTransfer(void* const data_, const size_t numberOfBytes_, void (*transferComplete_)(void)) {
 
-/**
- * @brief Transfers data.  The data being transmitted will be overwritten with
- * the received data.  The data must be declared __attribute__((coherent)) for
- * PIC32MZ devices.  This function must not be called while a transfer is in
- * progress.
- * @param data Data.
- * @param numberOfBytes Number of bytes.
- */
-void Spi4DmaTransfer(void* const data, const size_t numberOfBytes) {
+    // Print data
+#ifdef PRINT_TRANSFERS
+    data = data_;
+    numberOfBytes = numberOfBytes_;
+    printf("MOSI");
+    PrintData();
+#endif    
+
+    // Set callback
+    transferComplete = transferComplete_;
 
     // Configure TX DMA channel
-    DCH0SSA = KVA_TO_PA(data); // source address
-    DCH0SSIZ = numberOfBytes; // source size
+    DCH0SSA = KVA_TO_PA(data_); // source address
+    DCH0SSIZ = numberOfBytes_; // source size
 
     // Configure RX DMA channel
-    DCH1DSA = KVA_TO_PA(data); // destination address
-    DCH1DSIZ = numberOfBytes; // destination size
+    DCH1DSA = KVA_TO_PA(data_); // destination address
+    DCH1DSIZ = numberOfBytes_; // destination size
 
     // Begin transfer
     DCH1INTbits.CHBCIF = 0; // clear RX DMA channel interrupt flag
@@ -152,6 +174,11 @@ void Spi4DmaTransfer(void* const data, const size_t numberOfBytes) {
  */
 void Dma1InterruptHandler(void) {
     EVIC_SourceStatusClear(INT_SOURCE_DMA1); // clear interrupt flag first because callback function may start new transfer
+#ifdef PRINT_TRANSFERS
+    printf("MISO");
+    PrintData();
+    printf("\n");
+#endif    
     if (transferComplete != NULL) {
         transferComplete();
     }
@@ -164,6 +191,20 @@ void Dma1InterruptHandler(void) {
 bool Spi4DmaIsTransferInProgress(void) {
     return DCH1CONbits.CHEN == 1; // if RX DMA channel interrupt enabled
 }
+
+#ifdef PRINT_TRANSFERS
+
+/**
+ * @brief Prints data.
+ */
+static void PrintData(void) {
+    for (int index = 0; index < numberOfBytes; index++) {
+        printf(" %02X", ((uint8_t*) data)[index]);
+    }
+    printf("\n");
+}
+
+#endif
 
 //------------------------------------------------------------------------------
 // End of file
