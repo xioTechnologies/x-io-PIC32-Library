@@ -149,7 +149,7 @@ void Spi3DmaTransfer(void* const data_, const size_t numberOfBytes_, void (*tran
     numberOfBytes = numberOfBytes_;
     printf("MOSI");
     PrintData();
-#endif    
+#endif
 
     // Set callback
     transferComplete = transferComplete_;
@@ -178,7 +178,7 @@ void Dma1InterruptHandler(void) {
     printf("MISO");
     PrintData();
     printf("\n");
-#endif    
+#endif
     if (transferComplete != NULL) {
         transferComplete();
     }
