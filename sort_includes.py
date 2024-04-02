@@ -1,19 +1,19 @@
 import os
 
-for root, _, files in os.walk(os.path.dirname(os.path.realpath(__file__))):
+for root, _, file_names in os.walk(os.path.dirname(os.path.realpath(__file__))):
     if "config" in root:
         continue
 
-    for source_file in files:
-        file_name, file_extension = os.path.splitext(source_file)
+    for file_name in file_names:
+        _, file_extension = os.path.splitext(file_name)
 
         if file_extension != ".h" and file_extension != ".c":
             continue
 
         # Read file
-        file_path = os.path.join(root, source_file)
-        with open(file_path) as source_file:
-            all_lines = source_file.readlines()
+        file_path = os.path.join(root, file_name)
+        with open(file_path) as file:
+            all_lines = file.readlines()
 
         # Extract lines
         include_lines = []
@@ -49,10 +49,10 @@ for root, _, files in os.walk(os.path.dirname(os.path.realpath(__file__))):
                     include_lines[index] = include_lines[index].replace("\"", ">").replace(" >", " <")
 
         # Overwrite original file
-        with open(file_path, "w") as source_file:
+        with open(file_path, "w") as file:
             for line in lines_before:
-                source_file.write(line)
+                file.write(line)
             for line in include_lines:
-                source_file.write(line)
+                file.write(line)
             for line in lines_after:
-                source_file.write(line)
+                file.write(line)
