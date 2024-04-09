@@ -10,6 +10,7 @@
 //------------------------------------------------------------------------------
 // Includes
 
+#include "definitions.h"
 #include "Spi.h"
 #include <stdbool.h>
 #include <stddef.h>
@@ -19,7 +20,7 @@
 
 void Spi2DmaInitialise(const SpiSettings * const settings);
 void Spi2DmaDeinitialise(void);
-void Spi2DmaTransfer(void* const data_, const size_t numberOfBytes_, void (*transferComplete_)(void));
+void Spi2DmaTransfer(const GPIO_PIN csPin_, void* const data_, const size_t numberOfBytes_, void (*transferComplete_)(void));
 bool Spi2DmaIsTransferInProgress(void);
 
 #endif

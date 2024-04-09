@@ -34,6 +34,7 @@ static void PrintData(void);
 static void* data;
 static size_t numberOfBytes;
 #endif
+static GPIO_PIN csPin;
 static void (*transferComplete)(void);
 
 //------------------------------------------------------------------------------
@@ -137,22 +138,25 @@ void Spi1DmaDeinitialise(void) {
  * This function must not be called while a transfer is in progress.  The
  * callback function will be called from within an interrupt once the transfer
  * is complete.
+ * @param csPin_ CS pin.
  * @param data_ Data.
  * @param numberOfBytes_ Number of bytes.
  * @param transferComplete_ Transfer complete callback function.
  */
-void Spi1DmaTransfer(void* const data_, const size_t numberOfBytes_, void (*transferComplete_)(void)) {
+void Spi1DmaTransfer(const GPIO_PIN csPin_, void* const data_, const size_t numberOfBytes_, void (*transferComplete_)(void)) {
 
-    // Print data
+    // Set CS pin and callback
+    csPin = csPin_;
+    transferComplete = transferComplete_;
+
+    // Print
 #ifdef PRINT_TRANSFERS
+    printf("CS %u\n", csPin);
     data = data_;
     numberOfBytes = numberOfBytes_;
     printf("MOSI");
     PrintData();
 #endif
-
-    // Set callback
-    transferComplete = transferComplete_;
 
     // Configure TX DMA channel
     DCH0SSA = KVA_TO_PA(data_); // source address
@@ -163,6 +167,9 @@ void Spi1DmaTransfer(void* const data_, const size_t numberOfBytes_, void (*tran
     DCH1DSIZ = numberOfBytes_; // destination size
 
     // Begin transfer
+    if (csPin != GPIO_PIN_NONE) {
+        GPIO_PinClear(csPin);
+    }
     DCH1INTbits.CHBCIF = 0; // clear RX DMA channel interrupt flag
     DCH1CONbits.CHEN = 1; // enable RX DMA channel
     DCH0CONbits.CHEN = 1; // enable TX DMA channel to begin transfer
@@ -174,10 +181,12 @@ void Spi1DmaTransfer(void* const data_, const size_t numberOfBytes_, void (*tran
  */
 void Dma1InterruptHandler(void) {
     EVIC_SourceStatusClear(INT_SOURCE_DMA1); // clear interrupt flag first because callback function may start new transfer
+    if (csPin != GPIO_PIN_NONE) {
+        GPIO_PinSet(csPin);
+    }
 #ifdef PRINT_TRANSFERS
     printf("MISO");
     PrintData();
-    printf("\n");
 #endif
     if (transferComplete != NULL) {
         transferComplete();
