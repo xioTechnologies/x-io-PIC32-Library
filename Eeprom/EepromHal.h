@@ -1,7 +1,7 @@
 /**
  * @file EepromHal.h
  * @author Seb Madgwick
- * @brief EEPROM driver Hardware Abstraction Layer.
+ * @brief EEPROM driver Hardware Abstraction Layer (HAL).
  */
 
 #ifndef EEPROM_HAL_H
@@ -10,7 +10,6 @@
 //------------------------------------------------------------------------------
 // Includes
 
-#include "definitions.h"
 #include "I2C/I2C1.h"
 #include <stdbool.h>
 #include <stdint.h>
