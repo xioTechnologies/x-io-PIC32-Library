@@ -7,8 +7,8 @@
 //------------------------------------------------------------------------------
 // Includes
 
-#include "CircularBuffer.h"
 #include "definitions.h"
+#include "Fifo.h"
 #include "UsbCdc.h"
 
 //------------------------------------------------------------------------------
@@ -27,10 +27,10 @@ static bool isHostConnected;
 static uint8_t __attribute__((coherent)) readRequestData[512]; // must be declared __attribute__((coherent)) for PIC32MZ devices
 static bool readInProgress;
 static bool writeInProgress;
-static uint8_t readBufferData[4096];
-static CircularBuffer readBuffer = {.buffer = readBufferData, .bufferSize = sizeof (readBufferData)};
-static uint8_t writeBufferData[4096];
-static CircularBuffer writeBuffer = {.buffer = writeBufferData, .bufferSize = sizeof (writeBufferData)};
+static uint8_t readData[4096];
+static Fifo readFifo = {.data = readData, .dataSize = sizeof (readData)};
+static uint8_t writeData[4096];
+static Fifo writeFifo = {.data = writeData, .dataSize = sizeof (writeData)};
 
 //------------------------------------------------------------------------------
 // Functions
@@ -114,7 +114,7 @@ static void APP_USBDeviceCDCEventHandler(USB_DEVICE_CDC_INDEX index, USB_DEVICE_
         case USB_DEVICE_CDC_EVENT_READ_COMPLETE:
             if (readInProgress) { // prevent unexpected read event for PIC32MZ devices when host reconnected
                 const size_t numberOfBytes = ((USB_DEVICE_CDC_EVENT_DATA_READ_COMPLETE*) pData)->length;
-                CircularBufferWrite(&readBuffer, readRequestData, numberOfBytes);
+                FifoWrite(&readFifo, readRequestData, numberOfBytes);
                 readInProgress = false;
             }
             break;
@@ -160,13 +160,13 @@ static void WriteTasks(void) {
     }
 
     // Do nothing if no data available
-    if (CircularBufferGetReadAvailable(&writeBuffer) == 0) {
+    if (FifoGetReadAvailable(&writeFifo) == 0) {
         return;
     }
 
     // Copy data to buffer
     static uint8_t __attribute__((coherent)) buffer[1024]; // must be declared __attribute__((coherent)) for PIC32MZ devices
-    const size_t numberOfBytes = CircularBufferRead(&writeBuffer, buffer, sizeof (buffer));
+    const size_t numberOfBytes = FifoRead(&writeFifo, buffer, sizeof (buffer));
 
     // Schedule write
     writeInProgress = true;
@@ -191,7 +191,7 @@ bool UsbCdcIsHostConnected(void) {
  * @return Number of bytes available in the read buffer.
  */
 size_t UsbCdcGetReadAvailable(void) {
-    return CircularBufferGetReadAvailable(&readBuffer);
+    return FifoGetReadAvailable(&readFifo);
 }
 
 /**
@@ -201,7 +201,7 @@ size_t UsbCdcGetReadAvailable(void) {
  * @return Number of bytes read.
  */
 size_t UsbCdcRead(void* const destination, size_t numberOfBytes) {
-    return CircularBufferRead(&readBuffer, destination, numberOfBytes);
+    return FifoRead(&readFifo, destination, numberOfBytes);
 }
 
 /**
@@ -210,7 +210,7 @@ size_t UsbCdcRead(void* const destination, size_t numberOfBytes) {
  * @return Byte.
  */
 uint8_t UsbCdcReadByte(void) {
-    return CircularBufferReadByte(&readBuffer);
+    return FifoReadByte(&readFifo);
 }
 
 /**
@@ -218,7 +218,7 @@ uint8_t UsbCdcReadByte(void) {
  * @return Space available in the write buffer.
  */
 size_t UsbCdcGetWriteAvailable(void) {
-    return CircularBufferGetWriteAvailable(&writeBuffer);
+    return FifoGetWriteAvailable(&writeFifo);
 }
 
 /**
@@ -227,7 +227,7 @@ size_t UsbCdcGetWriteAvailable(void) {
  * @param numberOfBytes Number of bytes.
  */
 void UsbCdcWrite(const void* const data, const size_t numberOfBytes) {
-    CircularBufferWrite(&writeBuffer, data, numberOfBytes);
+    FifoWrite(&writeFifo, data, numberOfBytes);
 }
 
 /**
@@ -235,7 +235,7 @@ void UsbCdcWrite(const void* const data, const size_t numberOfBytes) {
  * @param byte Byte.
  */
 void UsbCdcWriteByte(const uint8_t byte) {
-    CircularBufferWriteByte(&writeBuffer, byte);
+    FifoWriteByte(&writeFifo, byte);
 }
 
 //------------------------------------------------------------------------------

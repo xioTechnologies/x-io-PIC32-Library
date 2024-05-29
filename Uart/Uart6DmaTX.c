@@ -7,8 +7,8 @@
 //------------------------------------------------------------------------------
 // Includes
 
-#include "CircularBuffer.h"
 #include "definitions.h"
+#include "Fifo.h"
 #include <stdint.h>
 #include "Uart6DmaTX.h"
 
@@ -21,8 +21,8 @@ static inline __attribute__((always_inline)) void RXInterruptTasks(void);
 // Variables
 
 static bool receiveBufferOverrun;
-static uint8_t readBufferData[4096];
-static CircularBuffer readBuffer = {.buffer = readBufferData, .bufferSize = sizeof (readBufferData)};
+static uint8_t readData[4096];
+static Fifo readFifo = {.data = readData, .dataSize = sizeof (readData)};
 
 //------------------------------------------------------------------------------
 // Functions
@@ -100,7 +100,7 @@ size_t Uart6DmaTXGetReadAvailable(void) {
     }
 
     // Return number of bytes
-    return CircularBufferGetReadAvailable(&readBuffer);
+    return CircularBufferGetReadAvailable(&readFifo);
 }
 
 /**
@@ -111,7 +111,7 @@ size_t Uart6DmaTXGetReadAvailable(void) {
  */
 size_t Uart6DmaTXRead(void* const destination, size_t numberOfBytes) {
     Uart6DmaTXGetReadAvailable(); // process hardware receive buffer
-    return CircularBufferRead(&readBuffer, destination, numberOfBytes);
+    return CircularBufferRead(&readFifo, destination, numberOfBytes);
 }
 
 /**
@@ -120,7 +120,7 @@ size_t Uart6DmaTXRead(void* const destination, size_t numberOfBytes) {
  * @return Byte.
  */
 uint8_t Uart6DmaTXReadByte(void) {
-    return CircularBufferReadByte(&readBuffer);
+    return CircularBufferReadByte(&readFifo);
 }
 
 /**
@@ -149,7 +149,7 @@ bool Uart6DmaTXIsWriteInProgress(void) {
  * @brief Clears the read buffer and resets the read buffer overrun flag.
  */
 void Uart6DmaTXClearReadBuffer(void) {
-    CircularBufferClear(&readBuffer);
+    CircularBufferClear(&readFifo);
     Uart6DmaTXHasReceiveBufferOverrun();
 }
 
@@ -203,11 +203,11 @@ void Uart6RXInterruptHandler(void) {
  */
 static inline __attribute__((always_inline)) void RXInterruptTasks(void) {
     while (U6STAbits.URXDA == 1) { // repeat while data available in receive buffer
-        if (CircularBufferGetWriteAvailable(&readBuffer) == 0) { // if read buffer full
+        if (CircularBufferGetWriteAvailable(&readFifo) == 0) { // if read buffer full
             EVIC_SourceDisable(INT_SOURCE_UART6_RX);
             break;
         } else {
-            CircularBufferWriteByte(&readBuffer, U6RXREG);
+            CircularBufferWriteByte(&readFifo, U6RXREG);
         }
     }
     EVIC_SourceStatusClear(INT_SOURCE_UART6_RX);

@@ -7,9 +7,9 @@
 //------------------------------------------------------------------------------
 // Includes
 
-#include "CircularBuffer.h"
 #include "DataLogger.h"
 #include "definitions.h"
+#include "Fifo.h"
 #include "Rtc/Rtc.h"
 #include "SDCard/SDCard.h"
 #include <stdbool.h>
@@ -64,8 +64,8 @@ static State state = StateDisabled;
 char fileName[SD_CARD_MAX_PATH_SIZE];
 static uint64_t fileStartTicks;
 static uint32_t fileSize;
-static uint8_t bufferData[380000];
-static CircularBuffer buffer = {.buffer = bufferData, .bufferSize = sizeof (bufferData)};
+static uint8_t fifoData[380000];
+static Fifo fifo = {.data = fifoData, .dataSize = sizeof (fifoData)};
 #ifdef PRINT_STATISTICS
 static uint32_t maxWritePeriod;
 static uint32_t maxbufferUsed;
@@ -296,19 +296,19 @@ static int Write(void) {
     }
 
     // Do nothing else if no data available
-    const int writeIndex = buffer.writeIndex; // avoid asynchronous hazard
-    if (buffer.readIndex == writeIndex) {
+    const int writeIndex = fifo.writeIndex; // avoid asynchronous hazard
+    if (fifo.readIndex == writeIndex) {
         return 0;
     }
 
     // Calculate number of bytes to write
     size_t numberOfBytes;
     int newReadIndex;
-    if (writeIndex < buffer.readIndex) {
-        numberOfBytes = buffer.bufferSize - buffer.readIndex;
+    if (writeIndex < fifo.readIndex) {
+        numberOfBytes = fifo.dataSize - fifo.readIndex;
         newReadIndex = 0;
     } else {
-        numberOfBytes = writeIndex - buffer.readIndex;
+        numberOfBytes = writeIndex - fifo.readIndex;
         newReadIndex = writeIndex;
     }
 
@@ -325,8 +325,8 @@ static int Write(void) {
 #ifdef PRINT_STATISTICS
     const uint64_t writeStart = TimerGetTicks64();
 #endif
-    const SDCardError error = SDCardFileWrite(&buffer.buffer[buffer.readIndex], numberOfBytes);
-    buffer.readIndex = newReadIndex;
+    const SDCardError error = SDCardFileWrite(&fifo.data[fifo.readIndex], numberOfBytes);
+    fifo.readIndex = newReadIndex;
     fileSize += numberOfBytes;
 #ifdef PRINT_STATISTICS
     const uint64_t writePeriod = TimerGetTicks64() - writeStart;
@@ -370,7 +370,7 @@ void DataLoggerStart(void) {
         case StateWrite:
             return;
     }
-    CircularBufferClear(&buffer);
+    FifoClear(&fifo);
     state = StateOpen;
 }
 
@@ -415,7 +415,7 @@ bool DataLoggerIsEnabled(void) {
  * @return Space available in the write buffer.
  */
 size_t DataLoggerGetWriteAvailable(void) {
-    return CircularBufferGetWriteAvailable(&buffer);
+    return FifoGetWriteAvailable(&fifo);
 }
 
 /**
@@ -435,12 +435,12 @@ void DataLoggerWrite(const void* const data, const size_t numberOfBytes) {
 
     // Write data
 #ifdef PRINT_STATISTICS
-    const uint32_t bufferUsed = sizeof (bufferData) - DataLoggerGetWriteAvailable();
+    const uint32_t bufferUsed = sizeof (fifoData) - DataLoggerGetWriteAvailable();
     if (bufferUsed > maxbufferUsed) {
         maxbufferUsed = bufferUsed;
     }
 #endif
-    CircularBufferWrite(&buffer, data, numberOfBytes);
+    FifoWrite(&fifo, data, numberOfBytes);
 }
 
 /**
@@ -552,7 +552,7 @@ static void PrintStatistics(void) {
 
     // Create buffer usage string
     char bufferUsageString[16];
-    snprintf(bufferUsageString, sizeof (bufferUsageString), "%0.1f%%", ((float) maxbufferUsed * (100.0f / (float) sizeof (bufferData))));
+    snprintf(bufferUsageString, sizeof (bufferUsageString), "%0.1f%%", ((float) maxbufferUsed * (100.0f / (float) sizeof (fifoData))));
 
     // Print statistics
     printf("%u s, %u KB, %u KB/s, %0.1f ms, %s\n",

@@ -7,8 +7,8 @@
 //------------------------------------------------------------------------------
 // Includes
 
-#include "CircularBuffer.h"
 #include "definitions.h"
+#include "Fifo.h"
 #include <stdint.h>
 #include "Timer/Timer.h"
 #include "Uart4DmaRX.h"
@@ -25,8 +25,8 @@ static inline __attribute__((always_inline)) void TXInterruptTasks(void);
 
 static void (*read)(const void* const data, const size_t numberOfBytes);
 static uint8_t __attribute__((coherent)) readBuffer[1024]; // must be declared __attribute__((coherent)) for PIC32MZ devices
-static uint8_t writeBufferData[4096];
-static CircularBuffer writeBuffer = {.buffer = writeBufferData, .bufferSize = sizeof (writeBufferData)};
+static uint8_t writeData[4096];
+static Fifo writeFifo = {.data = writeData, .dataSize = sizeof (writeData)};
 
 //------------------------------------------------------------------------------
 // Functions
@@ -261,7 +261,7 @@ static inline __attribute__((always_inline)) void TransferAborted(void) {
  * @return Space available in the write buffer.
  */
 size_t Uart4DmaRXGetWriteAvailable(void) {
-    return CircularBufferGetWriteAvailable(&writeBuffer);
+    return FifoGetWriteAvailable(&writeFifo);
 }
 
 /**
@@ -270,7 +270,7 @@ size_t Uart4DmaRXGetWriteAvailable(void) {
  * @param numberOfBytes Number of bytes.
  */
 void Uart4DmaRXWrite(const void* const data, const size_t numberOfBytes) {
-    CircularBufferWrite(&writeBuffer, data, numberOfBytes);
+    FifoWrite(&writeFifo, data, numberOfBytes);
     EVIC_SourceEnable(INT_SOURCE_UART4_TX);
 }
 
@@ -279,7 +279,7 @@ void Uart4DmaRXWrite(const void* const data, const size_t numberOfBytes) {
  * @param byte Byte.
  */
 void Uart4DmaRXWriteByte(const uint8_t byte) {
-    CircularBufferWriteByte(&writeBuffer, byte);
+    FifoWriteByte(&writeFifo, byte);
     EVIC_SourceEnable(INT_SOURCE_UART4_TX);
 }
 
@@ -287,7 +287,7 @@ void Uart4DmaRXWriteByte(const uint8_t byte) {
  * @brief Clears the write buffer.
  */
 void Uart4DmaRXClearWriteBuffer(void) {
-    CircularBufferClear(&writeBuffer);
+    FifoClear(&writeFifo);
 }
 
 /**
@@ -340,10 +340,10 @@ static inline __attribute__((always_inline)) void TXInterruptTasks(void) {
     EVIC_SourceDisable(INT_SOURCE_UART4_TX); // disable TX interrupt to avoid nested interrupt
     EVIC_SourceStatusClear(INT_SOURCE_UART4_TX);
     while (U4STAbits.UTXBF == 0) { // repeat while transmit buffer not full
-        if (CircularBufferGetReadAvailable(&writeBuffer) == 0) { // if write buffer empty
+        if (FifoGetReadAvailable(&writeFifo) == 0) { // if write buffer empty
             return;
         }
-        U4TXREG = CircularBufferReadByte(&writeBuffer);
+        U4TXREG = FifoReadByte(&writeFifo);
     }
     EVIC_SourceEnable(INT_SOURCE_UART4_TX); // re-enable TX interrupt
 }

@@ -7,8 +7,8 @@
 //------------------------------------------------------------------------------
 // Includes
 
-#include "CircularBuffer.h"
 #include "definitions.h"
+#include "Fifo.h"
 #include <stdint.h>
 #include "Uart5.h"
 
@@ -22,10 +22,10 @@ static inline __attribute__((always_inline)) void TXInterruptTasks(void);
 // Variables
 
 static bool receiveBufferOverrun;
-static uint8_t readBufferData[4096];
-static CircularBuffer readBuffer = {.buffer = readBufferData, .bufferSize = sizeof (readBufferData)};
-static uint8_t writeBufferData[4096];
-static CircularBuffer writeBuffer = {.buffer = writeBufferData, .bufferSize = sizeof (writeBufferData)};
+static uint8_t readData[4096];
+static Fifo readFifo = {.data = readData, .dataSize = sizeof (readData)};
+static uint8_t writeData[4096];
+static Fifo writeFifo = {.data = writeData, .dataSize = sizeof (writeData)};
 
 //------------------------------------------------------------------------------
 // Functions
@@ -100,7 +100,7 @@ size_t Uart5GetReadAvailable(void) {
     }
 
     // Return number of bytes
-    return CircularBufferGetReadAvailable(&readBuffer);
+    return FifoGetReadAvailable(&readFifo);
 }
 
 /**
@@ -111,7 +111,7 @@ size_t Uart5GetReadAvailable(void) {
  */
 size_t Uart5Read(void* const destination, size_t numberOfBytes) {
     Uart5GetReadAvailable(); // process hardware receive buffer
-    return CircularBufferRead(&readBuffer, destination, numberOfBytes);
+    return FifoRead(&readFifo, destination, numberOfBytes);
 }
 
 /**
@@ -120,7 +120,7 @@ size_t Uart5Read(void* const destination, size_t numberOfBytes) {
  * @return Byte.
  */
 uint8_t Uart5ReadByte(void) {
-    return CircularBufferReadByte(&readBuffer);
+    return FifoReadByte(&readFifo);
 }
 
 /**
@@ -128,7 +128,7 @@ uint8_t Uart5ReadByte(void) {
  * @return Space available in the write buffer.
  */
 size_t Uart5GetWriteAvailable(void) {
-    return CircularBufferGetWriteAvailable(&writeBuffer);
+    return FifoGetWriteAvailable(&writeFifo);
 }
 
 /**
@@ -137,7 +137,7 @@ size_t Uart5GetWriteAvailable(void) {
  * @param numberOfBytes Number of bytes.
  */
 void Uart5Write(const void* const data, const size_t numberOfBytes) {
-    CircularBufferWrite(&writeBuffer, data, numberOfBytes);
+    FifoWrite(&writeFifo, data, numberOfBytes);
     EVIC_SourceEnable(INT_SOURCE_UART5_TX);
 }
 
@@ -146,7 +146,7 @@ void Uart5Write(const void* const data, const size_t numberOfBytes) {
  * @param byte Byte.
  */
 void Uart5WriteByte(const uint8_t byte) {
-    CircularBufferWriteByte(&writeBuffer, byte);
+    FifoWriteByte(&writeFifo, byte);
     EVIC_SourceEnable(INT_SOURCE_UART5_TX);
 }
 
@@ -154,7 +154,7 @@ void Uart5WriteByte(const uint8_t byte) {
  * @brief Clears the read buffer and resets the read buffer overrun flag.
  */
 void Uart5ClearReadBuffer(void) {
-    CircularBufferClear(&readBuffer);
+    FifoClear(&readFifo);
     Uart5HasReceiveBufferOverrun();
 }
 
@@ -162,7 +162,7 @@ void Uart5ClearReadBuffer(void) {
  * @brief Clears the write buffer.
  */
 void Uart5ClearWriteBuffer(void) {
-    CircularBufferClear(&writeBuffer);
+    FifoClear(&writeFifo);
 }
 
 /**
@@ -233,11 +233,11 @@ void Uart5TXInterruptHandler(void) {
  */
 static inline __attribute__((always_inline)) void RXInterruptTasks(void) {
     while (U5STAbits.URXDA == 1) { // repeat while data available in receive buffer
-        if (CircularBufferGetWriteAvailable(&readBuffer) == 0) { // if read buffer full
+        if (FifoGetWriteAvailable(&readFifo) == 0) { // if read buffer full
             EVIC_SourceDisable(INT_SOURCE_UART5_RX);
             break;
         } else {
-            CircularBufferWriteByte(&readBuffer, U5RXREG);
+            FifoWriteByte(&readFifo, U5RXREG);
         }
     }
     EVIC_SourceStatusClear(INT_SOURCE_UART5_RX);
@@ -250,10 +250,10 @@ static inline __attribute__((always_inline)) void TXInterruptTasks(void) {
     EVIC_SourceDisable(INT_SOURCE_UART5_TX); // disable TX interrupt to avoid nested interrupt
     EVIC_SourceStatusClear(INT_SOURCE_UART5_TX);
     while (U5STAbits.UTXBF == 0) { // repeat while transmit buffer not full
-        if (CircularBufferGetReadAvailable(&writeBuffer) == 0) { // if write buffer empty
+        if (FifoGetReadAvailable(&writeFifo) == 0) { // if write buffer empty
             return;
         }
-        U5TXREG = CircularBufferReadByte(&writeBuffer);
+        U5TXREG = FifoReadByte(&writeFifo);
     }
     EVIC_SourceEnable(INT_SOURCE_UART5_TX); // re-enable TX interrupt
 }
