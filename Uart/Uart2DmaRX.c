@@ -307,7 +307,7 @@ bool Uart2DmaRXHasReceiveBufferOverrun(void) {
  * @brief Returns true if all data has been transmitted.
  * @return True if all data has been transmitted.
  */
-bool Uart2DmaRXIsTransmitionComplete(void) {
+bool Uart2DmaRXTransmitionComplete(void) {
     return (EVIC_SourceIsEnabled(INT_SOURCE_UART2_TX) == false) && (U2STAbits.TRMT == 1);
 }
 

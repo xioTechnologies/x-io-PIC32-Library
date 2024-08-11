@@ -27,7 +27,7 @@ void Uart1DmaRXWrite(const void* const data, const size_t numberOfBytes);
 void Uart1DmaRXWriteByte(const uint8_t byte);
 void Uart1DmaRXClearWriteBuffer(void);
 bool Uart1DmaRXHasReceiveBufferOverrun(void);
-bool Uart1DmaRXIsTransmitionComplete(void);
+bool Uart1DmaRXTransmitionComplete(void);
 
 #endif
 

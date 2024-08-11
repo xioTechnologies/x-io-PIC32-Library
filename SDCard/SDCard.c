@@ -127,7 +127,7 @@ void SDCardUnmount(void) {
  * @brief Returns true if the SD card is mounted.
  * @return True if the SD card is mounted.
  */
-bool SDCardIsMounted(void) {
+bool SDCardMounted(void) {
     return state == StateMounted;
 }
 

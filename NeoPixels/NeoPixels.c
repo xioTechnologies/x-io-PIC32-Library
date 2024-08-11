@@ -53,7 +53,7 @@ void NeoPixelsInitialise(void) {
 void NeoPixelsSet(const NeoPixelsPixel * const pixels) {
 
     // Wait for previous transfer to complete
-    while (NeoPixelsHalSpiIsTransferInProgress());
+    while (NeoPixelsHalSpiTransferInProgress());
 
     // Encode data
     static __attribute__((coherent)) SpiData spiData; // data must be declared __attribute__((coherent)) for DMA transfers on PIC32MZ devices

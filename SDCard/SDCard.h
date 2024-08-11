@@ -46,7 +46,7 @@ typedef struct {
 void SDCardTasks(void);
 void SDCardMount(void);
 void SDCardUnmount(void);
-bool SDCardIsMounted(void);
+bool SDCardMounted(void);
 void SDCardFormat(void);
 void SDCardSetVolumeLabel(const char* const label);
 SDCardError SDCardFileOpen(const char* const filePath, const bool write);

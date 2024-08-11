@@ -21,7 +21,7 @@
 void Spi3DmaInitialise(const SpiSettings * const settings);
 void Spi3DmaDeinitialise(void);
 void Spi3DmaTransfer(const GPIO_PIN csPin_, void* const data_, const size_t numberOfBytes_, void (*transferComplete_)(void));
-bool Spi3DmaIsTransferInProgress(void);
+bool Spi3DmaTransferInProgress(void);
 
 #endif
 

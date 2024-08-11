@@ -141,7 +141,7 @@ void Uart1DmaTXWrite(const void* const data, const size_t numberOfBytes) {
  * buffer.
  * @return True while data is being transferred to the hardware transmit buffer.
  */
-bool Uart1DmaTXIsWriteInProgress(void) {
+bool Uart1DmaTXWriteInProgress(void) {
     return DCH0CONbits.CHEN == 1;
 }
 
@@ -170,8 +170,8 @@ bool Uart1DmaTXHasReceiveBufferOverrun(void) {
  * @brief Returns true if all data has been transmitted.
  * @return True if all data has been transmitted.
  */
-bool Uart1DmaTXIsTransmitionComplete(void) {
-    return (Uart1DmaTXIsWriteInProgress() == false) && (U1STAbits.TRMT == 1);
+bool Uart1DmaTXTransmitionComplete(void) {
+    return (Uart1DmaTXWriteInProgress() == false) && (U1STAbits.TRMT == 1);
 }
 
 #ifdef _UART_1_VECTOR

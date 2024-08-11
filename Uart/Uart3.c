@@ -182,7 +182,7 @@ bool Uart3HasReceiveBufferOverrun(void) {
  * @brief Returns true if all data has been transmitted.
  * @return True if all data has been transmitted.
  */
-bool Uart3IsTransmitionComplete(void) {
+bool Uart3TransmitionComplete(void) {
     return (EVIC_SourceIsEnabled(INT_SOURCE_UART3_TX) == false) && (U3STAbits.TRMT == 1);
 }
 

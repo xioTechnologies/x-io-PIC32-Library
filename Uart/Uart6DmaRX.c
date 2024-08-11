@@ -307,7 +307,7 @@ bool Uart6DmaRXHasReceiveBufferOverrun(void) {
  * @brief Returns true if all data has been transmitted.
  * @return True if all data has been transmitted.
  */
-bool Uart6DmaRXIsTransmitionComplete(void) {
+bool Uart6DmaRXTransmitionComplete(void) {
     return (EVIC_SourceIsEnabled(INT_SOURCE_UART6_TX) == false) && (U6STAbits.TRMT == 1);
 }
 

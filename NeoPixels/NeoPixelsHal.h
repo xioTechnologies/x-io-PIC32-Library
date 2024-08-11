@@ -52,8 +52,8 @@ static inline __attribute__((always_inline)) void NeoPixelsHalSpiTransfer(const 
  * @brief Returns true while the transfer is in progress.
  * @return True while the transfer is in progress.
  */
-static inline __attribute__((always_inline)) bool NeoPixelsHalSpiIsTransferInProgress(void) {
-    return Spi2DmaIsTransferInProgress();
+static inline __attribute__((always_inline)) bool NeoPixelsHalSpiTransferInProgress(void) {
+    return Spi2DmaTransferInProgress();
 }
 
 #endif

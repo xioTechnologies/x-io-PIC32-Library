@@ -23,10 +23,10 @@ size_t Uart1DmaTXGetReadAvailable(void);
 size_t Uart1DmaTXRead(void* const destination, size_t numberOfBytes);
 uint8_t Uart1DmaTXReadByte(void);
 void Uart1DmaTXWrite(const void* const data, const size_t numberOfBytes);
-bool Uart1DmaTXIsWriteInProgress(void);
+bool Uart1DmaTXWriteInProgress(void);
 void Uart1DmaTXClearReadBuffer(void);
 bool Uart1DmaTXHasReceiveBufferOverrun(void);
-bool Uart1DmaTXIsTransmitionComplete(void);
+bool Uart1DmaTXTransmitionComplete(void);
 
 #endif
 

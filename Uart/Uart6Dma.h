@@ -23,9 +23,9 @@ void Uart6DmaDeinitialise(void);
 void Uart6DmaSetReadCallback(void (*read_)(const void* const data, const size_t numberOfBytes));
 void Uart6DmaRead(void);
 void Uart6DmaWrite(const void* const data, const size_t numberOfBytes);
-bool Uart6DmaIsWriteInProgress(void);
+bool Uart6DmaWriteInProgress(void);
 bool Uart6DmaHasReceiveBufferOverrun(void);
-bool Uart6DmaIsTransmitionComplete(void);
+bool Uart6DmaTransmitionComplete(void);
 
 #endif
 

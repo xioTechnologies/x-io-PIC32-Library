@@ -197,7 +197,7 @@ void Dma1InterruptHandler(void) {
  * @brief Returns true while the transfer is in progress.
  * @return True while the transfer is in progress.
  */
-bool Spi5DmaIsTransferInProgress(void) {
+bool Spi5DmaTransferInProgress(void) {
     return DCH1CONbits.CHEN == 1; // if RX DMA channel interrupt enabled
 }
 

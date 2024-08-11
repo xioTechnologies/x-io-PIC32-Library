@@ -18,7 +18,7 @@
 // Function declarations
 
 void UsbCdcTasks(void);
-bool UsbCdcIsHostConnected(void);
+bool UsbCdcHostConnected(void);
 size_t UsbCdcGetReadAvailable(void);
 size_t UsbCdcRead(void* const destination, size_t numberOfBytes);
 uint8_t UsbCdcReadByte(void);

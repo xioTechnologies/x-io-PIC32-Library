@@ -23,9 +23,9 @@ void Uart4DmaDeinitialise(void);
 void Uart4DmaSetReadCallback(void (*read_)(const void* const data, const size_t numberOfBytes));
 void Uart4DmaRead(void);
 void Uart4DmaWrite(const void* const data, const size_t numberOfBytes);
-bool Uart4DmaIsWriteInProgress(void);
+bool Uart4DmaWriteInProgress(void);
 bool Uart4DmaHasReceiveBufferOverrun(void);
-bool Uart4DmaIsTransmitionComplete(void);
+bool Uart4DmaTransmitionComplete(void);
 
 #endif
 

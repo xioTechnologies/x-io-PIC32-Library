@@ -28,7 +28,7 @@ void Uart2WriteByte(const uint8_t byte);
 void Uart2ClearReadBuffer(void);
 void Uart2ClearWriteBuffer(void);
 bool Uart2HasReceiveBufferOverrun(void);
-bool Uart2IsTransmitionComplete(void);
+bool Uart2TransmitionComplete(void);
 
 #endif
 

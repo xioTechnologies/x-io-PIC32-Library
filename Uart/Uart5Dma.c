@@ -291,7 +291,7 @@ void Uart5DmaWrite(const void* const data, const size_t numberOfBytes) {
  * buffer.
  * @return True while data is being transferred to the hardware transmit buffer.
  */
-bool Uart5DmaIsWriteInProgress(void) {
+bool Uart5DmaWriteInProgress(void) {
     return DCH0CONbits.CHEN == 1;
 }
 
@@ -312,8 +312,8 @@ bool Uart5DmaHasReceiveBufferOverrun(void) {
  * @brief Returns true if all data has been transmitted.
  * @return True if all data has been transmitted.
  */
-bool Uart5DmaIsTransmitionComplete(void) {
-    return (Uart5DmaIsWriteInProgress() == false) && (U5STAbits.TRMT == 1);
+bool Uart5DmaTransmitionComplete(void) {
+    return (Uart5DmaWriteInProgress() == false) && (U5STAbits.TRMT == 1);
 }
 
 //------------------------------------------------------------------------------

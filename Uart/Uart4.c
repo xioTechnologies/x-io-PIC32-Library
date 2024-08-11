@@ -182,7 +182,7 @@ bool Uart4HasReceiveBufferOverrun(void) {
  * @brief Returns true if all data has been transmitted.
  * @return True if all data has been transmitted.
  */
-bool Uart4IsTransmitionComplete(void) {
+bool Uart4TransmitionComplete(void) {
     return (EVIC_SourceIsEnabled(INT_SOURCE_UART4_TX) == false) && (U4STAbits.TRMT == 1);
 }
 

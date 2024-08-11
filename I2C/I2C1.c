@@ -139,7 +139,7 @@ static void WaitForInterruptOrTimeout(void) {
 void I2C1BeginMessage(I2CMessage * const message) {
 
     // Do nothing if message in progress
-    if (I2C1IsMessageInProgress()) {
+    if (I2C1MessageInProgress()) {
         return;
     }
 
@@ -159,7 +159,7 @@ void I2C1BeginMessage(I2CMessage * const message) {
  * @brief Returns true if the message is in progress.
  * @return True if the message is in progress.
  */
-bool I2C1IsMessageInProgress(void) {
+bool I2C1MessageInProgress(void) {
     if (TimerGetTicks64() >= messageTimeout) {
         EVIC_SourceDisable(INT_SOURCE_I2C1_MASTER);
     }

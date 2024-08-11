@@ -27,7 +27,7 @@ void Uart3DmaRXWrite(const void* const data, const size_t numberOfBytes);
 void Uart3DmaRXWriteByte(const uint8_t byte);
 void Uart3DmaRXClearWriteBuffer(void);
 bool Uart3DmaRXHasReceiveBufferOverrun(void);
-bool Uart3DmaRXIsTransmitionComplete(void);
+bool Uart3DmaRXTransmitionComplete(void);
 
 #endif
 

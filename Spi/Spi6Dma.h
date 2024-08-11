@@ -21,7 +21,7 @@
 void Spi6DmaInitialise(const SpiSettings * const settings);
 void Spi6DmaDeinitialise(void);
 void Spi6DmaTransfer(const GPIO_PIN csPin_, void* const data_, const size_t numberOfBytes_, void (*transferComplete_)(void));
-bool Spi6DmaIsTransferInProgress(void);
+bool Spi6DmaTransferInProgress(void);
 
 #endif
 

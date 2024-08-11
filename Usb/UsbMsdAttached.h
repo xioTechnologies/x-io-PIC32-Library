@@ -1,12 +1,12 @@
 /**
- * @file UsbMsdIsAttached.h
+ * @file UsbMsdAttached.h
  * @author Seb Madgwick
  * @brief Functions to allow an application to prevent the detection of an
  * attached SD card by MPLAB Harmony.
  */
 
-#ifndef USB_MSD_IS_ATTACHED_H
-#define USB_MSD_IS_ATTACHED_H
+#ifndef USB_MSD_ATTACHED_H
+#define USB_MSD_ATTACHED_H
 
 //------------------------------------------------------------------------------
 // Includes
@@ -17,8 +17,8 @@
 //------------------------------------------------------------------------------
 // Function declarations
 
-bool UsbMsdIsAttachedGet(const DRV_HANDLE handle);
-void UsbMsdIsAttachedSet(const bool isAttached);
+bool UsbMsdAttachedGet(const DRV_HANDLE handle);
+void UsbMsdAttachedSet(const bool isAttached);
 
 #endif
 

@@ -68,7 +68,7 @@ static void APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void * pEventData,
  * @brief Returns true if the USB host is connected.
  * @return True if the USB host is connected.
  */
-bool UsbMsdIsHostConnected(void) {
+bool UsbMsdHostConnected(void) {
     return isHostConnected;
 }
 

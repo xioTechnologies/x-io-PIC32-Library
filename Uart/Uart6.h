@@ -28,7 +28,7 @@ void Uart6WriteByte(const uint8_t byte);
 void Uart6ClearReadBuffer(void);
 void Uart6ClearWriteBuffer(void);
 bool Uart6HasReceiveBufferOverrun(void);
-bool Uart6IsTransmitionComplete(void);
+bool Uart6TransmitionComplete(void);
 
 #endif
 

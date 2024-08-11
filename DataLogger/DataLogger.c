@@ -130,7 +130,7 @@ void DataLoggerTasks(void) {
 static void StateOpenTasks(void) {
 
     // Do nothing if SD card not mounted
-    if (SDCardIsMounted() == false) {
+    if (SDCardMounted() == false) {
         return;
     }
 
@@ -399,7 +399,7 @@ void DataLoggerStop(void) {
  * @brief Returns true if logging is enabled.
  * @return True if logging is enabled.
  */
-bool DataLoggerIsEnabled(void) {
+bool DataLoggerEnabled(void) {
     switch (state) {
         case StateDisabled:
             return false;

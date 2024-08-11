@@ -126,7 +126,7 @@ void EepromErase(void) {
  * @brief Returns true if the EEPROM is blank.
  * @return True if the EEPROM is blank.
  */
-bool EepromIsBlank(void) {
+bool EepromBlank(void) {
     for (int index = 0; index < (EEPROM_HAL_SIZE / EEPROM_HAL_PAGE_SIZE); index++) {
         uint8_t pageData[EEPROM_HAL_PAGE_SIZE];
         EepromRead(index * EEPROM_HAL_PAGE_SIZE, pageData, sizeof (pageData));
