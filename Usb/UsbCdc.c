@@ -41,6 +41,11 @@ static Fifo writeFifo = {.data = writeData, .dataSize = sizeof (writeData)};
  */
 void UsbCdcTasks(void) {
 
+    // Enable/disable VUSB3V3 on PIC32MZ devices
+#ifdef VUSB3V3_ENABLE_PIN
+    GPIO_PinWrite(VUSB3V3_ENABLE_PIN, GPIO_PinRead(VBUS_DETECT_PIN));
+#endif
+
     // Open USB device driver
     if (usbDeviceHandle == USB_DEVICE_HANDLE_INVALID) {
         usbDeviceHandle = USB_DEVICE_Open(USB_DEVICE_INDEX_0, DRV_IO_INTENT_READWRITE);
