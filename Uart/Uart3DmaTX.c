@@ -10,6 +10,7 @@
 #include "definitions.h"
 #include "Fifo.h"
 #include <stdint.h>
+#include "sys/kmem.h"
 #include "Uart3DmaTX.h"
 
 //------------------------------------------------------------------------------
@@ -100,7 +101,7 @@ size_t Uart3DmaTXGetReadAvailable(void) {
     }
 
     // Return number of bytes
-    return CircularBufferGetReadAvailable(&readFifo);
+    return FifoGetReadAvailable(&readFifo);
 }
 
 /**
@@ -111,7 +112,7 @@ size_t Uart3DmaTXGetReadAvailable(void) {
  */
 size_t Uart3DmaTXRead(void* const destination, size_t numberOfBytes) {
     Uart3DmaTXGetReadAvailable(); // process hardware receive buffer
-    return CircularBufferRead(&readFifo, destination, numberOfBytes);
+    return FifoRead(&readFifo, destination, numberOfBytes);
 }
 
 /**
@@ -120,7 +121,7 @@ size_t Uart3DmaTXRead(void* const destination, size_t numberOfBytes) {
  * @return Byte.
  */
 uint8_t Uart3DmaTXReadByte(void) {
-    return CircularBufferReadByte(&readFifo);
+    return FifoReadByte(&readFifo);
 }
 
 /**
@@ -149,7 +150,7 @@ bool Uart3DmaTXWriteInProgress(void) {
  * @brief Clears the read buffer and resets the read buffer overrun flag.
  */
 void Uart3DmaTXClearReadBuffer(void) {
-    CircularBufferClear(&readFifo);
+    FifoClear(&readFifo);
     Uart3DmaTXHasReceiveBufferOverrun();
 }
 
@@ -203,11 +204,11 @@ void Uart3RXInterruptHandler(void) {
  */
 static inline __attribute__((always_inline)) void RXInterruptTasks(void) {
     while (U3STAbits.URXDA == 1) { // repeat while data available in receive buffer
-        if (CircularBufferGetWriteAvailable(&readFifo) == 0) { // if read buffer full
+        if (FifoGetWriteAvailable(&readFifo) == 0) { // if read buffer full
             EVIC_SourceDisable(INT_SOURCE_UART3_RX);
             break;
         } else {
-            CircularBufferWriteByte(&readFifo, U3RXREG);
+            FifoWriteByte(&readFifo, U3RXREG);
         }
     }
     EVIC_SourceStatusClear(INT_SOURCE_UART3_RX);
