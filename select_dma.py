@@ -1,19 +1,10 @@
-def replace_id(strings, id):
-    new_strings = []
-
-    for string in strings:
-        new_strings.append(string.replace("?", str(id)))
-
-    return new_strings
-
-
 def replace_keywords(file_path, keywords, old_ids, new_ids):
     with open(file_path) as file:
         contents = file.read()
 
-    for id_index, _ in enumerate(old_ids):
-        old_keywords = replace_id(keywords, old_ids[id_index])
-        new_keywords = replace_id(keywords, new_ids[id_index])
+    for index, _ in enumerate(old_ids):
+        old_keywords = [k.replace("?", str(old_ids[index])) for k in keywords]
+        new_keywords = [k.replace("?", str(new_ids[index])) for k in keywords]
 
         for keyword_index, _ in enumerate(old_keywords):
             contents = contents.replace(old_keywords[keyword_index], new_keywords[keyword_index])
