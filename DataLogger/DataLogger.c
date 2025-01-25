@@ -296,14 +296,14 @@ static int Write(void) {
     }
 
     // Do nothing else if no data available
-    const int writeIndex = fifo.writeIndex; // avoid asynchronous hazard
+    const size_t writeIndex = fifo.writeIndex; // avoid asynchronous hazard
     if (fifo.readIndex == writeIndex) {
         return 0;
     }
 
     // Calculate number of bytes to write
     size_t numberOfBytes;
-    int newReadIndex;
+    size_t newReadIndex;
     if (writeIndex < fifo.readIndex) {
         numberOfBytes = fifo.dataSize - fifo.readIndex;
         newReadIndex = 0;

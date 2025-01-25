@@ -42,8 +42,8 @@ void EepromRead(const uint16_t address, void* const destination, const size_t nu
     StartSequence(address);
     EepromHalI2CRepeatedStart();
     EepromHalI2CSend(I2CSlaveAddressRead(EEPROM_HAL_I2C_ADDRESS));
-    const int endIndex = numberOfBytes - 1;
-    int destinationIndex = 0;
+    const size_t endIndex = numberOfBytes - 1;
+    size_t destinationIndex = 0;
     while (destinationIndex < numberOfBytes) {
         const bool ack = destinationIndex < endIndex;
         ((uint8_t*) destination)[destinationIndex] = EepromHalI2CReceive(ack);
@@ -186,7 +186,7 @@ static void PrintLine(const uint16_t address, const uint8_t * const data) {
     }
 
     // Print data
-    for (int index = 0; index < PRINT_LINE_LENGTH; index++) {
+    for (size_t index = 0; index < PRINT_LINE_LENGTH; index++) {
         if ((data[index] >= 0x20) && (data[index] <= 0x7E)) { // if printable character
             printf(" %c ", (char) data[index]);
         } else {

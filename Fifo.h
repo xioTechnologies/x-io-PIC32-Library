@@ -30,8 +30,8 @@
 typedef struct {
     uint8_t* data;
     size_t dataSize;
-    int writeIndex;
-    int readIndex;
+    size_t writeIndex;
+    size_t readIndex;
 } Fifo;
 
 //------------------------------------------------------------------------------
@@ -43,7 +43,7 @@ typedef struct {
  * @return Number of bytes available in the buffer.
  */
 static inline __attribute__((always_inline)) size_t FifoGetReadAvailable(Fifo * const fifo) {
-    const int writeIndex = fifo->writeIndex; // avoid asynchronous hazard
+    const size_t writeIndex = fifo->writeIndex; // avoid asynchronous hazard
     if (writeIndex < fifo->readIndex) {
         return fifo->dataSize - fifo->readIndex + writeIndex;
     } else {
@@ -100,7 +100,7 @@ static inline __attribute__((always_inline)) uint8_t FifoReadByte(Fifo * const f
  * @return Space available in the buffer.
  */
 static inline __attribute__((always_inline)) size_t FifoGetWriteAvailable(Fifo * const fifo) {
-    const int readIndex = fifo->readIndex; // avoid asynchronous hazard
+    const size_t readIndex = fifo->readIndex; // avoid asynchronous hazard
     if (fifo->writeIndex < readIndex) {
         return (fifo->dataSize - 1) - (fifo->dataSize - readIndex) - fifo->writeIndex;
     } else {

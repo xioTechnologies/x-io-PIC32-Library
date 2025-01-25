@@ -166,7 +166,7 @@ void Uart4ClearWriteBuffer(void) {
 }
 
 /**
- * @brief Returns true if the hardware receive buffer has overrun. Calling this
+ * @brief Returns true if the hardware receive buffer has overrun.  Calling this
  * function will reset the flag.
  * @return True if the hardware receive buffer has overrun.
  */

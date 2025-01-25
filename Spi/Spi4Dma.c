@@ -207,7 +207,7 @@ bool Spi4DmaTransferInProgress(void) {
  * @brief Prints data.
  */
 static void PrintData(void) {
-    for (int index = 0; index < numberOfBytes; index++) {
+    for (size_t index = 0; index < numberOfBytes; index++) {
         printf(" %02X", ((uint8_t*) data)[index]);
     }
     printf("\n");
