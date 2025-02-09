@@ -54,6 +54,9 @@ void Uart2DmaInitialise(const UartSettings * const settings, const UartDmaReadCo
     U2BRG = UartCalculateUxbrg(settings->baudRate);
     U2MODEbits.ON = 1; // UARTx is enabled. UARTx pins are controlled by UARTx as defined by UEN<1:0> and UTXEN control bits
 
+    // Enable DMA
+    DMACONbits.ON = 1;
+
     // Configure TX DMA channel
     DCH0ECONbits.CHSIRQ = _UART2_TX_VECTOR;
     DCH0ECONbits.SIRQEN = 1; // Start channel cell transfer if an interrupt matching CHSIRQ occurs

@@ -70,6 +70,9 @@ void Uart1DmaRXInitialise(const UartSettings * const settings, const UartDmaRead
         validReadConditions.timeout = 1000;
     }
 
+    // Enable DMA
+    DMACONbits.ON = 1;
+
     // Configure RX DMA channel
     DCH0ECONbits.CHAIRQ = _TIMER_9_VECTOR;
     DCH0ECONbits.CHSIRQ = _UART1_RX_VECTOR;

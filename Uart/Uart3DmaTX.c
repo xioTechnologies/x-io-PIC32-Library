@@ -54,6 +54,9 @@ void Uart3DmaTXInitialise(const UartSettings * const settings) {
     U3BRG = UartCalculateUxbrg(settings->baudRate);
     U3MODEbits.ON = 1; // UARTx is enabled. UARTx pins are controlled by UARTx as defined by UEN<1:0> and UTXEN control bits
 
+    // Enable DMA
+    DMACONbits.ON = 1;
+
     // Configure TX DMA channel
     DCH0ECONbits.CHSIRQ = _UART3_TX_VECTOR;
     DCH0ECONbits.SIRQEN = 1; // Start channel cell transfer if an interrupt matching CHSIRQ occurs

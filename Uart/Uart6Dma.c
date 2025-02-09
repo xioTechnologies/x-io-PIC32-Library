@@ -54,6 +54,9 @@ void Uart6DmaInitialise(const UartSettings * const settings, const UartDmaReadCo
     U6BRG = UartCalculateUxbrg(settings->baudRate);
     U6MODEbits.ON = 1; // UARTx is enabled. UARTx pins are controlled by UARTx as defined by UEN<1:0> and UTXEN control bits
 
+    // Enable DMA
+    DMACONbits.ON = 1;
+
     // Configure TX DMA channel
     DCH0ECONbits.CHSIRQ = _UART6_TX_VECTOR;
     DCH0ECONbits.SIRQEN = 1; // Start channel cell transfer if an interrupt matching CHSIRQ occurs
