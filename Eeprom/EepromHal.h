@@ -18,7 +18,7 @@
 // Definitions
 
 /**
- * @brief EEPROM I2C slave address.
+ * @brief EEPROM I2C client address.
  */
 #define EEPROM_HAL_I2C_ADDRESS (0x50)
 

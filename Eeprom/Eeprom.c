@@ -9,7 +9,7 @@
 
 #include "Eeprom.h"
 #include "EepromHal.h"
-#include "I2C/I2CSlaveAddress.h"
+#include "I2C/I2CClientAddress.h"
 #include "I2C/I2CStartSequence.h"
 #include <stdbool.h>
 #include <stdio.h> // printf
@@ -41,7 +41,7 @@ static void PrintLine(const uint16_t address, const uint8_t * const data);
 void EepromRead(const uint16_t address, void* const destination, const size_t numberOfBytes) {
     StartSequence(address);
     EepromHalI2CRepeatedStart();
-    EepromHalI2CSend(I2CSlaveAddressRead(EEPROM_HAL_I2C_ADDRESS));
+    EepromHalI2CSend(I2CClientAddressRead(EEPROM_HAL_I2C_ADDRESS));
     const size_t endIndex = numberOfBytes - 1;
     size_t destinationIndex = 0;
     while (destinationIndex < numberOfBytes) {

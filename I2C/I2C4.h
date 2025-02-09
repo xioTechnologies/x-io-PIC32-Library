@@ -12,7 +12,7 @@
 
 #include "I2C.h"
 #include "I2CMessage.h"
-#include "I2CSlaveAddress.h"
+#include "I2CClientAddress.h"
 #include <stdbool.h>
 #include <stdint.h>
 

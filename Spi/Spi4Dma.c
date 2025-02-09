@@ -50,7 +50,7 @@ void Spi4DmaInitialise(const SpiSettings * const settings) {
     Spi4DmaDeinitialise();
 
     // Configure SPI
-    SPI4CONbits.MSTEN = 1; // Master mode
+    SPI4CONbits.MSTEN = 1; // Host mode
     SPI4CONbits.SMP = 1; // Input data sampled at end of data output time
     SPI4CONbits.CKP = settings->clockPolarity;
     SPI4CONbits.CKE = settings->clockPhase;

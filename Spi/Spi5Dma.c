@@ -50,7 +50,7 @@ void Spi5DmaInitialise(const SpiSettings * const settings) {
     Spi5DmaDeinitialise();
 
     // Configure SPI
-    SPI5CONbits.MSTEN = 1; // Master mode
+    SPI5CONbits.MSTEN = 1; // Host mode
     SPI5CONbits.SMP = 1; // Input data sampled at end of data output time
     SPI5CONbits.CKP = settings->clockPolarity;
     SPI5CONbits.CKE = settings->clockPhase;
