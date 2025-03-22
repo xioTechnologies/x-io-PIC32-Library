@@ -30,12 +30,12 @@ static void PrintData(void);
 //------------------------------------------------------------------------------
 // Variables
 
+static GPIO_PIN csPin;
+static void (*transferComplete)(void);
 #ifdef PRINT_TRANSFERS
 static void* data;
 static size_t numberOfBytes;
 #endif
-static GPIO_PIN csPin;
-static void (*transferComplete)(void);
 
 //------------------------------------------------------------------------------
 // Functions
@@ -193,14 +193,6 @@ void Dma1InterruptHandler(void) {
     }
 }
 
-/**
- * @brief Returns true while the transfer is in progress.
- * @return True while the transfer is in progress.
- */
-bool Spi4DmaTransferInProgress(void) {
-    return DCH1CONbits.CHEN == 1; // if RX DMA channel interrupt enabled
-}
-
 #ifdef PRINT_TRANSFERS
 
 /**
@@ -214,6 +206,14 @@ static void PrintData(void) {
 }
 
 #endif
+
+/**
+ * @brief Returns true while the transfer is in progress.
+ * @return True while the transfer is in progress.
+ */
+bool Spi4DmaTransferInProgress(void) {
+    return DCH1CONbits.CHEN == 1; // if RX DMA channel interrupt enabled
+}
 
 //------------------------------------------------------------------------------
 // End of file
