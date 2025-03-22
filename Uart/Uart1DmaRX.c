@@ -170,9 +170,9 @@ void Uart1DmaRXDeinitialise(void) {
  * @param read Read callback function.
  */
 void Uart1DmaRXSetReadCallback(void (*read_)(const void* const data, const size_t numberOfBytes)) {
-    EVIC_SourceDisable(INT_SOURCE_DMA0);
+    const bool state = EVIC_INT_SourceDisable(INT_SOURCE_DMA0);
     read = read_;
-    EVIC_SourceEnable(INT_SOURCE_DMA0);
+    EVIC_INT_SourceRestore(INT_SOURCE_DMA0, state);
 }
 
 /**

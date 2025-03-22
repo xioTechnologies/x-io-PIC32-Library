@@ -187,9 +187,9 @@ void Uart4DmaDeinitialise(void) {
  * @param read_ Read callback function.
  */
 void Uart4DmaSetReadCallback(void (*read_)(const void* const data, const size_t numberOfBytes)) {
-    EVIC_SourceDisable(INT_SOURCE_DMA1);
+    const bool state = EVIC_INT_SourceDisable(INT_SOURCE_DMA1);
     read = read_;
-    EVIC_SourceEnable(INT_SOURCE_DMA1);
+    EVIC_INT_SourceRestore(INT_SOURCE_DMA1, state);
 }
 
 /**
