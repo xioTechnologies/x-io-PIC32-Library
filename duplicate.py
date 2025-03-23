@@ -25,8 +25,15 @@ duplicate(
 )
 
 duplicate(
+    ("InputCapture/InputCapture?.c", "InputCapture/InputCapture?.h"),
+    ("InputCapture?", "IC?", "INPUT_CAPTURE_?"),
+    1,
+    (2, 3, 4, 5, 6, 7, 8, 9),
+)
+
+duplicate(
     ("Pwm/Pwm?.c", "Pwm/Pwm?.h"),
-    ("Pwm?", "PWM?", "OC?"),
+    ("Pwm?", "PWM_?", "OC?"),
     1,
     (2, 3, 4, 5, 6, 7, 8, 9),
 )
