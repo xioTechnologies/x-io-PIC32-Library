@@ -35,8 +35,8 @@ static inline __attribute__((always_inline)) void NeoPixelsHalSpiInitialise(cons
 }
 
 /**
- * @brief Transfers data.  The data will be overwritten with the received data.
- * This function must not be called while a transfer is in progress.  The
+ * @brief Transfers data. The data will be overwritten with the received data.
+ * This function must not be called while a transfer is in progress. The
  * callback function will be called from within an interrupt once the transfer
  * is complete.
  * @param csPin CS pin.

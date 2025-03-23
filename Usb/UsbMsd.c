@@ -25,7 +25,7 @@ static bool isHostConnected;
 // Functions
 
 /**
- * @brief Module tasks.  This function should be called repeatedly within the
+ * @brief Module tasks. This function should be called repeatedly within the
  * main program loop.
  */
 void UsbMsdTasks(void) {

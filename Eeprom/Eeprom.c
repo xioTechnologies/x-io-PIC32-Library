@@ -19,7 +19,7 @@
 // Definitions
 
 /**
- * @brief Print line length.  Must be a multiple of the EEPROM size.
+ * @brief Print line length. Must be a multiple of the EEPROM size.
  */
 #define PRINT_LINE_LENGTH (32)
 
@@ -101,7 +101,7 @@ void EepromUpdate(uint16_t address, const void* const data, const size_t numberO
 }
 
 /**
- * @brief Start sequence common to read and write operations.  Implements
+ * @brief Start sequence common to read and write operations. Implements
  * acknowledge polling to minimise delay while device is engaged in write
  * cycle.
  * @param address Address.
@@ -113,7 +113,7 @@ static void StartSequence(const uint16_t address) {
 }
 
 /**
- * @brief Erases the EEPROM.  All data bytes are set to 0xFF.
+ * @brief Erases the EEPROM. All data bytes are set to 0xFF.
  */
 void EepromErase(void) {
     const uint8_t blankPage[] = {[0 ... (EEPROM_HAL_PAGE_SIZE - 1)] = 0xFF};
@@ -173,7 +173,7 @@ void EepromPrint(void) {
 
 /**
  * @brief Prints line.
- * @param address Address.  0xFFFF for ellipses.
+ * @param address Address. 0xFFFF for ellipses.
  * @param data Data.
  */
 static void PrintLine(const uint16_t address, const uint8_t * const data) {

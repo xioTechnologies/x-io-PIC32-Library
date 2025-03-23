@@ -1,7 +1,7 @@
 /**
  * @file Uart1DmaTX.h
  * @author Seb Madgwick
- * @brief UART driver for PIC32 devices.  DMA used for TX only.
+ * @brief UART driver for PIC32 devices. DMA used for TX only.
  */
 
 #ifndef UART1_DMA_TX_H

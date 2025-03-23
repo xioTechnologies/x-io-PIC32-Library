@@ -36,7 +36,7 @@ typedef enum {
 } I2CMessageEvent;
 
 /**
- * @brief I2C message structure.  Structure members are used internally and must
+ * @brief I2C message structure. Structure members are used internally and must
  * not be accessed by the application.
  */
 typedef struct {

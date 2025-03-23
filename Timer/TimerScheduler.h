@@ -19,7 +19,7 @@
 // Definitions
 
 /**
- * @brief Scheduler structure.  Structure members are used internally and must
+ * @brief Scheduler structure. Structure members are used internally and must
  * not be accessed by the application.
  */
 typedef struct {
@@ -30,8 +30,8 @@ typedef struct {
 } TimerScheduler;
 
 /**
- * @brief Returns true if the period has elapsed.  The period starts on the
- * first function call.  A period of zero or infinity will always return false.
+ * @brief Returns true if the period has elapsed. The period starts on the
+ * first function call. A period of zero or infinity will always return false.
  * @param scheduler Scheduler structure.
  * @param period Period in seconds.
  */
@@ -44,8 +44,8 @@ typedef struct {
 // Inline functions
 
 /**
- * @brief Returns true if the period has elapsed.  The period starts on the
- * first function call.  A period of zero or infinity will always return false.
+ * @brief Returns true if the period has elapsed. The period starts on the
+ * first function call. A period of zero or infinity will always return false.
  * @param scheduler Scheduler structure.
  * @param period Period in seconds.
  * @return True if the period has elapsed.

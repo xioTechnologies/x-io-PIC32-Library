@@ -1,7 +1,7 @@
 /**
  * @file Uart1DmaRX.h
  * @author Seb Madgwick
- * @brief UART driver using DMA for PIC32 devices.  DMA used for RX only.
+ * @brief UART driver using DMA for PIC32 devices. DMA used for RX only.
  */
 
 #ifndef UART1_DMA_RX_H

@@ -60,7 +60,7 @@ static SYS_FS_HANDLE directoryHandle = SYS_FS_HANDLE_INVALID;
 // Functions
 
 /**
- * @brief Module tasks.  This function should be called repeatedly within the
+ * @brief Module tasks. This function should be called repeatedly within the
  * main program loop.
  */
 void SDCardTasks(void) {
@@ -163,7 +163,7 @@ void SDCardSetVolumeLabel(const char* const label) {
 }
 
 /**
- * @brief Opens a file.  Writing a file that already exists will overwrite the
+ * @brief Opens a file. Writing a file that already exists will overwrite the
  * existing file.
  * @param fileName File name.
  * @param write True to write a file.
@@ -207,7 +207,7 @@ SDCardError SDCardFileOpen(const char* const filePath, const bool write) {
  * @brief Changes the directory to that of the file path.
  * @param filePath File path.
  * @param createDirectory True to create the directory.
- * @return File name.  NULL if a file system error occurred.
+ * @return File name. NULL if a file system error occurred.
  */
 static const char* ChangeDirectory(const char* const filePath, const bool createDirectory) {
 
@@ -279,7 +279,7 @@ size_t SDCardFileRead(void* const destination, const size_t destinationSize) {
 }
 
 /**
- * @brief Reads a string from the file.  This function will read until a '\n' is
+ * @brief Reads a string from the file. This function will read until a '\n' is
  * read or the end of file is reached.
  * @param destination Destination.
  * @param destinationSize Destination size.
@@ -318,7 +318,7 @@ SDCardError SDCardFileWrite(const void* const data, const size_t numberOfBytes) 
 }
 
 /**
- * @brief Writes a string to the file.  The terminating null character will not
+ * @brief Writes a string to the file. The terminating null character will not
  * be written.
  * @param sring String.
  * @return SD card error.
@@ -355,7 +355,7 @@ void SDCardFileClose(void) {
 
 /**
  * @brief Opens a directory.
- * @param directory Directory.  "" if root.
+ * @param directory Directory. "" if root.
  */
 void SDCardDirectoryOpen(const char* const directory) {
     if (SYS_FS_DirectoryChange("/") != SYS_FS_RES_SUCCESS) {
@@ -373,11 +373,11 @@ void SDCardDirectoryOpen(const char* const directory) {
 }
 
 /**
- * @brief Searches the directory for files matching the file name.  The file
- * name can include wild cards (e.g. "*" to match all files).  If multiple files
+ * @brief Searches the directory for files matching the file name. The file
+ * name can include wild cards (e.g. "*" to match all files). If multiple files
  * match the file name then this function can be called in a loop to retrieve
- * the file details for each file.  If no files match the file name then the
- * file name provided in the file details will be an empty string.  The
+ * the file details for each file. If no files match the file name then the
+ * file name provided in the file details will be an empty string. The
  * directory must be closed and reopened for each new search.
  * @param fileName File name.
  * @param fileDetails File details.
@@ -424,8 +424,8 @@ void SDCardDirectorySearch(const char* const fileName, SDCardFileDetails * const
 
 /**
  * @brief Returns true if any files matching the file name exist in the
- * directory.  The file name can include wild cards (e.g. "*.txt" to match all
- * text files).  This function is optimised to be called in a loop to check the
+ * directory. The file name can include wild cards (e.g. "*.txt" to match all
+ * text files). This function is optimised to be called in a loop to check the
  * exitance of multiple files that were written in the same order as being
  * checked by the loop.
  * @param fileName File name.
@@ -467,7 +467,7 @@ void SDCardDirectoryClose(void) {
 
 /**
  * @brief Prints the contents of a directory.
- * @param directory Directory.  "" if root.
+ * @param directory Directory. "" if root.
  */
 void SDCardPrintDirectory(const char* const directory) {
     SDCardDirectoryOpen(directory);

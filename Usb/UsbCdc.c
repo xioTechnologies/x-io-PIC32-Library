@@ -36,7 +36,7 @@ static Fifo writeFifo = {.data = writeData, .dataSize = sizeof (writeData)};
 // Functions
 
 /**
- * @brief Module tasks.  This function should be called repeatedly within the
+ * @brief Module tasks. This function should be called repeatedly within the
  * main program loop.
  */
 void UsbCdcTasks(void) {
@@ -205,7 +205,7 @@ size_t UsbCdcRead(void* const destination, size_t numberOfBytes) {
 }
 
 /**
- * @brief Reads a byte from the read buffer.  This function must only be called
+ * @brief Reads a byte from the read buffer. This function must only be called
  * if there are bytes available in the read buffer.
  * @return Byte.
  */

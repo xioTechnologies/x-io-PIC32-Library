@@ -27,7 +27,7 @@ typedef enum {
 } OnChangeEdge;
 
 /**
- * @brief On change structure.  Structure members are used internally and must
+ * @brief On change structure. Structure members are used internally and must
  * not be accessed by the application.
  */
 typedef struct {

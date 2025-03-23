@@ -108,7 +108,7 @@ void DataLoggerSetCallbacks(const DataLoggerCallbacks * const callbacks_) {
 }
 
 /**
- * @brief Module tasks.  This function should be called repeatedly within the
+ * @brief Module tasks. This function should be called repeatedly within the
  * main program loop.
  */
 void DataLoggerTasks(void) {

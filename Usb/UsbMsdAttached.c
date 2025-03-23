@@ -20,7 +20,7 @@ static bool isAttached;
 
 /**
  * @brief Returns true if the SD card is attached and the application has not
- * prevented the USB stack from detecting this.  This function should be used
+ * prevented the USB stack from detecting this. This function should be used
  * instead of DRV_SDSPI_IsAttached in usb_device_init_data.c.
  * @param handle Handle
  * @return True if the SD card is attached and the application has not prevented

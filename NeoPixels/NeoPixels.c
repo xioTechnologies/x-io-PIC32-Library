@@ -37,7 +37,7 @@ typedef struct {
 // Functions
 
 /**
- * @brief Initialises the module.  This function must only be called once, on
+ * @brief Initialises the module. This function must only be called once, on
  * system startup.
  */
 void NeoPixelsInitialise(void) {
@@ -48,7 +48,7 @@ void NeoPixelsInitialise(void) {
 
 /**
  * @brief Sets the NeoPixels.
- * @param pixels Pixels.  The array length must be NEOPIXELS_NUMBER_OF_PIXELS.
+ * @param pixels Pixels. The array length must be NEOPIXELS_NUMBER_OF_PIXELS.
  */
 void NeoPixelsSet(const NeoPixelsPixel * const pixels) {
 

@@ -81,7 +81,7 @@ void I2CMessageReceive(I2CMessage * const message, uint8_t * const destination, 
 
 /**
  * @brief Appends a stop event to the I2C message.
- * @param Message complete callback function.  This callback function will be
+ * @param Message complete callback function. This callback function will be
  * called from within an interrupt once the message is complete.
  * @param message Message.
  */

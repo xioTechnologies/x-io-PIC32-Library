@@ -18,7 +18,7 @@
 // Definitions
 
 /**
- * @brief FIFO structure.  Structure members are used internally and must not
+ * @brief FIFO structure. Structure members are used internally and must not
  * be accessed by the application except for initialisation.
  *
  * Example:
@@ -81,7 +81,7 @@ static inline __attribute__((always_inline)) size_t FifoRead(Fifo * const fifo, 
 }
 
 /**
- * @brief Reads a byte from the FIFO.  This function must only be called if
+ * @brief Reads a byte from the FIFO. This function must only be called if
  * there are bytes available to read.
  * @param fifo FIFO structure.
  * @return Byte.

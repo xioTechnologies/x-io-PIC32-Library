@@ -31,7 +31,7 @@ typedef struct {
 // Function declarations
 
 /**
- * @brief Performs the bus clear procedure.  This procedure should be performed
+ * @brief Performs the bus clear procedure. This procedure should be performed
  * if the SDA line is stuck low.
  * See page 20 of UM10204 I2C-bus specification and user manual Rev. 6 - 4 April
  * 2014.

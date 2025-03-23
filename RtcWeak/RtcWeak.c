@@ -26,7 +26,7 @@ static RtcTime time = {
 // Functions
 
 /**
- * @brief Gets the time.  This function should be overridden by the application
+ * @brief Gets the time. This function should be overridden by the application
  * RTC driver.
  * @param time Time.
  */
@@ -35,7 +35,7 @@ __attribute__((weak)) void RtcGetTime(RtcTime * const time_) {
 }
 
 /**
- * @brief Gets the time.  This function should be overridden by the application
+ * @brief Gets the time. This function should be overridden by the application
  * RTC driver.
  * @param time Time.
  */
