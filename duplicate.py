@@ -1,4 +1,4 @@
-def copy(files, keywords, source_id, destination_ids):
+def duplicate(files, keywords, source_id, destination_ids):
     source_files = [f.replace("?", str(source_id)) for f in files]
     source_keywords = [k.replace("?", str(source_id)) for k in keywords]
 
@@ -17,17 +17,30 @@ def copy(files, keywords, source_id, destination_ids):
                 file.write(contents)
 
 
-files = ["I2C/I2C?.c", "I2C/I2C?.h"]
-keywords = ["I2C?"]
+duplicate(
+    ("I2C/I2C?.c", "I2C/I2C?.h"),
+    ("I2C?",),
+    1,
+    (2, 3, 4, 5),
+)
 
-copy(files, keywords, 1, [2, 3, 4, 5])
+duplicate(
+    ("Pwm/Pwm?.c", "Pwm/Pwm?.h"),
+    ("Pwm?", "PWM?", "OC?"),
+    1,
+    (2, 3, 4, 5, 6, 7, 8, 9),
+)
 
-files = ["Spi/Spi?Dma.c", "Spi/Spi?Dma.h"]
-keywords = ["Spi?", "SPI?"]
+duplicate(
+    ("Spi/Spi?Dma.c", "Spi/Spi?Dma.h"),
+    ("Spi?", "SPI?"),
+    1,
+    (2, 3, 4, 5, 6),
+)
 
-copy(files, keywords, 1, [2, 3, 4, 5, 6])
-
-files = ["Uart/Uart?.c", "Uart/Uart?.h", "Uart/Uart?Dma.c", "Uart/Uart?Dma.h", "Uart/Uart?DmaRX.c", "Uart/Uart?DmaRX.h", "Uart/Uart?DmaTX.c", "Uart/Uart?DmaTX.h"]
-keywords = ["Uart?", "U?", "UART?", "UART_?"]
-
-copy(files, keywords, 1, [2, 3, 4, 5, 6])
+duplicate(
+    ("Uart/Uart?.c", "Uart/Uart?.h", "Uart/Uart?Dma.c", "Uart/Uart?Dma.h", "Uart/Uart?DmaRX.c", "Uart/Uart?DmaRX.h", "Uart/Uart?DmaTX.c", "Uart/Uart?DmaTX.h"),
+    ("Uart?", "U?", "UART?", "UART_?"),
+    1,
+    (2, 3, 4, 5, 6),
+)

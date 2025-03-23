@@ -37,7 +37,7 @@ for root, _, file_names in os.walk(os.path.dirname(os.path.realpath(__file__))):
         include_lines.sort(key=lambda line: line.upper())
 
         # Use angle brackets for standard libraries (https://en.wikipedia.org/wiki/C_standard_library)
-        standard_libraries = [
+        standard_libraries = (
             '"assert.h"',
             '"complex.h"',
             '"ctype.h"',
@@ -68,7 +68,7 @@ for root, _, file_names in os.walk(os.path.dirname(os.path.realpath(__file__))):
             '"uchar.h"',
             '"wchar.h"',
             '"wctype.h",',
-        ]
+        )
 
         for index, _ in enumerate(include_lines):
             for standard_library in standard_libraries:

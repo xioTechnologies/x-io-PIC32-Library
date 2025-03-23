@@ -1,4 +1,4 @@
-def replace_keywords(file_path, keywords, old_ids, new_ids):
+def replace(file_path, keywords, old_ids, new_ids):
     with open(file_path) as file:
         contents = file.read()
 
@@ -13,12 +13,12 @@ def replace_keywords(file_path, keywords, old_ids, new_ids):
         file.write(contents)
 
 
-keywords = ["DCH?", "Dma?", "DMA?"]
+keywords = ("DCH?", "Dma?", "DMA?")
 
-replace_keywords("Spi/Spi1Dma.c", keywords, [0, 1], [2, 3])
+replace("Spi/Spi1Dma.c", keywords, (0, 1), (2, 3))
 
-replace_keywords("Uart/Uart1Dma.c", keywords, [0, 1, 2], [3, 4, 5])
+replace("Uart/Uart1Dma.c", keywords, (0, 1, 2), (3, 4, 5))
 
-replace_keywords("Uart/Uart1DmaRX.c", keywords, [0, 1], [2, 3])
+replace("Uart/Uart1DmaRX.c", keywords, (0, 1), (2, 3))
 
-replace_keywords("Uart/Uart1DmaTX.c", keywords, [0], [1])
+replace("Uart/Uart1DmaTX.c", keywords, (0,), (1,))
