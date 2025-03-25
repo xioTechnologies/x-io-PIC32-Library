@@ -10,8 +10,8 @@
 #include "definitions.h"
 #include "SDCard.h"
 #include <stdarg.h>
-#include <stdio.h> // printf, snprintf
-#include <string.h> // memset, strcpy, strlen, strrchr, strncat, strncpy, strtok
+#include <stdio.h>
+#include <string.h>
 
 //------------------------------------------------------------------------------
 // Definitions

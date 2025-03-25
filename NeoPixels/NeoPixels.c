@@ -11,7 +11,7 @@
 #include "NeoPixels.h"
 #include "NeoPixelsHal.h"
 #include <stddef.h>
-#include <string.h> // memcpy, memset
+#include <string.h>
 
 //------------------------------------------------------------------------------
 // Definitions

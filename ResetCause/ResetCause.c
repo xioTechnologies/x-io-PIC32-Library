@@ -10,7 +10,7 @@
 #include "definitions.h"
 #include "ResetCause.h"
 #include <stdbool.h>
-#include <stdio.h> // printf
+#include <stdio.h>
 
 //------------------------------------------------------------------------------
 // Functions

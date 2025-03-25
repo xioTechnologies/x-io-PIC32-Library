@@ -12,8 +12,8 @@
 #include "I2C/I2CClientAddress.h"
 #include "I2C/I2CStartSequence.h"
 #include <stdbool.h>
-#include <stdio.h> // printf
-#include <string.h> // memcmp
+#include <stdio.h>
+#include <string.h>
 
 //------------------------------------------------------------------------------
 // Definitions

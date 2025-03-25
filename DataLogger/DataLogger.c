@@ -13,8 +13,8 @@
 #include "Rtc/Rtc.h"
 #include "SDCard/SDCard.h"
 #include <stdbool.h>
-#include <stdio.h> // printf, snprintf, sscanf
-#include <string.h> // strcpy, strlen
+#include <stdio.h>
+#include <string.h>
 #include "Timer/Timer.h"
 
 //------------------------------------------------------------------------------

@@ -8,7 +8,7 @@
 // Includes
 
 #include "definitions.h"
-#include <stdio.h> // snprintf
+#include <stdio.h>
 
 //------------------------------------------------------------------------------
 // Functions

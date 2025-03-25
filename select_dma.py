@@ -1,15 +1,15 @@
-def replace(file_path, keywords, old_ids, new_ids):
-    with open(file_path) as file:
+def replace(path, keywords, old_ids, new_ids):
+    with open(path) as file:
         contents = file.read()
 
-    for index, _ in enumerate(old_ids):
-        old_keywords = [k.replace("?", str(old_ids[index])) for k in keywords]
-        new_keywords = [k.replace("?", str(new_ids[index])) for k in keywords]
+    for old_id, new_id in zip(old_ids, new_ids):
+        old_keywords = [k.replace("?", str(old_id)) for k in keywords]
+        new_keywords = [k.replace("?", str(new_id)) for k in keywords]
 
-        for keyword_index, _ in enumerate(old_keywords):
-            contents = contents.replace(old_keywords[keyword_index], new_keywords[keyword_index])
+        for old_keyword, new_keyword in zip(old_keywords, new_keywords):
+            contents = contents.replace(old_keyword, new_keyword)
 
-    with open(file_path, "w") as file:
+    with open(path, "w") as file:
         file.write(contents)
 
 

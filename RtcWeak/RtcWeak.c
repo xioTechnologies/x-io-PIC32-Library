@@ -8,7 +8,7 @@
 // Includes
 
 #include "RtcWeak.h"
-#include <stdio.h> // snprintf, sscanf
+#include <stdio.h>
 
 //------------------------------------------------------------------------------
 // Variables

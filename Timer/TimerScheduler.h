@@ -10,7 +10,7 @@
 //------------------------------------------------------------------------------
 // Includes
 
-#include <math.h> // isinf
+#include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include "Timer.h"

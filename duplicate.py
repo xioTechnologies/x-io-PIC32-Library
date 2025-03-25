@@ -6,14 +6,14 @@ def duplicate(files, keywords, source_id, destination_ids):
         destination_files = [f.replace("?", str(id)) for f in files]
         destination_keywords = [k.replace("?", str(id)) for k in keywords]
 
-        for files_index, _ in enumerate(source_files):
-            with open(source_files[files_index]) as file:
+        for index, _ in enumerate(source_files):
+            with open(source_files[index]) as file:
                 contents = file.read()
 
             for keyword_index, _ in enumerate(source_keywords):
                 contents = contents.replace(source_keywords[keyword_index], destination_keywords[keyword_index])
 
-            with open(destination_files[files_index], "w") as file:
+            with open(destination_files[index], "w") as file:
                 file.write(contents)
 
 
