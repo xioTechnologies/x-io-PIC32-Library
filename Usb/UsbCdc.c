@@ -23,7 +23,7 @@ static void WriteTasks(void);
 // Variables
 
 static USB_DEVICE_HANDLE usbDeviceHandle = USB_DEVICE_HANDLE_INVALID;
-static bool isHostConnected;
+static bool hostConnected;
 static uint8_t __attribute__((coherent)) readRequestData[512]; // must be declared __attribute__((coherent)) for PIC32MZ devices
 static bool readInProgress;
 static bool writeInProgress;
@@ -50,7 +50,7 @@ void UsbCdcTasks(void) {
     }
 
     // CDC read/write tasks
-    if (isHostConnected) {
+    if (hostConnected) {
         ReadTasks();
         WriteTasks();
     }
@@ -64,14 +64,14 @@ static void APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void * eventData, 
         case USB_DEVICE_EVENT_RESET:
         case USB_DEVICE_EVENT_SUSPENDED:
         case USB_DEVICE_EVENT_DECONFIGURED:
-            isHostConnected = false;
+            hostConnected = false;
             readInProgress = false;
             writeInProgress = false;
             break;
         case USB_DEVICE_EVENT_CONFIGURED:
             if (((USB_DEVICE_EVENT_DATA_CONFIGURED *) eventData)->configurationValue == 1) {
                 USB_DEVICE_CDC_EventHandlerSet(USB_DEVICE_CDC_INDEX_0, APP_USBDeviceCDCEventHandler, (uintptr_t) NULL);
-                isHostConnected = true;
+                hostConnected = true;
             }
             break;
         case USB_DEVICE_EVENT_POWER_DETECTED:
@@ -79,7 +79,7 @@ static void APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void * eventData, 
             break;
         case USB_DEVICE_EVENT_POWER_REMOVED:
             USB_DEVICE_Detach(usbDeviceHandle);
-            isHostConnected = false;
+            hostConnected = false;
             readInProgress = false;
             writeInProgress = false;
             break;
@@ -183,7 +183,7 @@ static void WriteTasks(void) {
  * @return True if the USB host is connected.
  */
 bool UsbCdcHostConnected(void) {
-    return isHostConnected;
+    return hostConnected;
 }
 
 /**
