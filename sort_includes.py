@@ -32,6 +32,8 @@ for path in paths:
     for index, include_line in enumerate(include_lines):
         include_lines[index] = include_line.split('"')[0] + '"' + include_line.split('"')[1] + '"\n'
 
+    include_lines.sort(key=lambda line: line.upper())
+
     standard_libraries = (
         '"assert.h"',
         '"complex.h"',
