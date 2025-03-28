@@ -42,7 +42,6 @@ void InputCapture6Initialise(const InputCaptureEdge edge, void (*captureEvent_)(
 
     // Configure interrupt
     captureEvent = captureEvent_;
-    EVIC_SourceStatusClear(INT_SOURCE_INPUT_CAPTURE_6);
     EVIC_SourceEnable(INT_SOURCE_INPUT_CAPTURE_6);
 
     // Enable

@@ -37,10 +37,8 @@ void TimerInitialise(void) {
 
     // Configure interrupt
 #ifdef __PIC32MM__
-    EVIC_SourceStatusClear(INT_SOURCE_CCT1);
     EVIC_SourceEnable(INT_SOURCE_CCT1);
 #else
-    EVIC_SourceStatusClear(INT_SOURCE_TIMER_3);
     EVIC_SourceEnable(INT_SOURCE_TIMER_3);
 #endif
 }

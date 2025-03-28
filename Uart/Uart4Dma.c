@@ -114,7 +114,6 @@ void Uart4DmaInitialise(const UartSettings * const settings, const UartDmaReadCo
     T8CONbits.ON = 1;
 
     // Configure RX DMA channel interrupt
-    EVIC_SourceStatusClear(INT_SOURCE_DMA1);
     EVIC_SourceEnable(INT_SOURCE_DMA1);
 }
 
