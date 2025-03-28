@@ -17,6 +17,8 @@ keywords = ("DCH?", "Dma?", "DMA?")
 
 replace("Spi/Spi1Dma.c", keywords, (0, 1), (2, 3))
 
+replace("Spi/Spi1DmaTX.c", keywords, (0,), (1,))
+
 replace("Uart/Uart1Dma.c", keywords, (0, 1, 2), (3, 4, 5))
 
 replace("Uart/Uart1DmaRX.c", keywords, (0, 1), (2, 3))

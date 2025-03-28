@@ -84,7 +84,6 @@ void Spi5DmaInitialise(const SpiSettings * const settings) {
     DCH1INTbits.CHBCIE = 1; // Channel Block Transfer Complete Interrupt Enable bit
 
     // Configure RX DMA channel interrupt
-    EVIC_SourceStatusClear(INT_SOURCE_DMA1);
     EVIC_SourceEnable(INT_SOURCE_DMA1);
 }
 
@@ -154,7 +153,7 @@ void Spi5DmaTransfer(const GPIO_PIN csPin_, void* const data_, const size_t numb
     printf("CS %u\n", csPin);
     data = data_;
     numberOfBytes = numberOfBytes_;
-    printf("MOSI");
+    printf("SDO");
     PrintData();
 #endif
 
@@ -185,7 +184,7 @@ void Dma1InterruptHandler(void) {
         GPIO_PinSet(csPin);
     }
 #ifdef PRINT_TRANSFERS
-    printf("MISO");
+    printf("SDI");
     PrintData();
 #endif
     if (transferComplete != NULL) {
