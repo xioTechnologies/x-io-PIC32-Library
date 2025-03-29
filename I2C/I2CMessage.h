@@ -1,7 +1,7 @@
 /**
  * @file I2CMessage.h
  * @author Seb Madgwick
- * @brief I2C driver for PIC32.
+ * @brief I2C driver for PIC32 devices.
  */
 
 #ifndef I2C_MESSAGE_H

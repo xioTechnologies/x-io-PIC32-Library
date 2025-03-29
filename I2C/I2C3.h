@@ -1,7 +1,7 @@
 /**
  * @file I2C3.h
  * @author Seb Madgwick
- * @brief I2C driver for PIC32.
+ * @brief I2C driver for PIC32 devices.
  */
 
 #ifndef I2C3_H
@@ -26,7 +26,7 @@ void I2C3RepeatedStart(void);
 void I2C3Stop(void);
 bool I2C3Send(const uint8_t byte);
 uint8_t I2C3Receive(const bool ack);
-void I2C3BeginMessage(I2CMessage * const message);
+void I2C3BeginMessage(I2CMessage * const message_);
 bool I2C3MessageInProgress(void);
 
 #endif

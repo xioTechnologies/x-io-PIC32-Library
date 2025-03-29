@@ -1,7 +1,7 @@
 /**
  * @file I2C4.h
  * @author Seb Madgwick
- * @brief I2C driver for PIC32.
+ * @brief I2C driver for PIC32 devices.
  */
 
 #ifndef I2C4_H
@@ -26,7 +26,7 @@ void I2C4RepeatedStart(void);
 void I2C4Stop(void);
 bool I2C4Send(const uint8_t byte);
 uint8_t I2C4Receive(const bool ack);
-void I2C4BeginMessage(I2CMessage * const message);
+void I2C4BeginMessage(I2CMessage * const message_);
 bool I2C4MessageInProgress(void);
 
 #endif

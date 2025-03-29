@@ -1,7 +1,7 @@
 /**
  * @file I2C5.c
  * @author Seb Madgwick
- * @brief I2C driver for PIC32.
+ * @brief I2C driver for PIC32 devices.
  */
 
 //------------------------------------------------------------------------------
@@ -20,8 +20,8 @@ static void WaitForInterruptOrTimeout(void);
 //------------------------------------------------------------------------------
 // Variables
 
-static I2CMessage* currentMessage;
-static uint64_t messageTimeout;
+static I2CMessage* message;
+static uint64_t timeout;
 
 //------------------------------------------------------------------------------
 // Functions
@@ -40,7 +40,7 @@ void I2C5Initialise(const I2CClockFrequency clockFrequency) {
     if (clockFrequency != I2CClockFrequency400kHz) {
         I2C5CONbits.DISSLW = 1; // Slew rate control disabled
     }
-    I2C5CONbits.I2CEN = 1; // Enables the I2C module and configures the SDA and SCL pins as serial port pins
+    I2C5CONbits.I2CEN = 1;
 }
 
 /**
@@ -136,19 +136,19 @@ static void WaitForInterruptOrTimeout(void) {
  * @brief Begins message.
  * @param message Message.
  */
-void I2C5BeginMessage(I2CMessage * const message) {
+void I2C5BeginMessage(I2CMessage * const message_) {
 
     // Do nothing if message in progress
     if (I2C5MessageInProgress()) {
         return;
     }
 
-    // Set current message
-    currentMessage = message;
-    message->index = 0;
+    // Set message
+    message = message_;
+    message_->index = 0;
 
     // Calculate message timeout
-    messageTimeout = TimerGetTicks64() + (I2C_MESSAGE_MAX_LENGTH * I2C_TIMEOUT);
+    timeout = TimerGetTicks64() + (I2C_MESSAGE_MAX_LENGTH * I2C_TIMEOUT);
 
     // Trigger first interrupt
     EVIC_SourceStatusSet(INT_SOURCE_I2C5_MASTER);
@@ -160,7 +160,7 @@ void I2C5BeginMessage(I2CMessage * const message) {
  * @return True if the message is in progress.
  */
 bool I2C5MessageInProgress(void) {
-    if (TimerGetTicks64() >= messageTimeout) {
+    if (TimerGetTicks64() >= timeout) {
         EVIC_SourceDisable(INT_SOURCE_I2C5_MASTER);
     }
     return EVIC_SourceIsEnabled(INT_SOURCE_I2C5_MASTER);
@@ -172,8 +172,8 @@ bool I2C5MessageInProgress(void) {
  */
 void I2C5InterruptHandler(void) {
     EVIC_SourceStatusClear(INT_SOURCE_I2C5_MASTER); // clear interrupt flag first because next event may complete before ISR returns
-    const int index = currentMessage->index++;
-    switch (currentMessage->event[index]) {
+    const int index = message->index++;
+    switch (message->event[index]) {
         case I2CMessageEventStart:
             I2C5CONbits.SEN = 1;
             break;
@@ -184,25 +184,25 @@ void I2C5InterruptHandler(void) {
             I2C5CONbits.PEN = 1;
             break;
         case I2CMessageEventSend:
-            I2C5TRN = currentMessage->data[index];
+            I2C5TRN = message->data[index];
             break;
         case I2CMessageEventReceive:
             I2C5CONbits.RCEN = 1;
             break;
         case I2CMessageEventAck:
-            *currentMessage->destination[index] = I2C5RCV;
+            *message->destination[index] = I2C5RCV;
             I2C5CONbits.ACKDT = 0;
             I2C5CONbits.ACKEN = 1;
             break;
         case I2CMessageEventNack:
-            *currentMessage->destination[index] = I2C5RCV;
+            *message->destination[index] = I2C5RCV;
             I2C5CONbits.ACKDT = 1;
             I2C5CONbits.ACKEN = 1;
             break;
         case I2CMessageEventEnd:
             EVIC_SourceDisable(INT_SOURCE_I2C5_MASTER);
-            if (currentMessage->complete != NULL) {
-                currentMessage->complete();
+            if (message->complete != NULL) {
+                message->complete();
             }
             break;
     }

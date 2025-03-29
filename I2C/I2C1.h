@@ -1,7 +1,7 @@
 /**
  * @file I2C1.h
  * @author Seb Madgwick
- * @brief I2C driver for PIC32.
+ * @brief I2C driver for PIC32 devices.
  */
 
 #ifndef I2C1_H
@@ -26,7 +26,7 @@ void I2C1RepeatedStart(void);
 void I2C1Stop(void);
 bool I2C1Send(const uint8_t byte);
 uint8_t I2C1Receive(const bool ack);
-void I2C1BeginMessage(I2CMessage * const message);
+void I2C1BeginMessage(I2CMessage * const message_);
 bool I2C1MessageInProgress(void);
 
 #endif
