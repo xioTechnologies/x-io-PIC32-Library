@@ -1,7 +1,7 @@
 /**
  * @file NeoPixels.h
  * @author Seb Madgwick
- * @brief Driver for NeoPixels.
+ * @brief NeoPixels driver.
  */
 
 #ifndef NEOPIXELS_H
