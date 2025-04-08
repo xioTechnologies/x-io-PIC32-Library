@@ -17,6 +17,7 @@
 
 void Pwm8Initialise(const uint16_t dutyCycle);
 void Pwm8Deinitialise(void);
+uint16_t Pwm8Get(void);
 void Pwm8Set(const uint16_t dutyCycle);
 
 #endif

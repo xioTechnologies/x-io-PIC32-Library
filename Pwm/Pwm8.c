@@ -55,6 +55,18 @@ void Pwm8Deinitialise(void) {
 }
 
 /**
+ * @brief Gets the duty cycle.
+ * @return Duty cycle.
+ */
+uint16_t Pwm8Get(void) {
+#if defined __PIC32MM__
+    return CCP4RB;
+#else
+    return OC8RS;
+#endif
+}
+
+/**
  * @brief Sets the duty cycle.
  * @param dutyCycle Duty cycle.
  */

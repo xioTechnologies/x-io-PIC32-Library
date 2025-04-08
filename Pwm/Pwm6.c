@@ -55,6 +55,18 @@ void Pwm6Deinitialise(void) {
 }
 
 /**
+ * @brief Gets the duty cycle.
+ * @return Duty cycle.
+ */
+uint16_t Pwm6Get(void) {
+#if defined __PIC32MM__
+    return CCP4RB;
+#else
+    return OC6RS;
+#endif
+}
+
+/**
  * @brief Sets the duty cycle.
  * @param dutyCycle Duty cycle.
  */

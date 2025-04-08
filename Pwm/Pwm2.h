@@ -17,6 +17,7 @@
 
 void Pwm2Initialise(const uint16_t dutyCycle);
 void Pwm2Deinitialise(void);
+uint16_t Pwm2Get(void);
 void Pwm2Set(const uint16_t dutyCycle);
 
 #endif
