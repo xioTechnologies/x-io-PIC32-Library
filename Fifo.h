@@ -60,8 +60,13 @@ static inline __attribute__((always_inline)) size_t FifoGetReadAvailable(Fifo * 
  */
 static inline __attribute__((always_inline)) size_t FifoRead(Fifo * const fifo, void* const destination, size_t numberOfBytes) {
 
-    // Limit number of bytes to number available
+    // Do nothing if no bytes available to read
     const size_t bytesAvailable = FifoGetReadAvailable(fifo);
+    if (bytesAvailable == 0) {
+        return 0;
+    }
+
+    // Limit number of bytes to number available
     if (numberOfBytes > bytesAvailable) {
         numberOfBytes = bytesAvailable;
     }
