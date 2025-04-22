@@ -18,6 +18,8 @@ for path in paths:
     with open(path) as file:
         lines = file.readlines()
 
+    lines = [l.rstrip() + "\n" for l in lines]
+
     include_lines = [l for l in lines if l.lstrip().startswith("#include")]
 
     lines_before_first_include = list(takewhile(lambda l: not l.lstrip().startswith("#include"), lines))

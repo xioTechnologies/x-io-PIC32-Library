@@ -70,7 +70,7 @@ void Spi2DmaTXInitialise(const SpiSettings * const settings) {
     DCH0DSA = KVA_TO_PA(&SPI2BUF); // destination address
     DCH0DSIZ = 1; // destination size
     DCH0CSIZ = 1; // transfers per event
-    DCH0INTbits.CHBCIE = 1; // Channel Block Transfer Complete Interrupt Enable bit    
+    DCH0INTbits.CHBCIE = 1; // Channel Block Transfer Complete Interrupt Enable bit
 
     // Configure TX DMA channel interrupt
     EVIC_SourceEnable(INT_SOURCE_DMA0);
