@@ -10,6 +10,7 @@
 //------------------------------------------------------------------------------
 // Includes
 
+#include "Fifo.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include "Uart.h"
@@ -23,8 +24,8 @@ size_t Uart3GetReadAvailable(void);
 size_t Uart3Read(void* const destination, size_t numberOfBytes);
 uint8_t Uart3ReadByte(void);
 size_t Uart3GetWriteAvailable(void);
-void Uart3Write(const void* const data, const size_t numberOfBytes);
-void Uart3WriteByte(const uint8_t byte);
+FifoResult Uart3Write(const void* const data, const size_t numberOfBytes);
+FifoResult Uart3WriteByte(const uint8_t byte);
 void Uart3ClearReadBuffer(void);
 void Uart3ClearWriteBuffer(void);
 bool Uart3HasReceiveBufferOverrun(void);

@@ -8,7 +8,6 @@
 // Includes
 
 #include "definitions.h"
-#include "Fifo.h"
 #include "UsbCdc.h"
 
 //------------------------------------------------------------------------------
@@ -225,17 +224,19 @@ size_t UsbCdcGetWriteAvailable(void) {
  * @brief Writes data to the write buffer.
  * @param data Data.
  * @param numberOfBytes Number of bytes.
+ * @return Result.
  */
-void UsbCdcWrite(const void* const data, const size_t numberOfBytes) {
-    FifoWrite(&writeFifo, data, numberOfBytes);
+FifoResult UsbCdcWrite(const void* const data, const size_t numberOfBytes) {
+    return FifoWrite(&writeFifo, data, numberOfBytes);
 }
 
 /**
  * @brief Writes a byte to the write buffer.
  * @param byte Byte.
+ * @return Result.
  */
-void UsbCdcWriteByte(const uint8_t byte) {
-    FifoWriteByte(&writeFifo, byte);
+FifoResult UsbCdcWriteByte(const uint8_t byte) {
+    return FifoWriteByte(&writeFifo, byte);
 }
 
 //------------------------------------------------------------------------------

@@ -34,6 +34,14 @@ typedef struct {
     size_t readIndex;
 } Fifo;
 
+/**
+ * @brief Result.
+ */
+typedef enum {
+    FifoResultOK,
+    FifoResultError,
+} FifoResult;
+
 //------------------------------------------------------------------------------
 // Inline functions
 
@@ -118,12 +126,13 @@ static inline __attribute__((always_inline)) size_t FifoGetWriteAvailable(Fifo *
  * @param fifo FIFO structure.
  * @param data Data.
  * @param numberOfBytes Number of bytes.
+ * @return Result.
  */
-static inline __attribute__((always_inline)) void FifoWrite(Fifo * const fifo, const void* const data, const size_t numberOfBytes) {
+static inline __attribute__((always_inline)) FifoResult FifoWrite(Fifo * const fifo, const void* const data, const size_t numberOfBytes) {
 
     // Do nothing if not enough space available
     if (numberOfBytes > FifoGetWriteAvailable(fifo)) {
-        return;
+        return FifoResultError;
     }
 
     // Write data
@@ -137,18 +146,20 @@ static inline __attribute__((always_inline)) void FifoWrite(Fifo * const fifo, c
         memcpy(&fifo->data[fifo->writeIndex], data, numberOfBytes);
         fifo->writeIndex += numberOfBytes;
     }
+    return FifoResultOK;
 }
 
 /**
  * @brief Writes a byte to the FIFO.
  * @param fifo FIFO structure.
  * @param byte Byte.
+ * @return Result.
  */
-static inline __attribute__((always_inline)) void FifoWriteByte(Fifo * const fifo, const uint8_t byte) {
+static inline __attribute__((always_inline)) FifoResult FifoWriteByte(Fifo * const fifo, const uint8_t byte) {
 
     // Do nothing if not enough space available
     if (FifoGetWriteAvailable(fifo) == 0) {
-        return;
+        return FifoResultError;
     }
 
     // Write byte
@@ -156,6 +167,7 @@ static inline __attribute__((always_inline)) void FifoWriteByte(Fifo * const fif
     if (++fifo->writeIndex >= fifo->dataSize) {
         fifo->writeIndex = 0;
     }
+    return FifoResultOK;
 }
 
 /**

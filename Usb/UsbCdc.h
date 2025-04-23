@@ -10,6 +10,7 @@
 //------------------------------------------------------------------------------
 // Includes
 
+#include "Fifo.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -23,8 +24,8 @@ size_t UsbCdcGetReadAvailable(void);
 size_t UsbCdcRead(void* const destination, size_t numberOfBytes);
 uint8_t UsbCdcReadByte(void);
 size_t UsbCdcGetWriteAvailable(void);
-void UsbCdcWrite(const void* const data, const size_t numberOfBytes);
-void UsbCdcWriteByte(const uint8_t byte);
+FifoResult UsbCdcWrite(const void* const data, const size_t numberOfBytes);
+FifoResult UsbCdcWriteByte(const uint8_t byte);
 
 #endif
 

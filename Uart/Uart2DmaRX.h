@@ -10,6 +10,7 @@
 //------------------------------------------------------------------------------
 // Includes
 
+#include "Fifo.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include "Uart.h"
@@ -23,8 +24,8 @@ void Uart2DmaRXDeinitialise(void);
 void Uart2DmaRXSetReadCallback(void (*read_)(const void* const data, const size_t numberOfBytes));
 void Uart2DmaRXRead(void);
 size_t Uart2DmaRXGetWriteAvailable(void);
-void Uart2DmaRXWrite(const void* const data, const size_t numberOfBytes);
-void Uart2DmaRXWriteByte(const uint8_t byte);
+FifoResult Uart2DmaRXWrite(const void* const data, const size_t numberOfBytes);
+FifoResult Uart2DmaRXWriteByte(const uint8_t byte);
 void Uart2DmaRXClearWriteBuffer(void);
 bool Uart2DmaRXHasReceiveBufferOverrun(void);
 bool Uart2DmaRXTransmitionComplete(void);

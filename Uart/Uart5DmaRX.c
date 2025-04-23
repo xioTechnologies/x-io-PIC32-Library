@@ -8,7 +8,6 @@
 // Includes
 
 #include "definitions.h"
-#include "Fifo.h"
 #include <stdint.h>
 #include "Timer/Timer.h"
 #include "Uart5DmaRX.h"
@@ -270,19 +269,23 @@ size_t Uart5DmaRXGetWriteAvailable(void) {
  * @brief Writes data to the write buffer.
  * @param data Data.
  * @param numberOfBytes Number of bytes.
+ * @return Result.
  */
-void Uart5DmaRXWrite(const void* const data, const size_t numberOfBytes) {
-    FifoWrite(&writeFifo, data, numberOfBytes);
+ FifoResult Uart5DmaRXWrite(const void* const data, const size_t numberOfBytes) {
+    const FifoResult result = FifoWrite(&writeFifo, data, numberOfBytes);
     EVIC_SourceEnable(INT_SOURCE_UART5_TX);
+    return result;
 }
 
 /**
  * @brief Writes a byte to the write buffer.
  * @param byte Byte.
+ * @return Result.
  */
-void Uart5DmaRXWriteByte(const uint8_t byte) {
-    FifoWriteByte(&writeFifo, byte);
+FifoResult Uart5DmaRXWriteByte(const uint8_t byte) {
+    const FifoResult result = FifoWriteByte(&writeFifo, byte);
     EVIC_SourceEnable(INT_SOURCE_UART5_TX);
+    return result;
 }
 
 /**
