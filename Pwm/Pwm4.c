@@ -31,7 +31,7 @@ void Pwm4Initialise(const uint16_t dutyCycle) {
 
     // Configure timer
 #if defined __PIC32MM__
-    CCP4CON1bits.MOD = 0b0100; // Dual Edge Compare mode
+    CCP4CON1bits.MOD = 0b0100; // dual Edge Compare mode
     CCP4CON1bits.ON = 1;
 #else
     OC4R = 0xFFFF;

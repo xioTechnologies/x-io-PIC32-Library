@@ -48,7 +48,7 @@ void Uart4DmaInitialise(const UartSettings * const settings, const UartDmaReadCo
     }
     U4MODEbits.PDSEL = settings->parityAndData;
     U4MODEbits.STSEL = settings->stopBits;
-    U4MODEbits.BRGH = 1; // High-Speed mode - 4x baud clock enabled
+    U4MODEbits.BRGH = 1; // high-Speed mode - 4x baud clock enabled
     U4STAbits.URXEN = 1; // UARTx receiver is enabled. UxRX pin is controlled by UARTx (if ON = 1)
     U4STAbits.UTXEN = 1; // UARTx transmitter is enabled. UxTX pin is controlled by UARTx (if ON = 1)
     U4BRG = UartCalculateUxbrg(settings->baudRate);
@@ -59,7 +59,7 @@ void Uart4DmaInitialise(const UartSettings * const settings, const UartDmaReadCo
 
     // Configure TX DMA channel
     DCH0ECONbits.CHSIRQ = _UART4_TX_VECTOR;
-    DCH0ECONbits.SIRQEN = 1; // Start channel cell transfer if an interrupt matching CHSIRQ occurs
+    DCH0ECONbits.SIRQEN = 1; // start channel cell transfer if an interrupt matching CHSIRQ occurs
     DCH0DSA = KVA_TO_PA(&U4TXREG); // destination address
     DCH0DSIZ = 1; // destination size
     DCH0CSIZ = 1; // transfers per event
@@ -79,10 +79,10 @@ void Uart4DmaInitialise(const UartSettings * const settings, const UartDmaReadCo
     // Configure RX DMA channel
     DCH1ECONbits.CHAIRQ = _TIMER_9_VECTOR;
     DCH1ECONbits.CHSIRQ = _UART4_RX_VECTOR;
-    DCH1ECONbits.SIRQEN = 1; // Start channel cell transfer if an interrupt matching CHSIRQ occurs
-    DCH1ECONbits.AIRQEN = 1; // Channel transfer is aborted if an interrupt matching CHAIRQ occurs
+    DCH1ECONbits.SIRQEN = 1; // start channel cell transfer if an interrupt matching CHSIRQ occurs
+    DCH1ECONbits.AIRQEN = 1; // channel transfer is aborted if an interrupt matching CHAIRQ occurs
     if (readConditions->terminationByte != -1) {
-        DCH1ECONbits.PATEN = 1; // Abort transfer and clear CHEN on pattern match
+        DCH1ECONbits.PATEN = 1; // abort transfer and clear CHEN on pattern match
     }
     DCH1SSA = KVA_TO_PA(&U4RXREG); // source address
     DCH1DSA = KVA_TO_PA(readBuffer); // destination address
@@ -90,24 +90,24 @@ void Uart4DmaInitialise(const UartSettings * const settings, const UartDmaReadCo
     DCH1DSIZ = validReadConditions.numberOfBytes; // destination size
     DCH1CSIZ = 1; // transfers per event
     DCH1DAT = validReadConditions.terminationByte; // pattern data
-    DCH1INTbits.CHBCIE = 1; // Channel Block Transfer Complete Interrupt Enable bit
-    DCH1INTbits.CHTAIE = 1; // Channel Transfer Abort Interrupt Enable bit
-    DCH1CONbits.CHEN = 1; // Channel is enabled
+    DCH1INTbits.CHBCIE = 1; // channel Block Transfer Complete Interrupt Enable bit
+    DCH1INTbits.CHTAIE = 1; // channel Transfer Abort Interrupt Enable bit
+    DCH1CONbits.CHEN = 1; // channel is enabled
 
     // Calculate timer reset value
     static uint32_t __attribute__((coherent)) timerResetValue[1]; // must be declared __attribute__((coherent)) for PIC32MZ devices
     timerResetValue[0] = UartDmaCalculateTimerResetValue(validReadConditions.timeout);
 
     // Configure timer DMA channel
-    DCH2CONbits.CHAEN = 1; // Channel is continuously enabled, and not automatically disabled after a block transfer is complete
+    DCH2CONbits.CHAEN = 1; // channel is continuously enabled, and not automatically disabled after a block transfer is complete
     DCH2ECONbits.CHSIRQ = _UART4_RX_VECTOR;
-    DCH2ECONbits.SIRQEN = 1; // Start channel cell transfer if an interrupt matching CHSIRQ occurs
+    DCH2ECONbits.SIRQEN = 1; // start channel cell transfer if an interrupt matching CHSIRQ occurs
     DCH2SSA = KVA_TO_PA(timerResetValue); // source address
     DCH2DSA = KVA_TO_PA(&TMR8); // destination address
     DCH2SSIZ = sizeof (timerResetValue); // source size
     DCH2DSIZ = sizeof (timerResetValue); // destination size
     DCH2CSIZ = sizeof (timerResetValue); // transfers per event
-    DCH2CONbits.CHEN = 1; // Channel is enabled
+    DCH2CONbits.CHEN = 1; // channel is enabled
 
     // Configure timer
     T8CONbits.T32 = 1;

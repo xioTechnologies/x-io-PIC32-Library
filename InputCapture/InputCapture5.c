@@ -32,10 +32,10 @@ void InputCapture5Initialise(const InputCaptureEdge edge, void (*captureEvent_)(
     // Configure input capture
     switch (edge) {
         case InputCaptureEdgeFalling:
-            IC5CONbits.ICM = 0b010; // Simple Capture Event mode - every falling edge
+            IC5CONbits.ICM = 0b010; // simple Capture Event mode - every falling edge
             break;
         case InputCaptureEdgeRising:
-            IC5CONbits.ICM = 0b011; // Simple Capture Event mode - every rising edge
+            IC5CONbits.ICM = 0b011; // simple Capture Event mode - every rising edge
             break;
     }
     IC5CONbits.C32 = 1;

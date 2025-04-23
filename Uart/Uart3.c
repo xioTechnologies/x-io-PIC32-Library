@@ -49,9 +49,9 @@ void Uart3Initialise(const UartSettings * const settings) {
     }
     U3MODEbits.PDSEL = settings->parityAndData;
     U3MODEbits.STSEL = settings->stopBits;
-    U3MODEbits.BRGH = 1; // High-Speed mode - 4x baud clock enabled
-    U3STAbits.URXISEL = 0b01; // Interrupt flag bit is asserted while receive buffer is 1/2 or more full (i.e., has 4 or more data characters)
-    U3STAbits.UTXISEL = 0b10; // Interrupt is generated and asserted while the transmit buffer is empty
+    U3MODEbits.BRGH = 1; // high-Speed mode - 4x baud clock enabled
+    U3STAbits.URXISEL = 0b01; // interrupt flag bit is asserted while receive buffer is 1/2 or more full (i.e., has 4 or more data characters)
+    U3STAbits.UTXISEL = 0b10; // interrupt is generated and asserted while the transmit buffer is empty
     U3STAbits.URXEN = 1; // UARTx receiver is enabled. UxRX pin is controlled by UARTx (if ON = 1)
     U3STAbits.UTXEN = 1; // UARTx transmitter is enabled. UxTX pin is controlled by UARTx (if ON = 1)
     U3BRG = UartCalculateUxbrg(settings->baudRate);

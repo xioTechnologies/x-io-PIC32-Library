@@ -47,7 +47,7 @@ void Uart4DmaTXInitialise(const UartSettings * const settings) {
     }
     U4MODEbits.PDSEL = settings->parityAndData;
     U4MODEbits.STSEL = settings->stopBits;
-    U4MODEbits.BRGH = 1; // High-Speed mode - 4x baud clock enabled
+    U4MODEbits.BRGH = 1; // high-Speed mode - 4x baud clock enabled
     U4STAbits.URXISEL = 0b01; // Interrupt flag bit is asserted while receive buffer is 1/2 or more full (i.e., has 4 or more data characters)
     U4STAbits.URXEN = 1; // UARTx receiver is enabled. UxRX pin is controlled by UARTx (if ON = 1)
     U4STAbits.UTXEN = 1; // UARTx transmitter is enabled. UxTX pin is controlled by UARTx (if ON = 1)
@@ -59,7 +59,7 @@ void Uart4DmaTXInitialise(const UartSettings * const settings) {
 
     // Configure TX DMA channel
     DCH0ECONbits.CHSIRQ = _UART4_TX_VECTOR;
-    DCH0ECONbits.SIRQEN = 1; // Start channel cell transfer if an interrupt matching CHSIRQ occurs
+    DCH0ECONbits.SIRQEN = 1; // start channel cell transfer if an interrupt matching CHSIRQ occurs
     DCH0DSA = KVA_TO_PA(&U4TXREG); // destination address
     DCH0DSIZ = 1; // destination size
     DCH0CSIZ = 1; // transfers per event

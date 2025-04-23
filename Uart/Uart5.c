@@ -49,9 +49,9 @@ void Uart5Initialise(const UartSettings * const settings) {
     }
     U5MODEbits.PDSEL = settings->parityAndData;
     U5MODEbits.STSEL = settings->stopBits;
-    U5MODEbits.BRGH = 1; // High-Speed mode - 4x baud clock enabled
-    U5STAbits.URXISEL = 0b01; // Interrupt flag bit is asserted while receive buffer is 1/2 or more full (i.e., has 4 or more data characters)
-    U5STAbits.UTXISEL = 0b10; // Interrupt is generated and asserted while the transmit buffer is empty
+    U5MODEbits.BRGH = 1; // high-Speed mode - 4x baud clock enabled
+    U5STAbits.URXISEL = 0b01; // interrupt flag bit is asserted while receive buffer is 1/2 or more full (i.e., has 4 or more data characters)
+    U5STAbits.UTXISEL = 0b10; // interrupt is generated and asserted while the transmit buffer is empty
     U5STAbits.URXEN = 1; // UARTx receiver is enabled. UxRX pin is controlled by UARTx (if ON = 1)
     U5STAbits.UTXEN = 1; // UARTx transmitter is enabled. UxTX pin is controlled by UARTx (if ON = 1)
     U5BRG = UartCalculateUxbrg(settings->baudRate);
