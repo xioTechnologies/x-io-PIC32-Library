@@ -20,6 +20,13 @@ static void WaitForInterruptOrTimeout(void);
 //------------------------------------------------------------------------------
 // Variables
 
+const I2C i2c2 = {
+    .start = I2C2Start,
+    .repeatedStart = I2C2RepeatedStart,
+    .stop = I2C2Stop,
+    .send = I2C2Send,
+    .receive = I2C2Receive,
+};
 static I2CMessage* message;
 static uint64_t timeout;
 
@@ -38,7 +45,7 @@ void I2C2Initialise(const I2CClockFrequency clockFrequency) {
     // Configure I2C
     I2C2BRG = I2CCalculateI2Cxbrg(clockFrequency);
     if (clockFrequency != I2CClockFrequency400kHz) {
-        I2C2CONbits.DISSLW = 1; // Slew rate control disabled
+        I2C2CONbits.DISSLW = 1; // slew rate control disabled
     }
     I2C2CONbits.I2CEN = 1;
 }
@@ -121,7 +128,7 @@ uint8_t I2C2Receive(const bool ack) {
  * @brief Waits for the interrupt or timeout.
  */
 static void WaitForInterruptOrTimeout(void) {
-    const uint64_t timeout = TimerGetTicks64() + (TIMER_TICKS_PER_SECOND / (I2CClockFrequency100kHz / 10)); // 10 clock cycles timeout for slowest clock
+    const uint64_t timeout = TimerGetTicks64() + I2C_TIMEOUT;
     while (true) {
         if (EVIC_SourceStatusGet(INT_SOURCE_I2C2_MASTER)) {
             break;

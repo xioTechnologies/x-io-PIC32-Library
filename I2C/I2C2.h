@@ -17,6 +17,11 @@
 #include <stdint.h>
 
 //------------------------------------------------------------------------------
+// Variable declarations
+
+extern const I2C i2c2;
+
+//------------------------------------------------------------------------------
 // Function declarations
 
 void I2C2Initialise(const I2CClockFrequency clockFrequency);

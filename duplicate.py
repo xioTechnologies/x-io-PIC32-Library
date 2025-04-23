@@ -19,9 +19,16 @@ def duplicate(files, keywords, source_id, destination_ids):
 
 duplicate(
     ("I2C/I2C?.c", "I2C/I2C?.h"),
-    ("I2C?",),
+    ("I2C?", "i2c?"),
     1,
     (2, 3, 4, 5),
+)
+
+duplicate(
+    ("I2C/I2CBB?.c", "I2C/I2CBB?.h"),
+    ("I2CBB?", "i2cBB?"),
+    1,
+    (2,),
 )
 
 duplicate(

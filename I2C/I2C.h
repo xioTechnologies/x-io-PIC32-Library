@@ -10,6 +10,7 @@
 //------------------------------------------------------------------------------
 // Includes
 
+#include <stdbool.h>
 #include <stdint.h>
 #include "Timer/Timer.h"
 
@@ -26,9 +27,21 @@ typedef enum {
 } I2CClockFrequency;
 
 /**
- * @brief I2C timeout in timer ticks. Equal to 10 clock cycles.
+ * @brief I2C timeout in timer ticks. Equal to 10 clock cycles for the slowest
+ * clock frequency.
  */
 #define I2C_TIMEOUT (TIMER_TICKS_PER_SECOND / (I2CClockFrequency100kHz / 10))
+
+/**
+ * @brief I2C interface.
+ */
+typedef struct {
+    const void (*start)(void);
+    const void (*repeatedStart)(void);
+    const void (*stop)(void);
+    const bool (*send)(const uint8_t byte);
+    const uint8_t(*receive)(const bool ack);
+} I2C;
 
 //------------------------------------------------------------------------------
 // Function declarations

@@ -1,22 +1,35 @@
 /**
  * @file Eeprom.c
  * @author Seb Madgwick
- * @brief Microchip 24xx32 to 24xx512 I2C EEPROM driver.
+ * @brief Microchip 24xx32 I2C EEPROM driver.
  */
 
 //------------------------------------------------------------------------------
 // Includes
 
 #include "Eeprom.h"
-#include "EepromHal.h"
 #include "I2C/I2CClientAddress.h"
 #include "I2C/I2CStartSequence.h"
-#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 
 //------------------------------------------------------------------------------
 // Definitions
+
+/**
+ * @brief I2C client address.
+ */
+#define I2C_CLIENT_ADDRESS (0x50)
+
+/**
+ * @brief EEPROM size.
+ */
+#define EEPROM_SIZE (0x1000)
+
+/**
+ * @brief Page size.
+ */
+#define PAGE_SIZE (32)
 
 /**
  * @brief Print line length. Must be a multiple of the EEPROM size.
@@ -26,74 +39,77 @@
 //------------------------------------------------------------------------------
 // Function declarations
 
-static void StartSequence(const uint16_t address);
-static void PrintLine(const uint16_t address, const uint8_t * const data);
+static void StartSequence(const I2C * const i2c, const uint16_t address);
+static void PrintLine(const I2C * const i2c, const uint16_t address, const uint8_t * const data);
 
 //------------------------------------------------------------------------------
 // Functions
 
 /**
  * @brief Reads data.
+ * @param i2c I2C interface.
  * @param address Address.
  * @param destination Destination.
  * @param numberOfBytes Number of bytes.
  */
-void EepromRead(const uint16_t address, void* const destination, const size_t numberOfBytes) {
-    StartSequence(address);
-    EepromHalI2CRepeatedStart();
-    EepromHalI2CSend(I2CClientAddressRead(EEPROM_HAL_I2C_ADDRESS));
+void EepromRead(const I2C * const i2c, const uint16_t address, void* const destination, const size_t numberOfBytes) {
+    StartSequence(i2c, address);
+    i2c->repeatedStart();
+    i2c->send(I2CClientAddressRead(I2C_CLIENT_ADDRESS));
     const size_t endIndex = numberOfBytes - 1;
     size_t destinationIndex = 0;
     while (destinationIndex < numberOfBytes) {
         const bool ack = destinationIndex < endIndex;
-        ((uint8_t*) destination)[destinationIndex] = EepromHalI2CReceive(ack);
+        ((uint8_t*) destination)[destinationIndex] = i2c->receive(ack);
         destinationIndex++;
     }
-    EepromHalI2CStop();
+    i2c->stop();
 }
 
 /**
  * @brief Writes data.
+ * @param i2c I2C interface.
  * @param address Address.
  * @param data Data.
  * @param numberOfBytes Number of bytes.
  */
-void EepromWrite(uint16_t address, const void* const data, const size_t numberOfBytes) {
-    StartSequence(address);
+void EepromWrite(const I2C * const i2c, uint16_t address, const void* const data, const size_t numberOfBytes) {
+    StartSequence(i2c, address);
     const uint16_t endAddress = address + numberOfBytes;
     uint8_t* dataByte = (uint8_t*) data;
-    int currentPageIndex = address / EEPROM_HAL_PAGE_SIZE;
+    int currentPageIndex = address / PAGE_SIZE;
     while (address < endAddress) {
-        EepromHalI2CSend(*dataByte++);
-        const int nextPageIndex = ++address / EEPROM_HAL_PAGE_SIZE;
+        i2c->send(*dataByte++);
+        const int nextPageIndex = ++address / PAGE_SIZE;
         if (nextPageIndex != currentPageIndex) { // if crossing page boundary
             currentPageIndex = nextPageIndex;
-            EepromHalI2CStop();
-            StartSequence(address);
+            i2c->stop();
+            StartSequence(i2c, address);
         }
     }
-    EepromHalI2CStop();
+    i2c->stop();
 }
 
 /**
  * @brief Writes data only if the data being written is different to the data
  * on the EEPROM.
+ * @param i2c I2C interface.
  * @param address Address.
  * @param data Data.
  * @param numberOfBytes Number of bytes.
  */
-void EepromUpdate(uint16_t address, const void* const data, const size_t numberOfBytes) {
+void EepromUpdate(const I2C * const i2c, uint16_t address, const void* const data, const size_t numberOfBytes) {
     const uint16_t endAddress = address + numberOfBytes;
     const uint8_t* dataByte = (uint8_t*) data;
     while (address < endAddress) {
-        size_t chunkSize = EEPROM_HAL_PAGE_SIZE - (address % EEPROM_HAL_PAGE_SIZE); // number of bytes from address to end of page
+        size_t chunkSize = PAGE_SIZE - (address % PAGE_SIZE); // number of bytes from address to end of page
         if ((address + chunkSize) > endAddress) {
             chunkSize = endAddress - address;
         }
-        uint8_t pageData[EEPROM_HAL_PAGE_SIZE];
-        EepromRead(address, pageData, chunkSize);
+        uint8_t pageData[PAGE_SIZE];
+        EepromRead(i2c, address, pageData, chunkSize);
         if (memcmp(dataByte, pageData, chunkSize) != 0) {
-            EepromWrite(address, dataByte, chunkSize);
+            EepromWrite(i2c, address, dataByte, chunkSize);
         }
         address += chunkSize;
         dataByte += chunkSize;
@@ -104,33 +120,35 @@ void EepromUpdate(uint16_t address, const void* const data, const size_t numberO
  * @brief Start sequence common to read and write operations. Implements
  * acknowledge polling to minimise delay while device is engaged in write
  * cycle.
+ * @param i2c I2C interface.
  * @param address Address.
  */
-static void StartSequence(const uint16_t address) {
-    I2CStartSequence(EepromHalI2CStart, EepromHalI2CSend, EEPROM_HAL_I2C_ADDRESS, 5); // 5 ms
-    EepromHalI2CSend(address >> 8);
-    EepromHalI2CSend(address & 0xFF);
+static void StartSequence(const I2C * const i2c, const uint16_t address) {
+    I2CStartSequence(i2c->start, i2c->send, I2C_CLIENT_ADDRESS, 5); // 5 ms
+    i2c->send(address >> 8);
+    i2c->send(address & 0xFF);
 }
 
 /**
  * @brief Erases the EEPROM. All data bytes are set to 0xFF.
  */
-void EepromErase(void) {
-    const uint8_t blankPage[] = {[0 ... (EEPROM_HAL_PAGE_SIZE - 1)] = 0xFF};
-    for (int index = 0; index < (EEPROM_HAL_SIZE / EEPROM_HAL_PAGE_SIZE); index++) {
-        EepromWrite(index * EEPROM_HAL_PAGE_SIZE, blankPage, sizeof (blankPage));
+void EepromErase(const I2C * const i2c) {
+    const uint8_t blankPage[] = {[0 ... (PAGE_SIZE - 1)] = 0xFF};
+    for (int index = 0; index < (EEPROM_SIZE / PAGE_SIZE); index++) {
+        EepromWrite(i2c, index * PAGE_SIZE, blankPage, sizeof (blankPage));
     }
 }
 
 /**
  * @brief Returns true if the EEPROM is blank.
+ * @param i2c I2C interface.
  * @return True if the EEPROM is blank.
  */
-bool EepromBlank(void) {
-    for (int index = 0; index < (EEPROM_HAL_SIZE / EEPROM_HAL_PAGE_SIZE); index++) {
-        uint8_t pageData[EEPROM_HAL_PAGE_SIZE];
-        EepromRead(index * EEPROM_HAL_PAGE_SIZE, pageData, sizeof (pageData));
-        const uint8_t blankPage[] = {[0 ... (EEPROM_HAL_PAGE_SIZE - 1)] = 0xFF};
+bool EepromBlank(const I2C * const i2c) {
+    for (int index = 0; index < (EEPROM_SIZE / PAGE_SIZE); index++) {
+        uint8_t pageData[PAGE_SIZE];
+        EepromRead(i2c, index * PAGE_SIZE, pageData, sizeof (pageData));
+        const uint8_t blankPage[] = {[0 ... (PAGE_SIZE - 1)] = 0xFF};
         if (memcmp(blankPage, pageData, sizeof (pageData)) != 0) {
             return false;
         }
@@ -140,32 +158,33 @@ bool EepromBlank(void) {
 
 /**
  * @brief Prints the EEPROM.
+ * @param i2c I2C interface.
  */
-void EepromPrint(void) {
+void EepromPrint(const I2C * const i2c) {
     bool printEllipses = true;
-    for (uint16_t address = 0; address < EEPROM_HAL_SIZE; address += PRINT_LINE_LENGTH) {
+    for (uint16_t address = 0; address < EEPROM_SIZE; address += PRINT_LINE_LENGTH) {
 
         // Read data
         uint8_t data[PRINT_LINE_LENGTH];
-        EepromRead(address, data, sizeof (data));
+        EepromRead(i2c, address, data, sizeof (data));
 
         // Print first and last line
-        if ((address == 0) || (address == (EEPROM_HAL_SIZE - PRINT_LINE_LENGTH))) {
-            PrintLine(address, data);
+        if ((address == 0) || (address == (EEPROM_SIZE - PRINT_LINE_LENGTH))) {
+            PrintLine(i2c, address, data);
             continue;
         }
 
         // Print line if data not blank
         const uint8_t blankData[] = {[0 ... (PRINT_LINE_LENGTH - 1)] = 0xFF};
         if (memcmp(blankData, data, sizeof (data)) != 0) {
-            PrintLine(address, data);
+            PrintLine(i2c, address, data);
             printEllipses = true;
             continue;
         }
 
         // Print ellipses
         if (printEllipses) {
-            PrintLine(0xFFFF, data);
+            PrintLine(i2c, 0xFFFF, data);
             printEllipses = false;
         }
     }
@@ -173,10 +192,11 @@ void EepromPrint(void) {
 
 /**
  * @brief Prints line.
+ * @param i2c I2C interface.
  * @param address Address. 0xFFFF for ellipses.
  * @param data Data.
  */
-static void PrintLine(const uint16_t address, const uint8_t * const data) {
+static void PrintLine(const I2C * const i2c, const uint16_t address, const uint8_t * const data) {
 
     // Print address
     if (address == 0xFFFF) {
@@ -194,6 +214,58 @@ static void PrintLine(const uint16_t address, const uint8_t * const data) {
         }
     }
     printf("\n");
+}
+
+/**
+ * @brief Performs self-test.
+ * @param i2c I2C interface.
+ * @return Test result
+ */
+EepromTestResult EepromTest(const I2C * const i2c) {
+
+    // Test client ACK
+    const bool ack = I2CStartSequence(i2c->start, i2c->send, I2C_CLIENT_ADDRESS, 5); // 5 ms
+    i2c->stop();
+    if (ack == false) {
+        return EepromTestResultAckFailed;
+    }
+
+    // Read data
+    uint32_t readData;
+    const uint16_t address = EEPROM_SIZE - sizeof (readData);
+    EepromRead(i2c, address, &readData, sizeof (readData));
+
+    // Write modified data
+    const uint32_t writeData = readData + 1;
+    EepromWrite(i2c, address, &writeData, sizeof (writeData));
+
+    // Read modified data
+    EepromRead(i2c, address, &readData, sizeof (readData));
+
+    // Fail if read data does not match write data
+    if (readData != writeData) {
+        return EepromTestResultDataMismatch;
+    }
+
+    // Self-test passed
+    return EepromTestResultPassed;
+}
+
+/**
+ * @brief Returns the test result message.
+ * @param result Test result.
+ * @return Test result message.
+ */
+const char* EepromTestResultToString(const EepromTestResult result) {
+    switch (result) {
+        case EepromTestResultPassed:
+            return "Passed";
+        case EepromTestResultAckFailed:
+            return "ACK failed";
+        case EepromTestResultDataMismatch:
+            return "Data mismatch";
+    }
+    return ""; // avoid compiler warning
 }
 
 //------------------------------------------------------------------------------
