@@ -40,6 +40,8 @@ typedef struct {
     const void (*repeatedStart)(void);
     const void (*stop)(void);
     const bool (*send)(const uint8_t byte);
+    const bool (*sendAddressRead)(const uint8_t address);
+    const bool (*sendAddressWrite)(const uint8_t address);
     const uint8_t(*receive)(const bool ack);
 } I2C;
 
@@ -47,6 +49,15 @@ typedef struct {
 // Function declarations
 
 uint32_t I2CCalculateI2Cxbrg(const uint32_t fsk);
+uint8_t I2CAddressRead(const uint8_t address);
+uint8_t I2CAddressWrite(const uint8_t address);
+void I2CPrintStart(void);
+void I2CPrintRepeatedStart(void);
+void I2CPrintStop(void);
+void I2CPrintByte(const uint8_t byte);
+void I2CPrintReadAddress(const uint8_t address);
+void I2CPrintWriteAddress(const uint8_t address);
+void I2CPrintAckNack(const bool ack);
 
 #endif
 
