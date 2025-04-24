@@ -20,7 +20,7 @@
 
 void Spi3DmaTXInitialise(const SpiSettings * const settings);
 void Spi3DmaTXDeinitialise(void);
-void Spi3DmaTXTransfer(const GPIO_PIN csPin_, void* const data_, const size_t numberOfBytes_, void (*transferComplete_)(void));
+void Spi3DmaTXTransfer(const GPIO_PIN csPin_, const void* const data, const size_t numberOfBytes, void (*transferComplete_)(void));
 bool Spi3DmaTXTransferInProgress(void);
 
 #endif

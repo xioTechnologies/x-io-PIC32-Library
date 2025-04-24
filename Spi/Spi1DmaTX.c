@@ -21,21 +21,10 @@
 //#define PRINT_TRANSFERS
 
 //------------------------------------------------------------------------------
-// Function declarations
-
-#ifdef PRINT_TRANSFERS
-static void PrintData(void);
-#endif
-
-//------------------------------------------------------------------------------
 // Variables
 
 static GPIO_PIN csPin;
 static void (*transferComplete)(void);
-#ifdef PRINT_TRANSFERS
-static void* data;
-static size_t numberOfBytes;
-#endif
 
 //------------------------------------------------------------------------------
 // Functions
@@ -112,11 +101,11 @@ void Spi1DmaTXDeinitialise(void) {
  * progress. The callback function will be called from within an interrupt once
  * the transfer is complete.
  * @param csPin_ CS pin.
- * @param data_ Data.
- * @param numberOfBytes_ Number of bytes.
+ * @param data Data.
+ * @param numberOfBytes Number of bytes.
  * @param transferComplete_ Transfer complete callback function.
  */
-void Spi1DmaTXTransfer(const GPIO_PIN csPin_, void* const data_, const size_t numberOfBytes_, void (*transferComplete_)(void)) {
+void Spi1DmaTXTransfer(const GPIO_PIN csPin_, const void* const data, const size_t numberOfBytes, void (*transferComplete_)(void)) {
 
     // Set CS pin and callback
     csPin = csPin_;
@@ -124,16 +113,12 @@ void Spi1DmaTXTransfer(const GPIO_PIN csPin_, void* const data_, const size_t nu
 
     // Print
 #ifdef PRINT_TRANSFERS
-    printf("CS %u\n", csPin);
-    data = data_;
-    numberOfBytes = numberOfBytes_;
-    printf("SDO");
-    PrintData();
+    SpiPrintTransfer(csPin, data, numberOfBytes);
 #endif
 
     // Configure TX DMA channel
-    DCH0SSA = KVA_TO_PA(data_); // source address
-    DCH0SSIZ = numberOfBytes_; // source size
+    DCH0SSA = KVA_TO_PA(data); // source address
+    DCH0SSIZ = numberOfBytes; // source size
 
     // Begin transfer
     if (csPin != GPIO_PIN_NONE) {
@@ -156,20 +141,6 @@ void Dma0InterruptHandler(void) {
         transferComplete();
     }
 }
-
-#ifdef PRINT_TRANSFERS
-
-/**
- * @brief Prints data.
- */
-static void PrintData(void) {
-    for (size_t index = 0; index < numberOfBytes; index++) {
-        printf(" %02X", ((uint8_t*) data)[index]);
-    }
-    printf("\n");
-}
-
-#endif
 
 /**
  * @brief Returns true while the transfer is in progress.

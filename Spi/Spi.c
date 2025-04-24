@@ -9,6 +9,7 @@
 
 #include "PeripheralBusClockFrequency.h"
 #include "Spi.h"
+#include <stdio.h>
 
 //------------------------------------------------------------------------------
 // Definitions
@@ -23,6 +24,11 @@
 #else
 #error "Unsupported device."
 #endif
+
+//------------------------------------------------------------------------------
+// Function declarations
+
+static void PrintData(const void * const data, const size_t numberOfBytes);
 
 //------------------------------------------------------------------------------
 // Variables
@@ -45,6 +51,40 @@ const SpiSettings spiSettingsDefault = {
 uint32_t SpiCalculateSpixbrg(const uint32_t clockFrequency) {
     const float idealSpixbrg = ((float) FPB / (2.0f * (float) clockFrequency)) - 1.0f;
     return (uint32_t) (idealSpixbrg + 0.5f);
+}
+
+/**
+ * @brief Prints transfer.
+ * @param csPin CS pin.
+ * @param data Data.
+ * @param numberOfBytes Number of bytes.
+ */
+void SpiPrintTransfer(GPIO_PIN csPin, const void * const data, const size_t numberOfBytes) {
+    printf("CS %u\n", csPin);
+    printf("SDO");
+    PrintData(data, numberOfBytes);
+}
+
+/**
+ * @brief Prints transfer complete.
+ * @param data Data.
+ * @param numberOfBytes Number of bytes.
+ */
+void SpiPrintTransferComplete(const void * const data, const size_t numberOfBytes) {
+    printf("SDI");
+    PrintData(data, numberOfBytes);
+}
+
+/**
+ * @brief Prints data.
+ * @param data Data.
+ * @param numberOfBytes Number of bytes.
+ */
+static void PrintData(const void * const data, const size_t numberOfBytes) {
+    for (size_t index = 0; index < numberOfBytes; index++) {
+        printf(" %02X", ((uint8_t*) data)[index]);
+    }
+    printf("\n");
 }
 
 //------------------------------------------------------------------------------
