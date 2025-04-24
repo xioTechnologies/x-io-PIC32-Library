@@ -11,8 +11,6 @@
 // Includes
 
 #include "I2C.h"
-#include "I2CClientAddress.h"
-#include "I2CMessage.h"
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -30,9 +28,9 @@ void I2C1Start(void);
 void I2C1RepeatedStart(void);
 void I2C1Stop(void);
 bool I2C1Send(const uint8_t byte);
+bool I2C1SendAddressRead(const uint8_t address);
+bool I2C1SendAddressWrite(const uint8_t address);
 uint8_t I2C1Receive(const bool ack);
-void I2C1BeginMessage(I2CMessage * const message_);
-bool I2C1MessageInProgress(void);
 
 #endif
 

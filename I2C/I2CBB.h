@@ -11,6 +11,7 @@
 // Includes
 
 #include "definitions.h"
+#include "I2C.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include "Timer/Timer.h"
@@ -115,6 +116,28 @@ static inline __attribute__((always_inline)) bool I2CBBSend(const I2CBB * const 
     GPIO_PinWrite(i2cBB->sclPin, false);
     GPIO_PinWrite(i2cBB->sdaPin, false);
     return ack;
+}
+
+/**
+ * @brief Sends a 7-bit client address with appended R/W bit to indicate a
+ * read.
+ * @param i2cBB I2C bit bang structure.
+ * @param address 7-bit client address.
+ * @return True if an ACK was generated.
+ */
+static inline __attribute__((always_inline)) bool I2CBBSendAddressRead(const I2CBB * const i2cBB, const uint8_t address) {
+    return I2CBBSend(i2cBB, I2CAddressRead(address));
+}
+
+/**
+ * @brief Sends a 7-bit client address with appended R/W bit to indicate a
+ * write.
+ * @param i2cBB I2C bit bang structure.
+ * @param address 7-bit client address.
+ * @return True if an ACK was generated.
+ */
+static inline __attribute__((always_inline)) bool I2CBBSendAddressWrite(const I2CBB * const i2cBB, const uint8_t address) {
+    return I2CBBSend(i2cBB, I2CAddressWrite(address));
 }
 
 /**

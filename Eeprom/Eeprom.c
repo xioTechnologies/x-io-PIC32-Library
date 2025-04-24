@@ -8,7 +8,6 @@
 // Includes
 
 #include "Eeprom.h"
-#include "I2C/I2CClientAddress.h"
 #include "I2C/I2CStartSequence.h"
 #include <stdio.h>
 #include <string.h>
@@ -55,7 +54,7 @@ static void PrintLine(const I2C * const i2c, const uint16_t address, const uint8
 void EepromRead(const I2C * const i2c, const uint16_t address, void* const destination, const size_t numberOfBytes) {
     StartSequence(i2c, address);
     i2c->repeatedStart();
-    i2c->send(I2CClientAddressRead(I2C_CLIENT_ADDRESS));
+    i2c->sendAddressRead(I2C_CLIENT_ADDRESS);
     const size_t endIndex = numberOfBytes - 1;
     size_t destinationIndex = 0;
     while (destinationIndex < numberOfBytes) {
@@ -124,7 +123,7 @@ void EepromUpdate(const I2C * const i2c, uint16_t address, const void* const dat
  * @param address Address.
  */
 static void StartSequence(const I2C * const i2c, const uint16_t address) {
-    I2CStartSequence(i2c->start, i2c->send, I2C_CLIENT_ADDRESS, 5); // 5 ms
+    I2CStartSequence(i2c, I2C_CLIENT_ADDRESS, 5); // 5 ms
     i2c->send(address >> 8);
     i2c->send(address & 0xFF);
 }
@@ -219,12 +218,12 @@ static void PrintLine(const I2C * const i2c, const uint16_t address, const uint8
 /**
  * @brief Performs self-test.
  * @param i2c I2C interface.
- * @return Test result
+ * @return Test result.
  */
 EepromTestResult EepromTest(const I2C * const i2c) {
 
     // Test client ACK
-    const bool ack = I2CStartSequence(i2c->start, i2c->send, I2C_CLIENT_ADDRESS, 5); // 5 ms
+    const bool ack = I2CStartSequence(i2c, I2C_CLIENT_ADDRESS, 5); // 5 ms
     i2c->stop();
     if (ack == false) {
         return EepromTestResultAckFailed;
@@ -242,7 +241,7 @@ EepromTestResult EepromTest(const I2C * const i2c) {
     // Read modified data
     EepromRead(i2c, address, &readData, sizeof (readData));
 
-    // Fail if read data does not match write data
+    // Check that read data matches write data
     if (readData != writeData) {
         return EepromTestResultDataMismatch;
     }

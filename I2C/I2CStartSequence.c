@@ -7,7 +7,6 @@
 //------------------------------------------------------------------------------
 // Includes
 
-#include "I2CClientAddress.h"
 #include "I2CStartSequence.h"
 #include "Timer/Timer.h"
 
@@ -16,17 +15,16 @@
 
 /**
  * @brief Performs I2C start sequence with acknowledge polling and timeout.
- * @param i2cStart I2C start function.
- * @param i2cSend I2C send function.
- * @param byte Byte.
+ * @param i2c I2C interface.
+ * @param address 7-bit client address.
  * @param timeout_ Timeout in milliseconds.
  * @return True if an ACK was generated.
  */
-bool I2CStartSequence(void (*i2cStart)(void), bool(*i2cSend)(const uint8_t byte), const uint8_t clientAddress, const uint32_t timeout_) {
+bool I2CStartSequence(const I2C * const i2c, const uint8_t address, const uint32_t timeout_) {
     const uint64_t timeout = TimerGetTicks64() + ((uint64_t) timeout_ * (uint64_t) TIMER_TICKS_PER_MILLISECOND);
     while (true) {
-        i2cStart();
-        if (i2cSend(I2CClientAddressWrite(clientAddress))) {
+        i2c->start();
+        if (i2c->sendAddressWrite(address)) {
             return true;
         }
         if (TimerGetTicks64() > timeout) {

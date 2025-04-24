@@ -27,6 +27,8 @@ void I2CBB1Start(void);
 void I2CBB1RepeatedStart(void);
 void I2CBB1Stop(void);
 bool I2CBB1Send(const uint8_t byte);
+bool I2CBB1SendAddressRead(const uint8_t address);
+bool I2CBB1SendAddressWrite(const uint8_t address);
 uint8_t I2CBB1Receive(const bool ack);
 
 #endif
