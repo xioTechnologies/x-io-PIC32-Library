@@ -9,7 +9,6 @@
 
 #include "definitions.h"
 #include "Spi6Dma.h"
-#include <stdio.h>
 #include "sys/kmem.h"
 
 //------------------------------------------------------------------------------
@@ -19,13 +18,6 @@
  * @brief Uncomment this line to enable printing of transfers.
  */
 //#define PRINT_TRANSFERS
-
-//------------------------------------------------------------------------------
-// Function declarations
-
-#ifdef PRINT_TRANSFERS
-static void PrintData(void);
-#endif
 
 //------------------------------------------------------------------------------
 // Variables
@@ -150,11 +142,9 @@ void Spi6DmaTransfer(const GPIO_PIN csPin_, void* const data_, const size_t numb
 
     // Print
 #ifdef PRINT_TRANSFERS
-    printf("CS %u\n", csPin);
     data = data_;
     numberOfBytes = numberOfBytes_;
-    printf("SDO");
-    PrintData();
+    SpiPrintTransfer(csPin, data, numberOfBytes);
 #endif
 
     // Configure TX DMA channel
@@ -184,27 +174,12 @@ void Dma1InterruptHandler(void) {
         GPIO_PinSet(csPin);
     }
 #ifdef PRINT_TRANSFERS
-    printf("SDI");
-    PrintData();
+    SpiPrintTransferComplete(data, numberOfBytes);
 #endif
     if (transferComplete != NULL) {
         transferComplete();
     }
 }
-
-#ifdef PRINT_TRANSFERS
-
-/**
- * @brief Prints data.
- */
-static void PrintData(void) {
-    for (size_t index = 0; index < numberOfBytes; index++) {
-        printf(" %02X", ((uint8_t*) data)[index]);
-    }
-    printf("\n");
-}
-
-#endif
 
 /**
  * @brief Returns true while the transfer is in progress.

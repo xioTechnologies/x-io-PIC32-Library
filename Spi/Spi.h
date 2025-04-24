@@ -10,6 +10,7 @@
 //------------------------------------------------------------------------------
 // Includes
 
+#include "definitions.h"
 #include <stdint.h>
 
 //------------------------------------------------------------------------------
@@ -49,6 +50,8 @@ extern const SpiSettings spiSettingsDefault;
 // Function declarations
 
 uint32_t SpiCalculateSpixbrg(const uint32_t clockFrequency);
+void SpiPrintTransfer(GPIO_PIN csPin, const void * const data, const size_t numberOfBytes);
+void SpiPrintTransferComplete(const void * const data, const size_t numberOfBytes);
 
 #endif
 
