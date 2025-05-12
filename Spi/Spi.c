@@ -15,12 +15,12 @@
 // Definitions
 
 /**
- * @brief Value used for SPIxBRG calculation.
+ * @brief SPI peripheral clock frequency.
  */
 #if (defined __PIC32MX__) || (defined __PIC32MM__)
-#define FPB (PERIPHERAL_BUS_CLOCK_FREQUENCY)
+#define SPI_PERIPHERAL_CLOCK (PERIPHERAL_BUS_CLOCK_FREQUENCY)
 #elif defined __PIC32MZ__
-#define FPB (PERIPHERAL_BUS_CLOCK_2_FREQUENCY)
+#define SPI_PERIPHERAL_CLOCK (PERIPHERAL_BUS_CLOCK_2_FREQUENCY)
 #else
 #error "Unsupported device."
 #endif
@@ -43,14 +43,24 @@ const SpiSettings spiSettingsDefault = {
 // Functions
 
 /**
- * @brief Calculates a SPIxBRG value for a specified clock frequency.
+ * @brief Calculates the SPIxBRG value for a target clock frequency.
  * See page 29 of Section 23. Serial Peripheral Interface (SPI).
  * @param clockFrequency Clock frequency in Hz.
- * @return SPIxBRG values.
+ * @return SPIxBRG value.
  */
 uint32_t SpiCalculateSpixbrg(const uint32_t clockFrequency) {
-    const float idealSpixbrg = ((float) FPB / (2.0f * (float) clockFrequency)) - 1.0f;
+    const float idealSpixbrg = ((float) SPI_PERIPHERAL_CLOCK / (2.0f * (float) clockFrequency)) - 1.0f;
     return (uint32_t) (idealSpixbrg + 0.5f);
+}
+
+/**
+ * @brief Calculates the actual clock frequency for a SPIxBRG value.
+ * See page 29 of Section 23. Serial Peripheral Interface (SPI).
+ * @param spixbrg SPIxBRG value.
+ * @return Clock frequency in Hz.
+ */
+float SpiCalculateClockFrequency(const uint32_t spixbrg) {
+    return (float) SPI_PERIPHERAL_CLOCK / (2.0f * ((float) spixbrg + 1.0f));
 }
 
 /**

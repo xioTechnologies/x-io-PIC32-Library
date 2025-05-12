@@ -8,13 +8,13 @@ def duplicate(files, keywords, source_id, destination_ids):
 
         for index, _ in enumerate(source_files):
             with open(source_files[index]) as file:
-                contents = file.read()
+                code = file.read()
 
             for keyword_index, _ in enumerate(source_keywords):
-                contents = contents.replace(source_keywords[keyword_index], destination_keywords[keyword_index])
+                code = code.replace(source_keywords[keyword_index], destination_keywords[keyword_index])
 
             with open(destination_files[index], "w") as file:
-                file.write(contents)
+                file.write(code)
 
 
 duplicate(
@@ -43,6 +43,13 @@ duplicate(
     ("Pwm?", "PWM_?", "OC?"),
     1,
     (2, 3, 4, 5, 6, 7, 8, 9),
+)
+
+duplicate(
+    ("Spi/Spi?.c", "Spi/Spi?.h"),
+    ("Spi?", "SPI?"),
+    1,
+    (2, 3, 4, 5, 6),
 )
 
 duplicate(

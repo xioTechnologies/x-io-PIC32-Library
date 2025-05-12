@@ -50,6 +50,7 @@ extern const SpiSettings spiSettingsDefault;
 // Function declarations
 
 uint32_t SpiCalculateSpixbrg(const uint32_t clockFrequency);
+float SpiCalculateClockFrequency(const uint32_t spixbrg);
 void SpiPrintTransfer(GPIO_PIN csPin, const void * const data, const size_t numberOfBytes);
 void SpiPrintTransferComplete(const void * const data, const size_t numberOfBytes);
 
