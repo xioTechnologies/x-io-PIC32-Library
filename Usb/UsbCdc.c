@@ -23,6 +23,7 @@ static void WriteTasks(void);
 
 static USB_DEVICE_HANDLE usbDeviceHandle = USB_DEVICE_HANDLE_INVALID;
 static bool hostConnected;
+static bool portOpen;
 static uint8_t __attribute__((coherent)) readRequestData[512]; // must be declared __attribute__((coherent)) for PIC32MZ devices
 static bool readInProgress;
 static bool writeInProgress;
@@ -64,6 +65,7 @@ static void APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void * eventData, 
         case USB_DEVICE_EVENT_SUSPENDED:
         case USB_DEVICE_EVENT_DECONFIGURED:
             hostConnected = false;
+            portOpen = false;
             readInProgress = false;
             writeInProgress = false;
             break;
@@ -79,6 +81,7 @@ static void APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void * eventData, 
         case USB_DEVICE_EVENT_POWER_REMOVED:
             USB_DEVICE_Detach(usbDeviceHandle);
             hostConnected = false;
+            portOpen = false;
             readInProgress = false;
             writeInProgress = false;
             break;
@@ -105,6 +108,7 @@ static void APP_USBDeviceCDCEventHandler(USB_DEVICE_CDC_INDEX index, USB_DEVICE_
             USB_DEVICE_ControlReceive(usbDeviceHandle, (uint8_t *) & usbCdcLineCoding, sizeof (usbCdcLineCoding));
             break;
         case USB_DEVICE_CDC_EVENT_SET_CONTROL_LINE_STATE:
+            portOpen = ((USB_CDC_CONTROL_LINE_STATE *) pData)->dtr == 1;
             USB_DEVICE_ControlStatus(usbDeviceHandle, USB_DEVICE_CONTROL_STATUS_OK);
             break;
         case USB_DEVICE_CDC_EVENT_SEND_BREAK:
@@ -183,6 +187,14 @@ static void WriteTasks(void) {
  */
 bool UsbCdcHostConnected(void) {
     return hostConnected;
+}
+
+/**
+ * @brief Returns true if the port is open.
+ * @return True if the port is open.
+ */
+bool UsbCdcPortOpen(void) {
+    return portOpen;
 }
 
 /**

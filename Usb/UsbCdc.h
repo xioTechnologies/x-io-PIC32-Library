@@ -20,6 +20,7 @@
 
 void UsbCdcTasks(void);
 bool UsbCdcHostConnected(void);
+bool UsbCdcPortOpen(void);
 size_t UsbCdcGetReadAvailable(void);
 size_t UsbCdcRead(void* const destination, size_t numberOfBytes);
 uint8_t UsbCdcReadByte(void);
