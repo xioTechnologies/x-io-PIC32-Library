@@ -20,7 +20,6 @@
 
 void Uart6DmaInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions);
 void Uart6DmaDeinitialise(void);
-void Uart6DmaSetReadCallback(void (*read_)(const void* const data, const size_t numberOfBytes));
 void Uart6DmaRead(void);
 void Uart6DmaWrite(const void* const data, const size_t numberOfBytes);
 bool Uart6DmaWriteInProgress(void);

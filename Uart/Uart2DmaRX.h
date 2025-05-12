@@ -21,7 +21,6 @@
 
 void Uart2DmaRXInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions);
 void Uart2DmaRXDeinitialise(void);
-void Uart2DmaRXSetReadCallback(void (*read_)(const void* const data, const size_t numberOfBytes));
 void Uart2DmaRXRead(void);
 size_t Uart2DmaRXGetWriteAvailable(void);
 FifoResult Uart2DmaRXWrite(const void* const data, const size_t numberOfBytes);

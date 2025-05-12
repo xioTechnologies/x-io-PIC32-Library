@@ -1,7 +1,7 @@
 /**
  * @file Uart5DmaTX.h
  * @author Seb Madgwick
- * @brief UART driver for PIC32 devices. DMA used for TX only.
+ * @brief UART driver using DMA for PIC32 devices. DMA used for TX only.
  */
 
 #ifndef UART5_DMA_TX_H
@@ -22,7 +22,7 @@ void Uart5DmaTXDeinitialise(void);
 size_t Uart5DmaTXGetReadAvailable(void);
 size_t Uart5DmaTXRead(void* const destination, size_t numberOfBytes);
 uint8_t Uart5DmaTXReadByte(void);
-void Uart5DmaTXWrite(const void* const data, const size_t numberOfBytes);
+void Uart5DmaTXWrite(const void* const data, const size_t numberOfBytes, void (*writeComplete_)(void));
 bool Uart5DmaTXWriteInProgress(void);
 void Uart5DmaTXClearReadBuffer(void);
 bool Uart5DmaTXHasReceiveBufferOverrun(void);

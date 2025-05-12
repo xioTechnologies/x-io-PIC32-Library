@@ -54,6 +54,7 @@ extern const UartSettings uartSettingsDefault;
 // Function declarations
 
 uint32_t UartCalculateUxbrg(const uint32_t baudRate);
+float UartCalculateBaudRate(const uint32_t uxbrg);
 
 #endif
 

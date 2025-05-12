@@ -9,6 +9,7 @@
 
 #include "definitions.h"
 #include <stdint.h>
+#include "sys/kmem.h"
 #include "Timer/Timer.h"
 #include "Uart5DmaRX.h"
 
@@ -34,8 +35,9 @@ static Fifo writeFifo = {.data = writeData, .dataSize = sizeof (writeData)};
  * @brief Initialises the module.
  * @param settings Settings.
  * @param readConditions Read conditions.
+ * @param read Read callback.
  */
-void Uart5DmaRXInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions) {
+void Uart5DmaRXInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions, void (*read_)(const void* const data, const size_t numberOfBytes)) {
 
     // Ensure default register states
     Uart5DmaRXDeinitialise();
@@ -68,6 +70,9 @@ void Uart5DmaRXInitialise(const UartSettings * const settings, const UartDmaRead
     if (validReadConditions.timeout > 1000) {
         validReadConditions.timeout = 1000;
     }
+
+    // Store callback
+    read = read_;
 
     // Enable DMA
     DMACONbits.ON = 1;
@@ -109,7 +114,7 @@ void Uart5DmaRXInitialise(const UartSettings * const settings, const UartDmaRead
     T8CONbits.T32 = 1;
     T8CONbits.ON = 1;
 
-    // Configure RX DMA channel interrupt
+    // Enable interrupts
     EVIC_SourceEnable(INT_SOURCE_DMA0);
 }
 
@@ -154,28 +159,13 @@ void Uart5DmaRXDeinitialise(void) {
     T8CON = 0;
     T9CON = 0;
 
-    // Disable interrupt
+    // Disable interrupts
     EVIC_SourceDisable(INT_SOURCE_DMA0);
     EVIC_SourceStatusClear(INT_SOURCE_DMA0);
-
-    // Remove callback
-    read = NULL;
 }
 
 /**
- * @brief Sets the read callback function. This function is called from within
- * an interrupt each time a read condition is met.
- * @param read Read callback function.
- */
-void Uart5DmaRXSetReadCallback(void (*read_)(const void* const data, const size_t numberOfBytes)) {
-    const bool state = EVIC_INT_SourceDisable(INT_SOURCE_DMA0);
-    read = read_;
-    EVIC_INT_SourceRestore(INT_SOURCE_DMA0, state);
-}
-
-/**
- * @brief Triggers the read callback function to be called if any data is
- * available.
+ * @brief Triggers the read callback to be called if any data is available.
  */
 void Uart5DmaRXRead(void) {
     DCH0INTbits.CHTAIF = 1; // trigger transfer abort interrupt
@@ -199,10 +189,8 @@ void Dma0InterruptHandler(void) {
         DCH0INTbits.CHTAIF = 0;
     }
 
-    // Clear interrupt flag
-    EVIC_SourceStatusClear(INT_SOURCE_DMA0);
-
     // Re-enable channel
+    EVIC_SourceStatusClear(INT_SOURCE_DMA0);
     DCH0CONbits.CHEN = 1;
 }
 
@@ -210,8 +198,6 @@ void Dma0InterruptHandler(void) {
  * @brief Block transfer complete.
  */
 static inline __attribute__((always_inline)) void BlockTransferComplete(void) {
-
-    // Get number of bytes
     size_t numberOfBytes;
     if (DCH0ECONbits.PATEN == 1) {
         numberOfBytes = 0;
@@ -228,8 +214,6 @@ static inline __attribute__((always_inline)) void BlockTransferComplete(void) {
     } else {
         numberOfBytes = DCH0DSIZ;
     }
-
-    // Callback function
     if (read != NULL) {
         read(readBuffer, numberOfBytes);
     }
@@ -239,19 +223,11 @@ static inline __attribute__((always_inline)) void BlockTransferComplete(void) {
  * @brief Transfer aborted.
  */
 static inline __attribute__((always_inline)) void TransferAborted(void) {
-
-    // Do nothing if no data received
-    if (DCH0DPTR == 0) {
+    if (DCH0DPTR == 0) { // if no data received
         return;
     }
-
-    // Get number of bytes
     const size_t numberOfBytes = DCH0DPTR;
-
-    // Reset DMA channel
-    DCH0ECONbits.CABORT = 1;
-
-    // Callback function
+    DCH0ECONbits.CABORT = 1; // reset DMA channel
     if (read != NULL) {
         read(readBuffer, numberOfBytes);
     }

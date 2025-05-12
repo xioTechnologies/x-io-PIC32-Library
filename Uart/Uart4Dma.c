@@ -24,6 +24,7 @@ static inline __attribute__((always_inline)) void TransferAborted(void);
 
 static void (*read)(const void* const data, const size_t numberOfBytes);
 static uint8_t __attribute__((coherent)) readBuffer[1024]; // must be declared __attribute__((coherent)) for PIC32MZ devices
+static void (*writeComplete)(void);
 
 //------------------------------------------------------------------------------
 // Functions
@@ -32,8 +33,9 @@ static uint8_t __attribute__((coherent)) readBuffer[1024]; // must be declared _
  * @brief Initialises the module.
  * @param settings Settings.
  * @param readConditions Read conditions.
+ * @param read Read callback.
  */
-void Uart4DmaInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions) {
+void Uart4DmaInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions, void (*read_)(const void* const data, const size_t numberOfBytes)) {
 
     // Ensure default register states
     Uart4DmaDeinitialise();
@@ -54,16 +56,6 @@ void Uart4DmaInitialise(const UartSettings * const settings, const UartDmaReadCo
     U4BRG = UartCalculateUxbrg(settings->baudRate);
     U4MODEbits.ON = 1; // UARTx is enabled. UARTx pins are controlled by UARTx as defined by UEN<1:0> and UTXEN control bits
 
-    // Enable DMA
-    DMACONbits.ON = 1;
-
-    // Configure TX DMA channel
-    DCH0ECONbits.CHSIRQ = _UART4_TX_VECTOR;
-    DCH0ECONbits.SIRQEN = 1; // start channel cell transfer if an interrupt matching CHSIRQ occurs
-    DCH0DSA = KVA_TO_PA(&U4TXREG); // destination address
-    DCH0DSIZ = 1; // destination size
-    DCH0CSIZ = 1; // transfers per event
-
     // Limit read condition values to valid range
     UartDmaReadConditions validReadConditions = *readConditions;
     if (validReadConditions.numberOfBytes > sizeof (readBuffer)) {
@@ -75,6 +67,20 @@ void Uart4DmaInitialise(const UartSettings * const settings, const UartDmaReadCo
     if (validReadConditions.timeout > 1000) {
         validReadConditions.timeout = 1000;
     }
+
+    // Store callback
+    read = read_;
+
+    // Enable DMA
+    DMACONbits.ON = 1;
+
+    // Configure TX DMA channel
+    DCH0ECONbits.CHSIRQ = _UART4_TX_VECTOR;
+    DCH0ECONbits.SIRQEN = 1; // start channel cell transfer if an interrupt matching CHSIRQ occurs
+    DCH0DSA = KVA_TO_PA(&U4TXREG); // destination address
+    DCH0DSIZ = 1; // destination size
+    DCH0CSIZ = 1; // transfers per event
+    DCH0INTbits.CHBCIE = 1; // channel Block Transfer Complete Interrupt Enable bit
 
     // Configure RX DMA channel
     DCH1ECONbits.CHAIRQ = _TIMER_9_VECTOR;
@@ -113,8 +119,9 @@ void Uart4DmaInitialise(const UartSettings * const settings, const UartDmaReadCo
     T8CONbits.T32 = 1;
     T8CONbits.ON = 1;
 
-    // Configure RX DMA channel interrupt
+    // Enable interrupts
     EVIC_SourceEnable(INT_SOURCE_DMA1);
+    EVIC_SourceEnable(INT_SOURCE_DMA0);
 }
 
 /**
@@ -172,28 +179,13 @@ void Uart4DmaDeinitialise(void) {
     T8CON = 0;
     T9CON = 0;
 
-    // Disable interrupt
+    // Disable interrupts
     EVIC_SourceDisable(INT_SOURCE_DMA1);
     EVIC_SourceStatusClear(INT_SOURCE_DMA1);
-
-    // Remove callback
-    read = NULL;
 }
 
 /**
- * @brief Sets the read callback function. This function is called from within
- * an interrupt each time a read condition is met.
- * @param read_ Read callback function.
- */
-void Uart4DmaSetReadCallback(void (*read_)(const void* const data, const size_t numberOfBytes)) {
-    const bool state = EVIC_INT_SourceDisable(INT_SOURCE_DMA1);
-    read = read_;
-    EVIC_INT_SourceRestore(INT_SOURCE_DMA1, state);
-}
-
-/**
- * @brief Triggers the read callback function to be called if any data is
- * available.
+ * @brief Triggers the read callback to be called if any data is available.
  */
 void Uart4DmaRead(void) {
     DCH1INTbits.CHTAIF = 1; // trigger transfer abort interrupt
@@ -217,10 +209,8 @@ void Dma1InterruptHandler(void) {
         DCH1INTbits.CHTAIF = 0;
     }
 
-    // Clear interrupt flag
-    EVIC_SourceStatusClear(INT_SOURCE_DMA1);
-
     // Re-enable channel
+    EVIC_SourceStatusClear(INT_SOURCE_DMA1);
     DCH1CONbits.CHEN = 1;
 }
 
@@ -228,8 +218,6 @@ void Dma1InterruptHandler(void) {
  * @brief Block transfer complete.
  */
 static inline __attribute__((always_inline)) void BlockTransferComplete(void) {
-
-    // Get number of bytes
     size_t numberOfBytes;
     if (DCH1ECONbits.PATEN == 1) {
         numberOfBytes = 0;
@@ -246,8 +234,6 @@ static inline __attribute__((always_inline)) void BlockTransferComplete(void) {
     } else {
         numberOfBytes = DCH1DSIZ;
     }
-
-    // Callback function
     if (read != NULL) {
         read(readBuffer, numberOfBytes);
     }
@@ -257,19 +243,11 @@ static inline __attribute__((always_inline)) void BlockTransferComplete(void) {
  * @brief Transfer aborted.
  */
 static inline __attribute__((always_inline)) void TransferAborted(void) {
-
-    // Do nothing if no data received
-    if (DCH1DPTR == 0) {
+    if (DCH1DPTR == 0) { // if no data received
         return;
     }
-
-    // Get number of bytes
     const size_t numberOfBytes = DCH1DPTR;
-
-    // Reset DMA channel
-    DCH1ECONbits.CABORT = 1;
-
-    // Callback function
+    DCH1ECONbits.CABORT = 1; // reset DMA channel
     if (read != NULL) {
         read(readBuffer, numberOfBytes);
     }
@@ -281,11 +259,25 @@ static inline __attribute__((always_inline)) void TransferAborted(void) {
  * progress.
  * @param data Data.
  * @param numberOfBytes Number of bytes.
+ * @param writeComplete_ Write complete callback.
  */
-void Uart4DmaWrite(const void* const data, const size_t numberOfBytes) {
+void Uart4DmaWrite(const void* const data, const size_t numberOfBytes, void (*writeComplete_)(void)) {
+    writeComplete = writeComplete_;
     DCH0SSA = KVA_TO_PA(data); // source address
     DCH0SSIZ = numberOfBytes; // source size
-    DCH0CONbits.CHEN = 1; // enable TX DMA channel
+    DCH0INTbits.CHBCIF = 0; // clear TX DMA channel interrupt flag
+    DCH0CONbits.CHEN = 1; // enable TX DMA channel to begin write
+}
+
+/**
+ * @brief DMA interrupt handler. This function should be called by the ISR
+ * implementation generated by MPLAB Harmony.
+ */
+void Dma0InterruptHandler(void) {
+    EVIC_SourceStatusClear(INT_SOURCE_DMA0); // clear interrupt flag first because callback may start new write
+    if (writeComplete != NULL) {
+        writeComplete();
+    }
 }
 
 /**

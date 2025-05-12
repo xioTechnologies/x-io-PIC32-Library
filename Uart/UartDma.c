@@ -14,7 +14,7 @@
 // Definitions
 
 /**
- * @brief Value used for UxBRG calculation.
+ * @brief Timer peripheral clock.
  */
 #if defined __PIC32MX__
 #define TIMER_PERIPHERAL_CLOCK (PERIPHERAL_BUS_CLOCK_FREQUENCY)
@@ -37,7 +37,7 @@ const UartDmaReadConditions uartDmaReadConditionsDefault = {
 // Functions
 
 /**
- * @brief Calculates a timer reset value for a specified timeout.
+ * @brief Calculates the timer reset value for a timeout.
  * @param timeout Timeout in milliseconds.
  * @return Timer reset value.
  */

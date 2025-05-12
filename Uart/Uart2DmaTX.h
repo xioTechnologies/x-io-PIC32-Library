@@ -1,7 +1,7 @@
 /**
  * @file Uart2DmaTX.h
  * @author Seb Madgwick
- * @brief UART driver for PIC32 devices. DMA used for TX only.
+ * @brief UART driver using DMA for PIC32 devices. DMA used for TX only.
  */
 
 #ifndef UART2_DMA_TX_H
@@ -22,7 +22,7 @@ void Uart2DmaTXDeinitialise(void);
 size_t Uart2DmaTXGetReadAvailable(void);
 size_t Uart2DmaTXRead(void* const destination, size_t numberOfBytes);
 uint8_t Uart2DmaTXReadByte(void);
-void Uart2DmaTXWrite(const void* const data, const size_t numberOfBytes);
+void Uart2DmaTXWrite(const void* const data, const size_t numberOfBytes, void (*writeComplete_)(void));
 bool Uart2DmaTXWriteInProgress(void);
 void Uart2DmaTXClearReadBuffer(void);
 bool Uart2DmaTXHasReceiveBufferOverrun(void);
