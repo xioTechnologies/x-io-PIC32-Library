@@ -239,7 +239,7 @@ void Uart5RXInterruptHandler(void) {
  * @brief UART RX interrupt tasks.
  */
 static inline __attribute__((always_inline)) void RXInterruptTasks(void) {
-    while (U5STAbits.URXDA == 1) { // repeat while data available in receive buffer
+    while (U5STAbits.URXDA == 1) { // while data available in receive buffer
         if (FifoGetWriteAvailable(&readFifo) == 0) { // if read buffer full
             EVIC_SourceDisable(INT_SOURCE_UART5_RX);
             break;

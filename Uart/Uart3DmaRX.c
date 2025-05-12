@@ -53,7 +53,7 @@ void Uart3DmaRXInitialise(const UartSettings * const settings, const UartDmaRead
     U3MODEbits.PDSEL = settings->parityAndData;
     U3MODEbits.STSEL = settings->stopBits;
     U3MODEbits.BRGH = 1; // high-Speed mode - 4x baud clock enabled
-    U3STAbits.UTXISEL = 0b10; // Interrupt is generated and asserted while the transmit buffer is empty
+    U3STAbits.UTXISEL = 0b10; // interrupt is generated and asserted while the transmit buffer is empty
     U3STAbits.URXEN = 1; // UARTx receiver is enabled. UxRX pin is controlled by UARTx (if ON = 1)
     U3STAbits.UTXEN = 1; // UARTx transmitter is enabled. UxTX pin is controlled by UARTx (if ON = 1)
     U3BRG = UartCalculateUxbrg(settings->baudRate);
@@ -320,7 +320,7 @@ void Uart3TXInterruptHandler(void) {
 static inline __attribute__((always_inline)) void TXInterruptTasks(void) {
     EVIC_SourceDisable(INT_SOURCE_UART3_TX); // disable TX interrupt to avoid nested interrupt
     EVIC_SourceStatusClear(INT_SOURCE_UART3_TX);
-    while (U3STAbits.UTXBF == 0) { // repeat while transmit buffer not full
+    while (U3STAbits.UTXBF == 0) { // while transmit buffer not full
         if (FifoGetReadAvailable(&writeFifo) == 0) { // if write buffer empty
             return;
         }

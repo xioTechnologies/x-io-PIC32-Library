@@ -235,7 +235,7 @@ void Uart5TXInterruptHandler(void) {
  * @brief UART RX interrupt tasks.
  */
 static inline __attribute__((always_inline)) void RXInterruptTasks(void) {
-    while (U5STAbits.URXDA == 1) { // repeat while data available in receive buffer
+    while (U5STAbits.URXDA == 1) { // while data available in receive buffer
         if (FifoGetWriteAvailable(&readFifo) == 0) { // if read buffer full
             EVIC_SourceDisable(INT_SOURCE_UART5_RX);
             break;
@@ -252,7 +252,7 @@ static inline __attribute__((always_inline)) void RXInterruptTasks(void) {
 static inline __attribute__((always_inline)) void TXInterruptTasks(void) {
     EVIC_SourceDisable(INT_SOURCE_UART5_TX); // disable TX interrupt to avoid nested interrupt
     EVIC_SourceStatusClear(INT_SOURCE_UART5_TX);
-    while (U5STAbits.UTXBF == 0) { // repeat while transmit buffer not full
+    while (U5STAbits.UTXBF == 0) { // while transmit buffer not full
         if (FifoGetReadAvailable(&writeFifo) == 0) { // if write buffer empty
             return;
         }

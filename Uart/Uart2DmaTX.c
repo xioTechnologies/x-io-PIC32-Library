@@ -239,7 +239,7 @@ void Uart2RXInterruptHandler(void) {
  * @brief UART RX interrupt tasks.
  */
 static inline __attribute__((always_inline)) void RXInterruptTasks(void) {
-    while (U2STAbits.URXDA == 1) { // repeat while data available in receive buffer
+    while (U2STAbits.URXDA == 1) { // while data available in receive buffer
         if (FifoGetWriteAvailable(&readFifo) == 0) { // if read buffer full
             EVIC_SourceDisable(INT_SOURCE_UART2_RX);
             break;

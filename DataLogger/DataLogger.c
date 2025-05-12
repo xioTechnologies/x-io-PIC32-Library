@@ -100,8 +100,8 @@ void DataLoggerSetSettings(const DataLoggerSettings * const settings_) {
 }
 
 /**
- * @brief Sets the callback functions.
- * @param callbacks_ Callback functions.
+ * @brief Sets the callbacks.
+ * @param callbacks_ Callbacks.
  */
 void DataLoggerSetCallbacks(const DataLoggerCallbacks * const callbacks_) {
     callbacks = *callbacks_;

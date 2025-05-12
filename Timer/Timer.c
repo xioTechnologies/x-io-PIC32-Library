@@ -35,7 +35,7 @@ void TimerInitialise(void) {
     T2CONbits.ON = 1;
 #endif
 
-    // Configure interrupt
+    // Enable interrupt
 #ifdef __PIC32MM__
     EVIC_SourceEnable(INT_SOURCE_CCT1);
 #else

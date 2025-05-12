@@ -53,7 +53,7 @@ void Uart4DmaRXInitialise(const UartSettings * const settings, const UartDmaRead
     U4MODEbits.PDSEL = settings->parityAndData;
     U4MODEbits.STSEL = settings->stopBits;
     U4MODEbits.BRGH = 1; // high-Speed mode - 4x baud clock enabled
-    U4STAbits.UTXISEL = 0b10; // Interrupt is generated and asserted while the transmit buffer is empty
+    U4STAbits.UTXISEL = 0b10; // interrupt is generated and asserted while the transmit buffer is empty
     U4STAbits.URXEN = 1; // UARTx receiver is enabled. UxRX pin is controlled by UARTx (if ON = 1)
     U4STAbits.UTXEN = 1; // UARTx transmitter is enabled. UxTX pin is controlled by UARTx (if ON = 1)
     U4BRG = UartCalculateUxbrg(settings->baudRate);
@@ -320,7 +320,7 @@ void Uart4TXInterruptHandler(void) {
 static inline __attribute__((always_inline)) void TXInterruptTasks(void) {
     EVIC_SourceDisable(INT_SOURCE_UART4_TX); // disable TX interrupt to avoid nested interrupt
     EVIC_SourceStatusClear(INT_SOURCE_UART4_TX);
-    while (U4STAbits.UTXBF == 0) { // repeat while transmit buffer not full
+    while (U4STAbits.UTXBF == 0) { // while transmit buffer not full
         if (FifoGetReadAvailable(&writeFifo) == 0) { // if write buffer empty
             return;
         }

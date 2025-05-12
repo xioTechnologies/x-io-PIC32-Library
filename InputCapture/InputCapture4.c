@@ -22,7 +22,7 @@ static void (*captureEvent)(const uint64_t ticks);
 /**
  * @brief Initialises the module.
  * @param edge Edge.
- * @param captureEvent_ Capture event callback function.
+ * @param captureEvent_ Capture event callback.
  */
 void InputCapture4Initialise(const InputCaptureEdge edge, void (*captureEvent_)(const uint64_t ticks)) {
 
@@ -40,7 +40,7 @@ void InputCapture4Initialise(const InputCaptureEdge edge, void (*captureEvent_)(
     }
     IC4CONbits.C32 = 1;
 
-    // Configure interrupt
+    // Enable interrupt
     captureEvent = captureEvent_;
     EVIC_SourceEnable(INT_SOURCE_INPUT_CAPTURE_4);
 

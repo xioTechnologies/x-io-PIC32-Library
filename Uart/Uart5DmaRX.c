@@ -53,7 +53,7 @@ void Uart5DmaRXInitialise(const UartSettings * const settings, const UartDmaRead
     U5MODEbits.PDSEL = settings->parityAndData;
     U5MODEbits.STSEL = settings->stopBits;
     U5MODEbits.BRGH = 1; // high-Speed mode - 4x baud clock enabled
-    U5STAbits.UTXISEL = 0b10; // Interrupt is generated and asserted while the transmit buffer is empty
+    U5STAbits.UTXISEL = 0b10; // interrupt is generated and asserted while the transmit buffer is empty
     U5STAbits.URXEN = 1; // UARTx receiver is enabled. UxRX pin is controlled by UARTx (if ON = 1)
     U5STAbits.UTXEN = 1; // UARTx transmitter is enabled. UxTX pin is controlled by UARTx (if ON = 1)
     U5BRG = UartCalculateUxbrg(settings->baudRate);
@@ -320,7 +320,7 @@ void Uart5TXInterruptHandler(void) {
 static inline __attribute__((always_inline)) void TXInterruptTasks(void) {
     EVIC_SourceDisable(INT_SOURCE_UART5_TX); // disable TX interrupt to avoid nested interrupt
     EVIC_SourceStatusClear(INT_SOURCE_UART5_TX);
-    while (U5STAbits.UTXBF == 0) { // repeat while transmit buffer not full
+    while (U5STAbits.UTXBF == 0) { // while transmit buffer not full
         if (FifoGetReadAvailable(&writeFifo) == 0) { // if write buffer empty
             return;
         }
