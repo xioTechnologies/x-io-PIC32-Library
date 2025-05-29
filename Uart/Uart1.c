@@ -84,7 +84,7 @@ void Uart1Deinitialise(void) {
  * @brief Returns the number of bytes available in the read buffer.
  * @return Number of bytes available in the read buffer.
  */
-size_t Uart1GetReadAvailable(void) {
+size_t Uart1AvailableRead(void) {
 
     // Trigger RX interrupt if hardware receive buffer not empty
     if (U1STAbits.URXDA == 1) {
@@ -99,7 +99,7 @@ size_t Uart1GetReadAvailable(void) {
     }
 
     // Return number of bytes
-    return FifoGetReadAvailable(&readFifo);
+    return FifoAvailableRead(&readFifo);
 }
 
 /**
@@ -109,7 +109,7 @@ size_t Uart1GetReadAvailable(void) {
  * @return Number of bytes read.
  */
 size_t Uart1Read(void* const destination, size_t numberOfBytes) {
-    Uart1GetReadAvailable(); // process hardware receive buffer
+    Uart1AvailableRead(); // process hardware receive buffer
     return FifoRead(&readFifo, destination, numberOfBytes);
 }
 
@@ -126,8 +126,8 @@ uint8_t Uart1ReadByte(void) {
  * @brief Returns the space available in the write buffer.
  * @return Space available in the write buffer.
  */
-size_t Uart1GetWriteAvailable(void) {
-    return FifoGetWriteAvailable(&writeFifo);
+size_t Uart1AvailableWrite(void) {
+    return FifoAvailableWrite(&writeFifo);
 }
 
 /**
@@ -158,7 +158,7 @@ FifoResult Uart1WriteByte(const uint8_t byte) {
  */
 void Uart1ClearReadBuffer(void) {
     FifoClear(&readFifo);
-    Uart1HasReceiveBufferOverrun();
+    Uart1ReceiveBufferOverrun();
 }
 
 /**
@@ -173,7 +173,7 @@ void Uart1ClearWriteBuffer(void) {
  * function will reset the flag.
  * @return True if the hardware receive buffer has overrun.
  */
-bool Uart1HasReceiveBufferOverrun(void) {
+bool Uart1ReceiveBufferOverrun(void) {
     if (receiveBufferOverrun) {
         receiveBufferOverrun = false;
         return true;
@@ -236,7 +236,7 @@ void Uart1TXInterruptHandler(void) {
  */
 static inline __attribute__((always_inline)) void RXInterruptTasks(void) {
     while (U1STAbits.URXDA == 1) { // while data available in receive buffer
-        if (FifoGetWriteAvailable(&readFifo) == 0) { // if read buffer full
+        if (FifoAvailableWrite(&readFifo) == 0) { // if read buffer full
             EVIC_SourceDisable(INT_SOURCE_UART1_RX);
             break;
         } else {
@@ -253,7 +253,7 @@ static inline __attribute__((always_inline)) void TXInterruptTasks(void) {
     EVIC_SourceDisable(INT_SOURCE_UART1_TX); // disable TX interrupt to avoid nested interrupt
     EVIC_SourceStatusClear(INT_SOURCE_UART1_TX);
     while (U1STAbits.UTXBF == 0) { // while transmit buffer not full
-        if (FifoGetReadAvailable(&writeFifo) == 0) { // if write buffer empty
+        if (FifoAvailableRead(&writeFifo) == 0) { // if write buffer empty
             return;
         }
         U1TXREG = FifoReadByte(&writeFifo);

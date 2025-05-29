@@ -294,7 +294,7 @@ bool Uart6DmaWriteInProgress(void) {
  * function will reset the flag.
  * @return True if the hardware receive buffer has overrun.
  */
-bool Uart6DmaHasReceiveBufferOverrun(void) {
+bool Uart6DmaReceiveBufferOverrun(void) {
     if (U6STAbits.OERR == 1) {
         U6STAbits.OERR = 0;
         return true;

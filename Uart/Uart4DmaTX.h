@@ -19,13 +19,13 @@
 
 void Uart4DmaTXInitialise(const UartSettings * const settings);
 void Uart4DmaTXDeinitialise(void);
-size_t Uart4DmaTXGetReadAvailable(void);
+size_t Uart4DmaTXAvailableRead(void);
 size_t Uart4DmaTXRead(void* const destination, size_t numberOfBytes);
 uint8_t Uart4DmaTXReadByte(void);
 void Uart4DmaTXWrite(const void* const data, const size_t numberOfBytes, void (*writeComplete_)(void));
 bool Uart4DmaTXWriteInProgress(void);
 void Uart4DmaTXClearReadBuffer(void);
-bool Uart4DmaTXHasReceiveBufferOverrun(void);
+bool Uart4DmaTXReceiveBufferOverrun(void);
 bool Uart4DmaTXTransmitionComplete(void);
 
 #endif

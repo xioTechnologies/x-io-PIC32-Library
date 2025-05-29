@@ -22,11 +22,11 @@
 void Uart4DmaRXInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions);
 void Uart4DmaRXDeinitialise(void);
 void Uart4DmaRXRead(void);
-size_t Uart4DmaRXGetWriteAvailable(void);
+size_t Uart4DmaRXAvailableWrite(void);
 FifoResult Uart4DmaRXWrite(const void* const data, const size_t numberOfBytes);
 FifoResult Uart4DmaRXWriteByte(const uint8_t byte);
 void Uart4DmaRXClearWriteBuffer(void);
-bool Uart4DmaRXHasReceiveBufferOverrun(void);
+bool Uart4DmaRXReceiveBufferOverrun(void);
 bool Uart4DmaRXTransmitionComplete(void);
 
 #endif

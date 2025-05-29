@@ -28,8 +28,8 @@
  * @endcode
  */
 typedef struct {
-    uint8_t* data;
-    size_t dataSize;
+    uint8_t * const data;
+    const size_t dataSize;
     size_t writeIndex;
     size_t readIndex;
 } Fifo;
@@ -50,7 +50,7 @@ typedef enum {
  * @param fifo FIFO structure.
  * @return Number of bytes available in the buffer.
  */
-static inline __attribute__((always_inline)) size_t FifoGetReadAvailable(Fifo * const fifo) {
+static inline __attribute__((always_inline)) size_t FifoAvailableRead(Fifo * const fifo) {
     const size_t writeIndex = fifo->writeIndex; // avoid asynchronous hazard
     if (writeIndex < fifo->readIndex) {
         return fifo->dataSize - fifo->readIndex + writeIndex;
@@ -69,7 +69,7 @@ static inline __attribute__((always_inline)) size_t FifoGetReadAvailable(Fifo * 
 static inline __attribute__((always_inline)) size_t FifoRead(Fifo * const fifo, void* const destination, size_t numberOfBytes) {
 
     // Do nothing if no bytes available to read
-    const size_t bytesAvailable = FifoGetReadAvailable(fifo);
+    const size_t bytesAvailable = FifoAvailableRead(fifo);
     if (bytesAvailable == 0) {
         return 0;
     }
@@ -108,11 +108,11 @@ static inline __attribute__((always_inline)) uint8_t FifoReadByte(Fifo * const f
 }
 
 /**
- * @brief Returns the space available to write in the FIFO.
+ * @brief Returns the space available to write to the FIFO.
  * @param fifo FIFO structure.
  * @return Space available in the buffer.
  */
-static inline __attribute__((always_inline)) size_t FifoGetWriteAvailable(Fifo * const fifo) {
+static inline __attribute__((always_inline)) size_t FifoAvailableWrite(Fifo * const fifo) {
     const size_t readIndex = fifo->readIndex; // avoid asynchronous hazard
     if (fifo->writeIndex < readIndex) {
         return (fifo->dataSize - 1) - (fifo->dataSize - readIndex) - fifo->writeIndex;
@@ -131,7 +131,7 @@ static inline __attribute__((always_inline)) size_t FifoGetWriteAvailable(Fifo *
 static inline __attribute__((always_inline)) FifoResult FifoWrite(Fifo * const fifo, const void* const data, const size_t numberOfBytes) {
 
     // Do nothing if not enough space available
-    if (numberOfBytes > FifoGetWriteAvailable(fifo)) {
+    if (numberOfBytes > FifoAvailableWrite(fifo)) {
         return FifoResultError;
     }
 
@@ -158,7 +158,7 @@ static inline __attribute__((always_inline)) FifoResult FifoWrite(Fifo * const f
 static inline __attribute__((always_inline)) FifoResult FifoWriteByte(Fifo * const fifo, const uint8_t byte) {
 
     // Do nothing if not enough space available
-    if (FifoGetWriteAvailable(fifo) == 0) {
+    if (FifoAvailableWrite(fifo) == 0) {
         return FifoResultError;
     }
 

@@ -21,10 +21,10 @@
 void UsbCdcTasks(void);
 bool UsbCdcHostConnected(void);
 bool UsbCdcPortOpen(void);
-size_t UsbCdcGetReadAvailable(void);
+size_t UsbCdcAvailableRead(void);
 size_t UsbCdcRead(void* const destination, size_t numberOfBytes);
 uint8_t UsbCdcReadByte(void);
-size_t UsbCdcGetWriteAvailable(void);
+size_t UsbCdcAvailableWrite(void);
 FifoResult UsbCdcWrite(const void* const data, const size_t numberOfBytes);
 FifoResult UsbCdcWriteByte(const uint8_t byte);
 

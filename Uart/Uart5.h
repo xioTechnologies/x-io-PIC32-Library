@@ -20,15 +20,15 @@
 
 void Uart5Initialise(const UartSettings * const settings);
 void Uart5Deinitialise(void);
-size_t Uart5GetReadAvailable(void);
+size_t Uart5AvailableRead(void);
 size_t Uart5Read(void* const destination, size_t numberOfBytes);
 uint8_t Uart5ReadByte(void);
-size_t Uart5GetWriteAvailable(void);
+size_t Uart5AvailableWrite(void);
 FifoResult Uart5Write(const void* const data, const size_t numberOfBytes);
 FifoResult Uart5WriteByte(const uint8_t byte);
 void Uart5ClearReadBuffer(void);
 void Uart5ClearWriteBuffer(void);
-bool Uart5HasReceiveBufferOverrun(void);
+bool Uart5ReceiveBufferOverrun(void);
 bool Uart5TransmitionComplete(void);
 
 #endif

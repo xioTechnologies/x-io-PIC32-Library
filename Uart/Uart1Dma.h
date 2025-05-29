@@ -23,7 +23,7 @@ void Uart1DmaDeinitialise(void);
 void Uart1DmaRead(void);
 void Uart1DmaWrite(const void* const data, const size_t numberOfBytes);
 bool Uart1DmaWriteInProgress(void);
-bool Uart1DmaHasReceiveBufferOverrun(void);
+bool Uart1DmaReceiveBufferOverrun(void);
 bool Uart1DmaTransmitionComplete(void);
 
 #endif

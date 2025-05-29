@@ -22,11 +22,11 @@
 void Uart3DmaRXInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions);
 void Uart3DmaRXDeinitialise(void);
 void Uart3DmaRXRead(void);
-size_t Uart3DmaRXGetWriteAvailable(void);
+size_t Uart3DmaRXAvailableWrite(void);
 FifoResult Uart3DmaRXWrite(const void* const data, const size_t numberOfBytes);
 FifoResult Uart3DmaRXWriteByte(const uint8_t byte);
 void Uart3DmaRXClearWriteBuffer(void);
-bool Uart3DmaRXHasReceiveBufferOverrun(void);
+bool Uart3DmaRXReceiveBufferOverrun(void);
 bool Uart3DmaRXTransmitionComplete(void);
 
 #endif

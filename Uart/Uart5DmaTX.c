@@ -108,7 +108,7 @@ void Uart5DmaTXDeinitialise(void) {
  * @brief Returns the number of bytes available in the read buffer.
  * @return Number of bytes available in the read buffer.
  */
-size_t Uart5DmaTXGetReadAvailable(void) {
+size_t Uart5DmaTXAvailableRead(void) {
 
     // Trigger RX interrupt if hardware receive buffer not empty
     if (U5STAbits.URXDA == 1) {
@@ -123,7 +123,7 @@ size_t Uart5DmaTXGetReadAvailable(void) {
     }
 
     // Return number of bytes
-    return FifoGetReadAvailable(&readFifo);
+    return FifoAvailableRead(&readFifo);
 }
 
 /**
@@ -133,7 +133,7 @@ size_t Uart5DmaTXGetReadAvailable(void) {
  * @return Number of bytes read.
  */
 size_t Uart5DmaTXRead(void* const destination, size_t numberOfBytes) {
-    Uart5DmaTXGetReadAvailable(); // process hardware receive buffer
+    Uart5DmaTXAvailableRead(); // process hardware receive buffer
     return FifoRead(&readFifo, destination, numberOfBytes);
 }
 
@@ -187,7 +187,7 @@ bool Uart5DmaTXWriteInProgress(void) {
  */
 void Uart5DmaTXClearReadBuffer(void) {
     FifoClear(&readFifo);
-    Uart5DmaTXHasReceiveBufferOverrun();
+    Uart5DmaTXReceiveBufferOverrun();
 }
 
 /**
@@ -195,7 +195,7 @@ void Uart5DmaTXClearReadBuffer(void) {
  * function will reset the flag.
  * @return True if the hardware receive buffer has overrun.
  */
-bool Uart5DmaTXHasReceiveBufferOverrun(void) {
+bool Uart5DmaTXReceiveBufferOverrun(void) {
     if (receiveBufferOverrun) {
         receiveBufferOverrun = false;
         return true;
@@ -240,7 +240,7 @@ void Uart5RXInterruptHandler(void) {
  */
 static inline __attribute__((always_inline)) void RXInterruptTasks(void) {
     while (U5STAbits.URXDA == 1) { // while data available in receive buffer
-        if (FifoGetWriteAvailable(&readFifo) == 0) { // if read buffer full
+        if (FifoAvailableWrite(&readFifo) == 0) { // if read buffer full
             EVIC_SourceDisable(INT_SOURCE_UART5_RX);
             break;
         } else {

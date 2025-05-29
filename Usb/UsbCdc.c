@@ -163,7 +163,7 @@ static void WriteTasks(void) {
     }
 
     // Do nothing if no data available
-    if (FifoGetReadAvailable(&writeFifo) == 0) {
+    if (FifoAvailableRead(&writeFifo) == 0) {
         return;
     }
 
@@ -201,8 +201,8 @@ bool UsbCdcPortOpen(void) {
  * @brief Returns the number of bytes available in the read buffer.
  * @return Number of bytes available in the read buffer.
  */
-size_t UsbCdcGetReadAvailable(void) {
-    return FifoGetReadAvailable(&readFifo);
+size_t UsbCdcAvailableRead(void) {
+    return FifoAvailableRead(&readFifo);
 }
 
 /**
@@ -228,8 +228,8 @@ uint8_t UsbCdcReadByte(void) {
  * @brief Returns the space available in the write buffer.
  * @return Space available in the write buffer.
  */
-size_t UsbCdcGetWriteAvailable(void) {
-    return FifoGetWriteAvailable(&writeFifo);
+size_t UsbCdcAvailableWrite(void) {
+    return FifoAvailableWrite(&writeFifo);
 }
 
 /**

@@ -19,13 +19,13 @@
 
 void Uart6DmaTXInitialise(const UartSettings * const settings);
 void Uart6DmaTXDeinitialise(void);
-size_t Uart6DmaTXGetReadAvailable(void);
+size_t Uart6DmaTXAvailableRead(void);
 size_t Uart6DmaTXRead(void* const destination, size_t numberOfBytes);
 uint8_t Uart6DmaTXReadByte(void);
 void Uart6DmaTXWrite(const void* const data, const size_t numberOfBytes, void (*writeComplete_)(void));
 bool Uart6DmaTXWriteInProgress(void);
 void Uart6DmaTXClearReadBuffer(void);
-bool Uart6DmaTXHasReceiveBufferOverrun(void);
+bool Uart6DmaTXReceiveBufferOverrun(void);
 bool Uart6DmaTXTransmitionComplete(void);
 
 #endif

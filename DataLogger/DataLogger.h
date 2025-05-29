@@ -78,7 +78,7 @@ void DataLoggerTasks(void);
 void DataLoggerStart(void);
 void DataLoggerStop(void);
 bool DataLoggerEnabled(void);
-size_t DataLoggerGetWriteAvailable(void);
+size_t DataLoggerAvailableWrite(void);
 void DataLoggerWrite(const void* const data, const size_t numberOfBytes);
 const char* DataLoggerGetFileName(void);
 const char* DataLoggerStatusToString(const DataLoggerStatus status);

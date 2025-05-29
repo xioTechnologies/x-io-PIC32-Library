@@ -294,7 +294,7 @@ bool Uart3DmaWriteInProgress(void) {
  * function will reset the flag.
  * @return True if the hardware receive buffer has overrun.
  */
-bool Uart3DmaHasReceiveBufferOverrun(void) {
+bool Uart3DmaReceiveBufferOverrun(void) {
     if (U3STAbits.OERR == 1) {
         U3STAbits.OERR = 0;
         return true;

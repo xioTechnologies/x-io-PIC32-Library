@@ -23,7 +23,7 @@ void Uart3DmaDeinitialise(void);
 void Uart3DmaRead(void);
 void Uart3DmaWrite(const void* const data, const size_t numberOfBytes);
 bool Uart3DmaWriteInProgress(void);
-bool Uart3DmaHasReceiveBufferOverrun(void);
+bool Uart3DmaReceiveBufferOverrun(void);
 bool Uart3DmaTransmitionComplete(void);
 
 #endif

@@ -19,13 +19,13 @@
 
 void Uart3DmaTXInitialise(const UartSettings * const settings);
 void Uart3DmaTXDeinitialise(void);
-size_t Uart3DmaTXGetReadAvailable(void);
+size_t Uart3DmaTXAvailableRead(void);
 size_t Uart3DmaTXRead(void* const destination, size_t numberOfBytes);
 uint8_t Uart3DmaTXReadByte(void);
 void Uart3DmaTXWrite(const void* const data, const size_t numberOfBytes, void (*writeComplete_)(void));
 bool Uart3DmaTXWriteInProgress(void);
 void Uart3DmaTXClearReadBuffer(void);
-bool Uart3DmaTXHasReceiveBufferOverrun(void);
+bool Uart3DmaTXReceiveBufferOverrun(void);
 bool Uart3DmaTXTransmitionComplete(void);
 
 #endif

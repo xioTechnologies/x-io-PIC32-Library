@@ -237,8 +237,8 @@ static inline __attribute__((always_inline)) void TransferAborted(void) {
  * @brief Returns the space available in the write buffer.
  * @return Space available in the write buffer.
  */
-size_t Uart4DmaRXGetWriteAvailable(void) {
-    return FifoGetWriteAvailable(&writeFifo);
+size_t Uart4DmaRXAvailableWrite(void) {
+    return FifoAvailableWrite(&writeFifo);
 }
 
 /**
@@ -276,7 +276,7 @@ void Uart4DmaRXClearWriteBuffer(void) {
  * function will reset the flag.
  * @return True if the hardware receive buffer has overrun.
  */
-bool Uart4DmaRXHasReceiveBufferOverrun(void) {
+bool Uart4DmaRXReceiveBufferOverrun(void) {
     if (U4STAbits.OERR == 1) {
         U4STAbits.OERR = 0;
         return true;
@@ -321,7 +321,7 @@ static inline __attribute__((always_inline)) void TXInterruptTasks(void) {
     EVIC_SourceDisable(INT_SOURCE_UART4_TX); // disable TX interrupt to avoid nested interrupt
     EVIC_SourceStatusClear(INT_SOURCE_UART4_TX);
     while (U4STAbits.UTXBF == 0) { // while transmit buffer not full
-        if (FifoGetReadAvailable(&writeFifo) == 0) { // if write buffer empty
+        if (FifoAvailableRead(&writeFifo) == 0) { // if write buffer empty
             return;
         }
         U4TXREG = FifoReadByte(&writeFifo);
