@@ -167,14 +167,14 @@ void SdCardSetVolumeLabel(const char* const label) {
  * existing file.
  * @param fileName File name.
  * @param write True to write a file.
- * @return SD card error.
+ * @return Result.
  */
-SdCardError SdCardFileOpen(const char* const filePath, const bool write) {
+SdCardResult SdCardFileOpen(const char* const filePath, const bool write) {
 
     // Change directory
     const char* const fileName = ChangeDirectory(filePath, write);
     if (fileName == NULL) {
-        return SdCardErrorFileSystemError;
+        return SdCardResultFileSystemError;
     }
 
     // Check if card full
@@ -185,10 +185,10 @@ SdCardError SdCardFileOpen(const char* const filePath, const bool write) {
 #ifdef PRINT_FILE_SYSTEM_ERRORS
             PrintFileSystemError("SYS_FS_DriveSectorGet", SYS_FS_Error());
 #endif
-            return SdCardErrorFileSystemError;
+            return SdCardResultFileSystemError;
         }
         if (freeSectors == 0) {
-            return SdCardErrorFileOrSdCardFull;
+            return SdCardResultFileOrSdCardFull;
         }
     }
 
@@ -198,9 +198,9 @@ SdCardError SdCardFileOpen(const char* const filePath, const bool write) {
 #ifdef PRINT_FILE_SYSTEM_ERRORS
         PrintFileSystemError("SYS_FS_FileOpen", SYS_FS_Error());
 #endif
-        return SdCardErrorFileSystemError;
+        return SdCardResultFileSystemError;
     }
-    return SdCardErrorOk;
+    return SdCardResultOk;
 }
 
 /**
@@ -297,9 +297,9 @@ void SdCardFileReadString(void* const destination, const size_t destinationSize)
  * @brief Writes data to the file.
  * @param data Data.
  * @param numberOfBytes Number of bytes.
- * @return SD card error.
+ * @return Result.
  */
-SdCardError SdCardFileWrite(const void* const data, const size_t numberOfBytes) {
+SdCardResult SdCardFileWrite(const void* const data, const size_t numberOfBytes) {
 
     // Write data
     const size_t numberOfBytesWritten = SYS_FS_FileWrite(fileHandle, data, numberOfBytes);
@@ -307,23 +307,23 @@ SdCardError SdCardFileWrite(const void* const data, const size_t numberOfBytes) 
 #ifdef PRINT_FILE_SYSTEM_ERRORS
         PrintFileSystemError("SYS_FS_FileWrite", SYS_FS_FileError(fileHandle));
 #endif
-        return SdCardErrorFileSystemError;
+        return SdCardResultFileSystemError;
     }
 
     // File or SD card full
     if (numberOfBytesWritten != numberOfBytes) {
-        return SdCardErrorFileOrSdCardFull;
+        return SdCardResultFileOrSdCardFull;
     }
-    return SdCardErrorOk;
+    return SdCardResultOk;
 }
 
 /**
  * @brief Writes a string to the file. The terminating null character will not
  * be written.
  * @param sring String.
- * @return SD card error.
+ * @return Result.
  */
-SdCardError SdCardFileWriteString(const char* const string) {
+SdCardResult SdCardFileWriteString(const char* const string) {
     return SdCardFileWrite(string, strlen(string));
 }
 

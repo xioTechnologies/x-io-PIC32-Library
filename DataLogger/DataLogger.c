@@ -215,12 +215,12 @@ static int Open(void) {
 
     // Open file
     switch (SdCardFileOpen(SdCardPathJoin(2, settings.directory, fileName), true)) {
-        case SdCardErrorOk:
+        case SdCardResultOk:
             break;
-        case SdCardErrorFileSystemError:
+        case SdCardResultFileSystemError:
             ErrorCallback(DataLoggerErrorFileSystemError);
             return 1;
-        case SdCardErrorFileOrSdCardFull:
+        case SdCardResultFileOrSdCardFull:
             ErrorCallback(DataLoggerErrorSdCardFull);
             return 1;
     }
@@ -250,7 +250,7 @@ static int Open(void) {
  * @return Counter.
  */
 static unsigned int ReadCounter(void) {
-    if (SdCardFileOpen(SdCardPathJoin(2, settings.directory, COUNTER_FILE_NAME), false) != SdCardErrorOk) {
+    if (SdCardFileOpen(SdCardPathJoin(2, settings.directory, COUNTER_FILE_NAME), false) != SdCardResultOk) {
         return 0;
     }
     char string[8];
@@ -271,7 +271,7 @@ static unsigned int ReadCounter(void) {
  * @param Counter.
  */
 static void WriteCounter(const unsigned int counter) {
-    if (SdCardFileOpen(SdCardPathJoin(2, settings.directory, COUNTER_FILE_NAME), true) != SdCardErrorOk) {
+    if (SdCardFileOpen(SdCardPathJoin(2, settings.directory, COUNTER_FILE_NAME), true) != SdCardResultOk) {
         return;
     }
     char string[8];
@@ -325,7 +325,7 @@ static int Write(void) {
 #ifdef PRINT_STATISTICS
     const uint64_t writeStart = TimerGetTicks64();
 #endif
-    const SdCardError error = SdCardFileWrite(&fifo.data[fifo.readIndex], numberOfBytes);
+    const SdCardResult error = SdCardFileWrite(&fifo.data[fifo.readIndex], numberOfBytes);
     fifo.readIndex = newReadIndex;
     fileSize += numberOfBytes;
 #ifdef PRINT_STATISTICS
@@ -336,14 +336,14 @@ static int Write(void) {
 #endif
 
     // Restart logging if file full
-    if (error == SdCardErrorFileOrSdCardFull) {
+    if (error == SdCardResultFileOrSdCardFull) {
         StatusCallback(DataLoggerStatusSdCardOrFileFull);
         Close();
         return Open();
     }
 
     // Abort if error occurred
-    if (error != SdCardErrorOk) {
+    if (error != SdCardResultOk) {
         ErrorCallback(DataLoggerErrorFileSystemError);
         return 1;
     }

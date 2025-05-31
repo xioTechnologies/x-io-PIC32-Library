@@ -23,13 +23,13 @@
 #define SD_CARD_MAX_PATH_SIZE (256)
 
 /**
- * @brief SD card error.
+ * @brief SD card result.
  */
 typedef enum {
-    SdCardErrorOk,
-    SdCardErrorFileSystemError,
-    SdCardErrorFileOrSdCardFull,
-} SdCardError;
+    SdCardResultOk,
+    SdCardResultFileSystemError,
+    SdCardResultFileOrSdCardFull,
+} SdCardResult;
 
 /**
  * @brief SD card file details.
@@ -49,11 +49,11 @@ void SdCardUnmount(void);
 bool SdCardMounted(void);
 void SdCardFormat(void);
 void SdCardSetVolumeLabel(const char* const label);
-SdCardError SdCardFileOpen(const char* const filePath, const bool write);
+SdCardResult SdCardFileOpen(const char* const filePath, const bool write);
 size_t SdCardFileRead(void* const destination, const size_t destinationSize);
 void SdCardFileReadString(void* const destination, const size_t destinationSize);
-SdCardError SdCardFileWrite(const void* const data, const size_t numberOfBytes);
-SdCardError SdCardFileWriteString(const char* const string);
+SdCardResult SdCardFileWrite(const void* const data, const size_t numberOfBytes);
+SdCardResult SdCardFileWriteString(const char* const string);
 size_t SdCardFileGetSize(void);
 void SdCardFileClose(void);
 void SdCardDirectoryOpen(const char* const directory);
