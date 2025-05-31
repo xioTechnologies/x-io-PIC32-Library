@@ -38,7 +38,7 @@ typedef struct {
  * @brief Result.
  */
 typedef enum {
-    FifoResultOK,
+    FifoResultOk,
     FifoResultError,
 } FifoResult;
 
@@ -146,7 +146,7 @@ static inline __attribute__((always_inline)) FifoResult FifoWrite(Fifo * const f
         memcpy(&fifo->data[fifo->writeIndex], data, numberOfBytes);
         fifo->writeIndex += numberOfBytes;
     }
-    return FifoResultOK;
+    return FifoResultOk;
 }
 
 /**
@@ -167,7 +167,7 @@ static inline __attribute__((always_inline)) FifoResult FifoWriteByte(Fifo * con
     if (++fifo->writeIndex >= fifo->dataSize) {
         fifo->writeIndex = 0;
     }
-    return FifoResultOK;
+    return FifoResultOk;
 }
 
 /**

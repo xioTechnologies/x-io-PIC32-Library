@@ -1,5 +1,5 @@
 /**
- * @file Uart3DmaTX.h
+ * @file Uart3DmaTx.h
  * @author Seb Madgwick
  * @brief UART driver using DMA for PIC32 devices. DMA used for TX only.
  */
@@ -17,16 +17,16 @@
 //------------------------------------------------------------------------------
 // Function declarations
 
-void Uart3DmaTXInitialise(const UartSettings * const settings);
-void Uart3DmaTXDeinitialise(void);
-size_t Uart3DmaTXAvailableRead(void);
-size_t Uart3DmaTXRead(void* const destination, size_t numberOfBytes);
-uint8_t Uart3DmaTXReadByte(void);
-void Uart3DmaTXWrite(const void* const data, const size_t numberOfBytes, void (*writeComplete_)(void));
-bool Uart3DmaTXWriteInProgress(void);
-void Uart3DmaTXClearReadBuffer(void);
-bool Uart3DmaTXReceiveBufferOverrun(void);
-bool Uart3DmaTXTransmitionComplete(void);
+void Uart3DmaTxInitialise(const UartSettings * const settings);
+void Uart3DmaTxDeinitialise(void);
+size_t Uart3DmaTxAvailableRead(void);
+size_t Uart3DmaTxRead(void* const destination, size_t numberOfBytes);
+uint8_t Uart3DmaTxReadByte(void);
+void Uart3DmaTxWrite(const void* const data, const size_t numberOfBytes, void (*writeComplete_)(void));
+bool Uart3DmaTxWriteInProgress(void);
+void Uart3DmaTxClearReadBuffer(void);
+bool Uart3DmaTxReceiveBufferOverrun(void);
+bool Uart3DmaTxTransmitionComplete(void);
 
 #endif
 

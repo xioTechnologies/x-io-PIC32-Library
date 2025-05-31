@@ -1,5 +1,5 @@
 /**
- * @file Uart6DmaRX.c
+ * @file Uart6DmaRx.c
  * @author Seb Madgwick
  * @brief UART driver using DMA for PIC32 devices. DMA used for RX only.
  */
@@ -11,7 +11,7 @@
 #include <stdint.h>
 #include "sys/kmem.h"
 #include "Timer/Timer.h"
-#include "Uart6DmaRX.h"
+#include "Uart6DmaRx.h"
 
 //------------------------------------------------------------------------------
 // Function declarations
@@ -37,10 +37,10 @@ static Fifo writeFifo = {.data = writeData, .dataSize = sizeof (writeData)};
  * @param readConditions Read conditions.
  * @param read Read callback.
  */
-void Uart6DmaRXInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions, void (*read_)(const void* const data, const size_t numberOfBytes)) {
+void Uart6DmaRxInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions, void (*read_)(const void* const data, const size_t numberOfBytes)) {
 
     // Ensure default register states
-    Uart6DmaRXDeinitialise();
+    Uart6DmaRxDeinitialise();
 
     // Configure UART
     if (settings->rtsCtsEnabled) {
@@ -121,7 +121,7 @@ void Uart6DmaRXInitialise(const UartSettings * const settings, const UartDmaRead
 /**
  * @brief Deinitialises the module.
  */
-void Uart6DmaRXDeinitialise(void) {
+void Uart6DmaRxDeinitialise(void) {
 
     // Disable UART and restore default register states
     U6MODE = 0;
@@ -167,7 +167,7 @@ void Uart6DmaRXDeinitialise(void) {
 /**
  * @brief Triggers the read callback to be called if any data is available.
  */
-void Uart6DmaRXRead(void) {
+void Uart6DmaRxRead(void) {
     DCH0INTbits.CHTAIF = 1; // trigger transfer abort interrupt
 }
 
@@ -237,7 +237,7 @@ static inline __attribute__((always_inline)) void TransferAborted(void) {
  * @brief Returns the space available in the write buffer.
  * @return Space available in the write buffer.
  */
-size_t Uart6DmaRXAvailableWrite(void) {
+size_t Uart6DmaRxAvailableWrite(void) {
     return FifoAvailableWrite(&writeFifo);
 }
 
@@ -247,7 +247,7 @@ size_t Uart6DmaRXAvailableWrite(void) {
  * @param numberOfBytes Number of bytes.
  * @return Result.
  */
- FifoResult Uart6DmaRXWrite(const void* const data, const size_t numberOfBytes) {
+ FifoResult Uart6DmaRxWrite(const void* const data, const size_t numberOfBytes) {
     const FifoResult result = FifoWrite(&writeFifo, data, numberOfBytes);
     EVIC_SourceEnable(INT_SOURCE_UART6_TX);
     return result;
@@ -258,7 +258,7 @@ size_t Uart6DmaRXAvailableWrite(void) {
  * @param byte Byte.
  * @return Result.
  */
-FifoResult Uart6DmaRXWriteByte(const uint8_t byte) {
+FifoResult Uart6DmaRxWriteByte(const uint8_t byte) {
     const FifoResult result = FifoWriteByte(&writeFifo, byte);
     EVIC_SourceEnable(INT_SOURCE_UART6_TX);
     return result;
@@ -267,7 +267,7 @@ FifoResult Uart6DmaRXWriteByte(const uint8_t byte) {
 /**
  * @brief Clears the write buffer.
  */
-void Uart6DmaRXClearWriteBuffer(void) {
+void Uart6DmaRxClearWriteBuffer(void) {
     FifoClear(&writeFifo);
 }
 
@@ -276,7 +276,7 @@ void Uart6DmaRXClearWriteBuffer(void) {
  * function will reset the flag.
  * @return True if the hardware receive buffer has overrun.
  */
-bool Uart6DmaRXReceiveBufferOverrun(void) {
+bool Uart6DmaRxReceiveBufferOverrun(void) {
     if (U6STAbits.OERR == 1) {
         U6STAbits.OERR = 0;
         return true;
@@ -288,7 +288,7 @@ bool Uart6DmaRXReceiveBufferOverrun(void) {
  * @brief Returns true if all data has been transmitted.
  * @return True if all data has been transmitted.
  */
-bool Uart6DmaRXTransmitionComplete(void) {
+bool Uart6DmaRxTransmitionComplete(void) {
     return (EVIC_SourceIsEnabled(INT_SOURCE_UART6_TX) == false) && (U6STAbits.TRMT == 1);
 }
 

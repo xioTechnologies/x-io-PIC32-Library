@@ -1,5 +1,5 @@
 /**
- * @file Uart5DmaRX.c
+ * @file Uart5DmaRx.c
  * @author Seb Madgwick
  * @brief UART driver using DMA for PIC32 devices. DMA used for RX only.
  */
@@ -11,7 +11,7 @@
 #include <stdint.h>
 #include "sys/kmem.h"
 #include "Timer/Timer.h"
-#include "Uart5DmaRX.h"
+#include "Uart5DmaRx.h"
 
 //------------------------------------------------------------------------------
 // Function declarations
@@ -37,10 +37,10 @@ static Fifo writeFifo = {.data = writeData, .dataSize = sizeof (writeData)};
  * @param readConditions Read conditions.
  * @param read Read callback.
  */
-void Uart5DmaRXInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions, void (*read_)(const void* const data, const size_t numberOfBytes)) {
+void Uart5DmaRxInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions, void (*read_)(const void* const data, const size_t numberOfBytes)) {
 
     // Ensure default register states
-    Uart5DmaRXDeinitialise();
+    Uart5DmaRxDeinitialise();
 
     // Configure UART
     if (settings->rtsCtsEnabled) {
@@ -121,7 +121,7 @@ void Uart5DmaRXInitialise(const UartSettings * const settings, const UartDmaRead
 /**
  * @brief Deinitialises the module.
  */
-void Uart5DmaRXDeinitialise(void) {
+void Uart5DmaRxDeinitialise(void) {
 
     // Disable UART and restore default register states
     U5MODE = 0;
@@ -167,7 +167,7 @@ void Uart5DmaRXDeinitialise(void) {
 /**
  * @brief Triggers the read callback to be called if any data is available.
  */
-void Uart5DmaRXRead(void) {
+void Uart5DmaRxRead(void) {
     DCH0INTbits.CHTAIF = 1; // trigger transfer abort interrupt
 }
 
@@ -237,7 +237,7 @@ static inline __attribute__((always_inline)) void TransferAborted(void) {
  * @brief Returns the space available in the write buffer.
  * @return Space available in the write buffer.
  */
-size_t Uart5DmaRXAvailableWrite(void) {
+size_t Uart5DmaRxAvailableWrite(void) {
     return FifoAvailableWrite(&writeFifo);
 }
 
@@ -247,7 +247,7 @@ size_t Uart5DmaRXAvailableWrite(void) {
  * @param numberOfBytes Number of bytes.
  * @return Result.
  */
- FifoResult Uart5DmaRXWrite(const void* const data, const size_t numberOfBytes) {
+ FifoResult Uart5DmaRxWrite(const void* const data, const size_t numberOfBytes) {
     const FifoResult result = FifoWrite(&writeFifo, data, numberOfBytes);
     EVIC_SourceEnable(INT_SOURCE_UART5_TX);
     return result;
@@ -258,7 +258,7 @@ size_t Uart5DmaRXAvailableWrite(void) {
  * @param byte Byte.
  * @return Result.
  */
-FifoResult Uart5DmaRXWriteByte(const uint8_t byte) {
+FifoResult Uart5DmaRxWriteByte(const uint8_t byte) {
     const FifoResult result = FifoWriteByte(&writeFifo, byte);
     EVIC_SourceEnable(INT_SOURCE_UART5_TX);
     return result;
@@ -267,7 +267,7 @@ FifoResult Uart5DmaRXWriteByte(const uint8_t byte) {
 /**
  * @brief Clears the write buffer.
  */
-void Uart5DmaRXClearWriteBuffer(void) {
+void Uart5DmaRxClearWriteBuffer(void) {
     FifoClear(&writeFifo);
 }
 
@@ -276,7 +276,7 @@ void Uart5DmaRXClearWriteBuffer(void) {
  * function will reset the flag.
  * @return True if the hardware receive buffer has overrun.
  */
-bool Uart5DmaRXReceiveBufferOverrun(void) {
+bool Uart5DmaRxReceiveBufferOverrun(void) {
     if (U5STAbits.OERR == 1) {
         U5STAbits.OERR = 0;
         return true;
@@ -288,7 +288,7 @@ bool Uart5DmaRXReceiveBufferOverrun(void) {
  * @brief Returns true if all data has been transmitted.
  * @return True if all data has been transmitted.
  */
-bool Uart5DmaRXTransmitionComplete(void) {
+bool Uart5DmaRxTransmitionComplete(void) {
     return (EVIC_SourceIsEnabled(INT_SOURCE_UART5_TX) == false) && (U5STAbits.TRMT == 1);
 }
 

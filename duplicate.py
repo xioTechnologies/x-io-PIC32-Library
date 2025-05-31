@@ -60,14 +60,14 @@ duplicate(
 )
 
 duplicate(
-    ("Spi/Spi?DmaTX.c", "Spi/Spi?DmaTX.h"),
+    ("Spi/Spi?DmaTx.c", "Spi/Spi?DmaTx.h"),
     ("Spi?", "SPI?"),
     1,
     (2, 3, 4, 5, 6),
 )
 
 duplicate(
-    ("Uart/Uart?.c", "Uart/Uart?.h", "Uart/Uart?Dma.c", "Uart/Uart?Dma.h", "Uart/Uart?DmaRX.c", "Uart/Uart?DmaRX.h", "Uart/Uart?DmaTX.c", "Uart/Uart?DmaTX.h"),
+    ("Uart/Uart?.c", "Uart/Uart?.h", "Uart/Uart?Dma.c", "Uart/Uart?Dma.h", "Uart/Uart?DmaRx.c", "Uart/Uart?DmaRx.h", "Uart/Uart?DmaTx.c", "Uart/Uart?DmaTx.h"),
     ("Uart?", "U?", "UART?", "UART_?"),
     1,
     (2, 3, 4, 5, 6),

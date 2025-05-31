@@ -1,5 +1,5 @@
 /**
- * @file SDCard.c
+ * @file SdCard.c
  * @author Seb Madgwick
  * @brief Application interface for SD card functionality using MPLAB Harmony.
  */
@@ -8,7 +8,7 @@
 // Includes
 
 #include "definitions.h"
-#include "SDCard.h"
+#include "SdCard.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
@@ -63,7 +63,7 @@ static SYS_FS_HANDLE directoryHandle = SYS_FS_HANDLE_INVALID;
  * @brief Module tasks. This function should be called repeatedly within the
  * main program loop.
  */
-void SDCardTasks(void) {
+void SdCardTasks(void) {
     switch (state) {
         case StateMounting:
             if (SYS_FS_MEDIA_MANAGER_MediaStatusGet(DEV_NAME) == false) {
@@ -79,8 +79,8 @@ void SDCardTasks(void) {
             break;
         case StateMounted:
             if (SYS_FS_MEDIA_MANAGER_MediaStatusGet(DEV_NAME) == false) {
-                SDCardUnmount();
-                SDCardMount();
+                SdCardUnmount();
+                SdCardMount();
             }
             break;
         case StateUnmounted:
@@ -91,7 +91,7 @@ void SDCardTasks(void) {
 /**
  * @brief Mounts the SD card.
  */
-void SDCardMount(void) {
+void SdCardMount(void) {
     switch (state) {
         case StateMounting:
         case StateMounted:
@@ -105,7 +105,7 @@ void SDCardMount(void) {
 /**
  * @brief Unmounts the SD card.
  */
-void SDCardUnmount(void) {
+void SdCardUnmount(void) {
     switch (state) {
         case StateMounting:
             state = StateUnmounted;
@@ -127,14 +127,14 @@ void SDCardUnmount(void) {
  * @brief Returns true if the SD card is mounted.
  * @return True if the SD card is mounted.
  */
-bool SDCardMounted(void) {
+bool SdCardMounted(void) {
     return state == StateMounted;
 }
 
 /**
  * @brief Formats the SD card.
  */
-void SDCardFormat(void) {
+void SdCardFormat(void) {
     const SYS_FS_FORMAT_PARAM opt = (SYS_FS_FORMAT_PARAM){
         .fmt = SYS_FS_FORMAT_FAT32,
         .n_fat = 1,
@@ -154,7 +154,7 @@ void SDCardFormat(void) {
  * @brief Sets the volume label.
  * @param label Label.
  */
-void SDCardSetVolumeLabel(const char* const label) {
+void SdCardSetVolumeLabel(const char* const label) {
     if (SYS_FS_DriveLabelSet(MOUNT_NAME, label) != SYS_FS_RES_SUCCESS) {
 #ifdef PRINT_FILE_SYSTEM_ERRORS
         PrintFileSystemError("SYS_FS_DriveLabelSet", SYS_FS_Error());
@@ -169,12 +169,12 @@ void SDCardSetVolumeLabel(const char* const label) {
  * @param write True to write a file.
  * @return SD card error.
  */
-SDCardError SDCardFileOpen(const char* const filePath, const bool write) {
+SdCardError SdCardFileOpen(const char* const filePath, const bool write) {
 
     // Change directory
     const char* const fileName = ChangeDirectory(filePath, write);
     if (fileName == NULL) {
-        return SDCardErrorFileSystemError;
+        return SdCardErrorFileSystemError;
     }
 
     // Check if card full
@@ -185,10 +185,10 @@ SDCardError SDCardFileOpen(const char* const filePath, const bool write) {
 #ifdef PRINT_FILE_SYSTEM_ERRORS
             PrintFileSystemError("SYS_FS_DriveSectorGet", SYS_FS_Error());
 #endif
-            return SDCardErrorFileSystemError;
+            return SdCardErrorFileSystemError;
         }
         if (freeSectors == 0) {
-            return SDCardErrorFileOrSDCardFull;
+            return SdCardErrorFileOrSdCardFull;
         }
     }
 
@@ -198,9 +198,9 @@ SDCardError SDCardFileOpen(const char* const filePath, const bool write) {
 #ifdef PRINT_FILE_SYSTEM_ERRORS
         PrintFileSystemError("SYS_FS_FileOpen", SYS_FS_Error());
 #endif
-        return SDCardErrorFileSystemError;
+        return SdCardErrorFileSystemError;
     }
-    return SDCardErrorOK;
+    return SdCardErrorOk;
 }
 
 /**
@@ -220,8 +220,8 @@ static const char* ChangeDirectory(const char* const filePath, const bool create
     }
 
     // Split file name and directory
-    const char* const directory = SDCardPathSplitDirectory(filePath);
-    const char* const fileName = SDCardPathSplitFileName(filePath);
+    const char* const directory = SdCardPathSplitDirectory(filePath);
+    const char* const fileName = SdCardPathSplitFileName(filePath);
     if (strlen(directory) == 0) {
         return fileName;
     }
@@ -249,7 +249,7 @@ static const char* ChangeDirectory(const char* const filePath, const bool create
 #endif
             return NULL;
         }
-        snprintf(incrementingPath, sizeof (incrementingPath), "%s", SDCardPathJoin(2, incrementingPath, directoryName));
+        snprintf(incrementingPath, sizeof (incrementingPath), "%s", SdCardPathJoin(2, incrementingPath, directoryName));
         if (SYS_FS_DirectoryChange(incrementingPath) != SYS_FS_RES_SUCCESS) {
 #ifdef PRINT_FILE_SYSTEM_ERRORS
             PrintFileSystemError("SYS_FS_DirectoryChange", SYS_FS_Error());
@@ -267,7 +267,7 @@ static const char* ChangeDirectory(const char* const filePath, const bool create
  * @param destinationSize Destination size.
  * @return Number of bytes read.
  */
-size_t SDCardFileRead(void* const destination, const size_t destinationSize) {
+size_t SdCardFileRead(void* const destination, const size_t destinationSize) {
     const size_t numberOfBytesRead = SYS_FS_FileRead(fileHandle, destination, destinationSize);
     if (numberOfBytesRead == -1) {
 #ifdef PRINT_FILE_SYSTEM_ERRORS
@@ -284,7 +284,7 @@ size_t SDCardFileRead(void* const destination, const size_t destinationSize) {
  * @param destination Destination.
  * @param destinationSize Destination size.
  */
-void SDCardFileReadString(void* const destination, const size_t destinationSize) {
+void SdCardFileReadString(void* const destination, const size_t destinationSize) {
     if (SYS_FS_FileStringGet(fileHandle, destination, destinationSize) != SYS_FS_RES_SUCCESS) {
 #ifdef PRINT_FILE_SYSTEM_ERRORS
         PrintFileSystemError("SYS_FS_FileStringGet", SYS_FS_FileError(fileHandle));
@@ -299,7 +299,7 @@ void SDCardFileReadString(void* const destination, const size_t destinationSize)
  * @param numberOfBytes Number of bytes.
  * @return SD card error.
  */
-SDCardError SDCardFileWrite(const void* const data, const size_t numberOfBytes) {
+SdCardError SdCardFileWrite(const void* const data, const size_t numberOfBytes) {
 
     // Write data
     const size_t numberOfBytesWritten = SYS_FS_FileWrite(fileHandle, data, numberOfBytes);
@@ -307,14 +307,14 @@ SDCardError SDCardFileWrite(const void* const data, const size_t numberOfBytes) 
 #ifdef PRINT_FILE_SYSTEM_ERRORS
         PrintFileSystemError("SYS_FS_FileWrite", SYS_FS_FileError(fileHandle));
 #endif
-        return SDCardErrorFileSystemError;
+        return SdCardErrorFileSystemError;
     }
 
     // File or SD card full
     if (numberOfBytesWritten != numberOfBytes) {
-        return SDCardErrorFileOrSDCardFull;
+        return SdCardErrorFileOrSdCardFull;
     }
-    return SDCardErrorOK;
+    return SdCardErrorOk;
 }
 
 /**
@@ -323,15 +323,15 @@ SDCardError SDCardFileWrite(const void* const data, const size_t numberOfBytes) 
  * @param sring String.
  * @return SD card error.
  */
-SDCardError SDCardFileWriteString(const char* const string) {
-    return SDCardFileWrite(string, strlen(string));
+SdCardError SdCardFileWriteString(const char* const string) {
+    return SdCardFileWrite(string, strlen(string));
 }
 
 /**
  * @brief Gets the file size.
  * @return File size.
  */
-size_t SDCardFileGetSize(void) {
+size_t SdCardFileGetSize(void) {
     const int32_t fileSize = SYS_FS_FileSize(fileHandle);
     if (fileSize == -1) {
 #ifdef PRINT_FILE_SYSTEM_ERRORS
@@ -345,7 +345,7 @@ size_t SDCardFileGetSize(void) {
 /**
  * @brief Closes the file.
  */
-void SDCardFileClose(void) {
+void SdCardFileClose(void) {
     if (SYS_FS_FileClose(fileHandle) != SYS_FS_RES_SUCCESS) {
 #ifdef PRINT_FILE_SYSTEM_ERRORS
         PrintFileSystemError("SYS_FS_FileClose", SYS_FS_FileError(fileHandle));
@@ -357,14 +357,14 @@ void SDCardFileClose(void) {
  * @brief Opens a directory.
  * @param directory Directory. "" if root.
  */
-void SDCardDirectoryOpen(const char* const directory) {
+void SdCardDirectoryOpen(const char* const directory) {
     if (SYS_FS_DirectoryChange("/") != SYS_FS_RES_SUCCESS) {
 #ifdef PRINT_FILE_SYSTEM_ERRORS
         PrintFileSystemError("SYS_FS_DirectoryChange", SYS_FS_Error());
 #endif
         return;
     }
-    directoryHandle = SYS_FS_DirOpen(SDCardPathJoin(2, MOUNT_NAME, directory));
+    directoryHandle = SYS_FS_DirOpen(SdCardPathJoin(2, MOUNT_NAME, directory));
     if (directoryHandle == SYS_FS_HANDLE_INVALID) {
 #ifdef PRINT_FILE_SYSTEM_ERRORS
         PrintFileSystemError("SYS_FS_DirOpen", SYS_FS_Error());
@@ -382,7 +382,7 @@ void SDCardDirectoryOpen(const char* const directory) {
  * @param fileName File name.
  * @param fileDetails File details.
  */
-void SDCardDirectorySearch(const char* const fileName, SDCardFileDetails * const fileDetails) {
+void SdCardDirectorySearch(const char* const fileName, SdCardFileDetails * const fileDetails) {
 
     // Get search result
     SYS_FS_FSTAT sysFSFstat;
@@ -396,7 +396,7 @@ void SDCardDirectorySearch(const char* const fileName, SDCardFileDetails * const
             PrintFileSystemError("SYS_FS_DirSearch", sysFSError);
 #endif
         }
-        memset(fileDetails, 0, sizeof (SDCardFileDetails));
+        memset(fileDetails, 0, sizeof (SdCardFileDetails));
         return;
     }
 
@@ -431,11 +431,11 @@ void SDCardDirectorySearch(const char* const fileName, SDCardFileDetails * const
  * @param fileName File name.
  * @return True if any files matching the file name exist.
  */
-bool SDCardDirectoryExists(const char* const fileName) {
+bool SdCardDirectoryExists(const char* const fileName) {
 
     // Search from unknown starting position in directory
-    SDCardFileDetails fileDetails;
-    SDCardDirectorySearch(fileName, &fileDetails);
+    SdCardFileDetails fileDetails;
+    SdCardDirectorySearch(fileName, &fileDetails);
     if (strlen(fileDetails.name) > 0) {
         return true;
     }
@@ -447,7 +447,7 @@ bool SDCardDirectoryExists(const char* const fileName) {
 #endif
         return false;
     }
-    SDCardDirectorySearch(fileName, &fileDetails);
+    SdCardDirectorySearch(fileName, &fileDetails);
     if (strlen(fileDetails.name) > 0) {
         return true;
     }
@@ -457,7 +457,7 @@ bool SDCardDirectoryExists(const char* const fileName) {
 /**
  * @brief Closes the directory.
  */
-void SDCardDirectoryClose(void) {
+void SdCardDirectoryClose(void) {
     if (SYS_FS_DirClose(directoryHandle) != SYS_FS_RES_SUCCESS) {
 #ifdef PRINT_FILE_SYSTEM_ERRORS
         PrintFileSystemError("SYS_FS_DirClose", SYS_FS_FileError(directoryHandle));
@@ -469,15 +469,15 @@ void SDCardDirectoryClose(void) {
  * @brief Prints the contents of a directory.
  * @param directory Directory. "" if root.
  */
-void SDCardPrintDirectory(const char* const directory) {
-    SDCardDirectoryOpen(directory);
-    SDCardFileDetails fileDetails;
-    SDCardDirectorySearch("*", &fileDetails);
+void SdCardPrintDirectory(const char* const directory) {
+    SdCardDirectoryOpen(directory);
+    SdCardFileDetails fileDetails;
+    SdCardDirectorySearch("*", &fileDetails);
     while (strlen(fileDetails.name) > 0) {
-        printf("%-*s %s    %s\n", 32, fileDetails.name, RtcTimeToString(&fileDetails.time), SDCardSizeToString(fileDetails.size));
-        SDCardDirectorySearch("*", &fileDetails);
+        printf("%-*s %s    %s\n", 32, fileDetails.name, RtcTimeToString(&fileDetails.time), SdCardSizeToString(fileDetails.size));
+        SdCardDirectorySearch("*", &fileDetails);
     }
-    SDCardDirectoryClose();
+    SdCardDirectoryClose();
 }
 
 /**
@@ -486,7 +486,7 @@ void SDCardPrintDirectory(const char* const directory) {
  * @param size Size.
  * @return Size as a string.
  */
-const char* SDCardSizeToString(const size_t size) {
+const char* SdCardSizeToString(const size_t size) {
 
     // Calculate number of KB
     static char string[16];
@@ -542,7 +542,7 @@ void Concatenate(char* const destination, const size_t destinationSize, const ch
  * @param path File or directory path.
  * @param newPath New file or directory path.
  */
-void SDCardRename(const char* const path, const char* const newPath) {
+void SdCardRename(const char* const path, const char* const newPath) {
     if (SYS_FS_DirectoryChange("/") != SYS_FS_RES_SUCCESS) {
 #ifdef PRINT_FILE_SYSTEM_ERRORS
         PrintFileSystemError("SYS_FS_DirectoryChange", SYS_FS_Error());
@@ -560,7 +560,7 @@ void SDCardRename(const char* const path, const char* const newPath) {
  * @brief Deletes a file or directory.
  * @param path File or directory path.
  */
-void SDCardDelete(const char* const path) {
+void SdCardDelete(const char* const path) {
     if (SYS_FS_DirectoryChange("/") != SYS_FS_RES_SUCCESS) {
 #ifdef PRINT_FILE_SYSTEM_ERRORS
         PrintFileSystemError("SYS_FS_DirectoryChange", SYS_FS_Error());
@@ -579,7 +579,7 @@ void SDCardDelete(const char* const path) {
  * @param filePath File path.
  * @return File name.
  */
-const char* SDCardPathSplitFileName(const char* const filePath) {
+const char* SdCardPathSplitFileName(const char* const filePath) {
     const char* const lastSeparator = strrchr(filePath, '/');
     if (lastSeparator == NULL) {
         return filePath;
@@ -592,7 +592,7 @@ const char* SDCardPathSplitFileName(const char* const filePath) {
  * @param filePath File path.
  * @return Directory.
  */
-const char* SDCardPathSplitDirectory(const char* const filePath) {
+const char* SdCardPathSplitDirectory(const char* const filePath) {
 
     // Copy file path
     static char directory[SD_CARD_MAX_PATH_SIZE];
@@ -614,7 +614,7 @@ const char* SDCardPathSplitDirectory(const char* const filePath) {
  * @param ... Parts.
  * @return Path.
  */
-const char* SDCardPathJoin(const int numberOfParts, ...) {
+const char* SdCardPathJoin(const int numberOfParts, ...) {
 
     // Initialise empty string
     static char path[SD_CARD_MAX_PATH_SIZE];
@@ -645,11 +645,11 @@ const char* SDCardPathJoin(const int numberOfParts, ...) {
 
 /**
  * @brief Prints file system error.
- * @param sysFSError File system error.
+ * @param sysFsError File system error.
  */
-static void PrintFileSystemError(const char* functionName, const SYS_FS_ERROR sysFSError) {
+static void PrintFileSystemError(const char* functionName, const SYS_FS_ERROR sysFsError) {
     char* error = "";
-    switch (sysFSError) {
+    switch (sysFsError) {
         case SYS_FS_ERROR_OK:
             error = "SYS_FS_ERROR_OK";
             break;

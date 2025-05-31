@@ -1,5 +1,5 @@
 /**
- * @file Uart1DmaRX.h
+ * @file Uart1DmaRx.h
  * @author Seb Madgwick
  * @brief UART driver using DMA for PIC32 devices. DMA used for RX only.
  */
@@ -19,15 +19,15 @@
 //------------------------------------------------------------------------------
 // Function declarations
 
-void Uart1DmaRXInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions);
-void Uart1DmaRXDeinitialise(void);
-void Uart1DmaRXRead(void);
-size_t Uart1DmaRXAvailableWrite(void);
-FifoResult Uart1DmaRXWrite(const void* const data, const size_t numberOfBytes);
-FifoResult Uart1DmaRXWriteByte(const uint8_t byte);
-void Uart1DmaRXClearWriteBuffer(void);
-bool Uart1DmaRXReceiveBufferOverrun(void);
-bool Uart1DmaRXTransmitionComplete(void);
+void Uart1DmaRxInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions);
+void Uart1DmaRxDeinitialise(void);
+void Uart1DmaRxRead(void);
+size_t Uart1DmaRxAvailableWrite(void);
+FifoResult Uart1DmaRxWrite(const void* const data, const size_t numberOfBytes);
+FifoResult Uart1DmaRxWriteByte(const uint8_t byte);
+void Uart1DmaRxClearWriteBuffer(void);
+bool Uart1DmaRxReceiveBufferOverrun(void);
+bool Uart1DmaRxTransmitionComplete(void);
 
 #endif
 

@@ -11,7 +11,7 @@
 // Includes
 
 #include "definitions.h"
-#include "Spi/Spi1DmaTX.h"
+#include "Spi/Spi1DmaTx.h"
 #include <stdbool.h>
 #include <stddef.h>
 
@@ -31,7 +31,7 @@
  * @param settings Settings.
  */
 static inline __attribute__((always_inline)) void NeoPixelsHalSpiInitialise(const SpiSettings * const settings) {
-    Spi1DmaTXInitialise(settings);
+    Spi1DmaTxInitialise(settings);
 }
 
 /**
@@ -45,7 +45,7 @@ static inline __attribute__((always_inline)) void NeoPixelsHalSpiInitialise(cons
  * @param transferComplete_ Transfer complete callback.
  */
 static inline __attribute__((always_inline)) void NeoPixelsHalSpiTransfer(const GPIO_PIN csPin, void* const data, const size_t numberOfBytes, void (*transferComplete)(void)) {
-    Spi1DmaTXTransfer(csPin, data, numberOfBytes, transferComplete);
+    Spi1DmaTxTransfer(csPin, data, numberOfBytes, transferComplete);
 }
 
 /**
@@ -53,7 +53,7 @@ static inline __attribute__((always_inline)) void NeoPixelsHalSpiTransfer(const 
  * @return True while the transfer is in progress.
  */
 static inline __attribute__((always_inline)) bool NeoPixelsHalSpiTransferInProgress(void) {
-    return Spi1DmaTXTransferInProgress();
+    return Spi1DmaTxTransferInProgress();
 }
 
 #endif

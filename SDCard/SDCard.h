@@ -1,5 +1,5 @@
 /**
- * @file SDCard.h
+ * @file SdCard.h
  * @author Seb Madgwick
  * @brief Application interface for SD card functionality using MPLAB Harmony.
  */
@@ -26,10 +26,10 @@
  * @brief SD card error.
  */
 typedef enum {
-    SDCardErrorOK,
-    SDCardErrorFileSystemError,
-    SDCardErrorFileOrSDCardFull,
-} SDCardError;
+    SdCardErrorOk,
+    SdCardErrorFileSystemError,
+    SdCardErrorFileOrSdCardFull,
+} SdCardError;
 
 /**
  * @brief SD card file details.
@@ -38,35 +38,35 @@ typedef struct {
     size_t size;
     RtcTime time;
     char name[SD_CARD_MAX_PATH_SIZE];
-} SDCardFileDetails;
+} SdCardFileDetails;
 
 //------------------------------------------------------------------------------
 // Function declarations
 
-void SDCardTasks(void);
-void SDCardMount(void);
-void SDCardUnmount(void);
-bool SDCardMounted(void);
-void SDCardFormat(void);
-void SDCardSetVolumeLabel(const char* const label);
-SDCardError SDCardFileOpen(const char* const filePath, const bool write);
-size_t SDCardFileRead(void* const destination, const size_t destinationSize);
-void SDCardFileReadString(void* const destination, const size_t destinationSize);
-SDCardError SDCardFileWrite(const void* const data, const size_t numberOfBytes);
-SDCardError SDCardFileWriteString(const char* const string);
-size_t SDCardFileGetSize(void);
-void SDCardFileClose(void);
-void SDCardDirectoryOpen(const char* const directory);
-void SDCardDirectorySearch(const char* const fileName, SDCardFileDetails * const fileDetails);
-bool SDCardDirectoryExists(const char* const fileName);
-void SDCardDirectoryClose(void);
-void SDCardPrintDirectory(const char* const directory);
-const char* SDCardSizeToString(const size_t size);
-void SDCardRename(const char* const path, const char* const newPath);
-void SDCardDelete(const char* const path);
-const char* SDCardPathSplitFileName(const char* const filePath);
-const char* SDCardPathSplitDirectory(const char* const filePath);
-const char* SDCardPathJoin(const int numberOfParts, ...);
+void SdCardTasks(void);
+void SdCardMount(void);
+void SdCardUnmount(void);
+bool SdCardMounted(void);
+void SdCardFormat(void);
+void SdCardSetVolumeLabel(const char* const label);
+SdCardError SdCardFileOpen(const char* const filePath, const bool write);
+size_t SdCardFileRead(void* const destination, const size_t destinationSize);
+void SdCardFileReadString(void* const destination, const size_t destinationSize);
+SdCardError SdCardFileWrite(const void* const data, const size_t numberOfBytes);
+SdCardError SdCardFileWriteString(const char* const string);
+size_t SdCardFileGetSize(void);
+void SdCardFileClose(void);
+void SdCardDirectoryOpen(const char* const directory);
+void SdCardDirectorySearch(const char* const fileName, SdCardFileDetails * const fileDetails);
+bool SdCardDirectoryExists(const char* const fileName);
+void SdCardDirectoryClose(void);
+void SdCardPrintDirectory(const char* const directory);
+const char* SdCardSizeToString(const size_t size);
+void SdCardRename(const char* const path, const char* const newPath);
+void SdCardDelete(const char* const path);
+const char* SdCardPathSplitFileName(const char* const filePath);
+const char* SdCardPathSplitDirectory(const char* const filePath);
+const char* SdCardPathJoin(const int numberOfParts, ...);
 
 #endif
 

@@ -11,7 +11,7 @@
 #include "definitions.h"
 #include "Fifo.h"
 #include "Rtc/Rtc.h"
-#include "SDCard/SDCard.h"
+#include "SdCard/SdCard.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
@@ -130,7 +130,7 @@ void DataLoggerTasks(void) {
 static void StateOpenTasks(void) {
 
     // Do nothing if SD card not mounted
-    if (SDCardMounted() == false) {
+    if (SdCardMounted() == false) {
         return;
     }
 
@@ -161,14 +161,14 @@ static void StateWriteTasks(void) {
 static int Open(void) {
 
     // Open directory
-    SDCardDirectoryOpen(settings.directory);
+    SdCardDirectoryOpen(settings.directory);
 
     // Create file name
     bool fileNameUnavailable = false;
     switch (settings.fileNameSuffix) {
         case DataLoggerSuffixNone:
             snprintf(fileName, sizeof (fileName), "%s%s", settings.fileNamePrefix, settings.fileExtension);
-            fileNameUnavailable = SDCardDirectoryExists(fileName);
+            fileNameUnavailable = SdCardDirectoryExists(fileName);
             break;
         case DataLoggerSuffixCounter:
         {
@@ -179,7 +179,7 @@ static int Open(void) {
                 if (++counter > 9999) {
                     counter = 0;
                 }
-                if (SDCardDirectoryExists(fileName) == false) {
+                if (SdCardDirectoryExists(fileName) == false) {
                     break;
                 }
                 if (counter == initialCounter) {
@@ -199,13 +199,13 @@ static int Open(void) {
                     strlen(settings.fileNamePrefix) > 0 ? "_" : "",
                     time.year, time.month, time.day, time.hour, time.minute, time.second,
                     settings.fileExtension);
-            fileNameUnavailable = SDCardDirectoryExists(fileName);
+            fileNameUnavailable = SdCardDirectoryExists(fileName);
             break;
         }
     }
 
     // Close directory
-    SDCardDirectoryClose();
+    SdCardDirectoryClose();
 
     // Abort if file name unavailable
     if (fileNameUnavailable) {
@@ -214,14 +214,14 @@ static int Open(void) {
     }
 
     // Open file
-    switch (SDCardFileOpen(SDCardPathJoin(2, settings.directory, fileName), true)) {
-        case SDCardErrorOK:
+    switch (SdCardFileOpen(SdCardPathJoin(2, settings.directory, fileName), true)) {
+        case SdCardErrorOk:
             break;
-        case SDCardErrorFileSystemError:
+        case SdCardErrorFileSystemError:
             ErrorCallback(DataLoggerErrorFileSystemError);
             return 1;
-        case SDCardErrorFileOrSDCardFull:
-            ErrorCallback(DataLoggerErrorSDCardFull);
+        case SdCardErrorFileOrSdCardFull:
+            ErrorCallback(DataLoggerErrorSdCardFull);
             return 1;
     }
     StatusCallback(DataLoggerStatusOpen);
@@ -231,12 +231,12 @@ static int Open(void) {
 
     // Write preamble
     if (callbacks.writePreamble != NULL) {
-        callbacks.writePreamble(); // use SDCardFileWrite to write preamble
+        callbacks.writePreamble(); // use SdCardFileWrite to write preamble
     }
 
     // Reset statistics
     fileStartTicks = TimerGetTicks64();
-    fileSize = SDCardFileGetSize();
+    fileSize = SdCardFileGetSize();
 #ifdef PRINT_STATISTICS
     maxWritePeriod = 0;
     maxbufferUsed = 0;
@@ -250,12 +250,12 @@ static int Open(void) {
  * @return Counter.
  */
 static unsigned int ReadCounter(void) {
-    if (SDCardFileOpen(SDCardPathJoin(2, settings.directory, COUNTER_FILE_NAME), false) != SDCardErrorOK) {
+    if (SdCardFileOpen(SdCardPathJoin(2, settings.directory, COUNTER_FILE_NAME), false) != SdCardErrorOk) {
         return 0;
     }
     char string[8];
-    const size_t numberOfBytes = SDCardFileRead(string, sizeof (string));
-    SDCardFileClose();
+    const size_t numberOfBytes = SdCardFileRead(string, sizeof (string));
+    SdCardFileClose();
     if (numberOfBytes == -1) {
         return 0;
     }
@@ -271,13 +271,13 @@ static unsigned int ReadCounter(void) {
  * @param Counter.
  */
 static void WriteCounter(const unsigned int counter) {
-    if (SDCardFileOpen(SDCardPathJoin(2, settings.directory, COUNTER_FILE_NAME), true) != SDCardErrorOK) {
+    if (SdCardFileOpen(SdCardPathJoin(2, settings.directory, COUNTER_FILE_NAME), true) != SdCardErrorOk) {
         return;
     }
     char string[8];
     snprintf(string, sizeof (string), "%04u", counter);
-    SDCardFileWriteString(string);
-    SDCardFileClose();
+    SdCardFileWriteString(string);
+    SdCardFileClose();
 }
 
 /**
@@ -325,7 +325,7 @@ static int Write(void) {
 #ifdef PRINT_STATISTICS
     const uint64_t writeStart = TimerGetTicks64();
 #endif
-    const SDCardError error = SDCardFileWrite(&fifo.data[fifo.readIndex], numberOfBytes);
+    const SdCardError error = SdCardFileWrite(&fifo.data[fifo.readIndex], numberOfBytes);
     fifo.readIndex = newReadIndex;
     fileSize += numberOfBytes;
 #ifdef PRINT_STATISTICS
@@ -336,14 +336,14 @@ static int Write(void) {
 #endif
 
     // Restart logging if file full
-    if (error == SDCardErrorFileOrSDCardFull) {
-        StatusCallback(DataLoggerStatusSDCardOrFileFull);
+    if (error == SdCardErrorFileOrSdCardFull) {
+        StatusCallback(DataLoggerStatusSdCardOrFileFull);
         Close();
         return Open();
     }
 
     // Abort if error occurred
-    if (error != SDCardErrorOK) {
+    if (error != SdCardErrorOk) {
         ErrorCallback(DataLoggerErrorFileSystemError);
         return 1;
     }
@@ -355,7 +355,7 @@ static int Write(void) {
  */
 static void Close(void) {
     StatusCallback(DataLoggerStatusClose);
-    SDCardFileClose();
+    SdCardFileClose();
 }
 
 /**
@@ -494,7 +494,7 @@ const char* DataLoggerStatusToString(const DataLoggerStatus status) {
             return "Max file size exceeded";
         case DataLoggerStatusMaxFilePeriodExceeded:
             return "Max file period exceeded";
-        case DataLoggerStatusSDCardOrFileFull:
+        case DataLoggerStatusSdCardOrFileFull:
             return "SD card or file full";
         case DataLoggerStatusClose:
             return "Close";
@@ -511,7 +511,7 @@ const char* DataLoggerErrorToString(const DataLoggerError error) {
     switch (error) {
         case DataLoggerErrorFileNameUnavailable:
             return "File name unavailable";
-        case DataLoggerErrorSDCardFull:
+        case DataLoggerErrorSdCardFull:
             return "SD card full";
         case DataLoggerErrorFileSystemError:
             return "File system error";

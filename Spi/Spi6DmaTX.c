@@ -1,5 +1,5 @@
 /**
- * @file Spi6DmaTX.c
+ * @file Spi6DmaTx.c
  * @author Seb Madgwick
  * @brief SPI driver using DMA for PIC32 devices. DMA used for TX only.
  */
@@ -8,7 +8,7 @@
 // Includes
 
 #include "definitions.h"
-#include "Spi6DmaTX.h"
+#include "Spi6DmaTx.h"
 #include <stdio.h>
 #include "sys/kmem.h"
 
@@ -33,10 +33,10 @@ static void (*transferComplete)(void);
  * @brief Initialises the module.
  * @param settings Settings.
  */
-void Spi6DmaTXInitialise(const SpiSettings * const settings) {
+void Spi6DmaTxInitialise(const SpiSettings * const settings) {
 
     // Ensure default register states
-    Spi6DmaTXDeinitialise();
+    Spi6DmaTxDeinitialise();
 
     // Configure SPI
     SPI6CONbits.MSTEN = 1; // host mode
@@ -71,7 +71,7 @@ void Spi6DmaTXInitialise(const SpiSettings * const settings) {
 /**
  * @brief Deinitialises the module.
  */
-void Spi6DmaTXDeinitialise(void) {
+void Spi6DmaTxDeinitialise(void) {
 
     // Disable SPI and restore default register states
     SPI6CON = 0;
@@ -108,7 +108,7 @@ void Spi6DmaTXDeinitialise(void) {
  * @param numberOfBytes_ Number of bytes.
  * @param transferComplete_ Transfer complete callback.
  */
-void Spi6DmaTXTransfer(const GPIO_PIN csPin_, const void* const data, const size_t numberOfBytes, void (*transferComplete_)(void)) {
+void Spi6DmaTxTransfer(const GPIO_PIN csPin_, const void* const data, const size_t numberOfBytes, void (*transferComplete_)(void)) {
 
     // Store arguments
     csPin = csPin_;
@@ -149,7 +149,7 @@ void Dma0InterruptHandler(void) {
  * @brief Returns true while the transfer is in progress.
  * @return True while the transfer is in progress.
  */
-bool Spi6DmaTXTransferInProgress(void) {
+bool Spi6DmaTxTransferInProgress(void) {
     return DCH0CONbits.CHEN == 1; // if TX DMA channel interrupt enabled
 }
 

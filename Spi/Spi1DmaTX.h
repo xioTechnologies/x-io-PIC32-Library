@@ -1,5 +1,5 @@
 /**
- * @file Spi1DmaTX.h
+ * @file Spi1DmaTx.h
  * @author Seb Madgwick
  * @brief SPI driver using DMA for PIC32 devices. DMA used for TX only.
  */
@@ -18,10 +18,10 @@
 //------------------------------------------------------------------------------
 // Function declarations
 
-void Spi1DmaTXInitialise(const SpiSettings * const settings);
-void Spi1DmaTXDeinitialise(void);
-void Spi1DmaTXTransfer(const GPIO_PIN csPin_, const void* const data, const size_t numberOfBytes, void (*transferComplete_)(void));
-bool Spi1DmaTXTransferInProgress(void);
+void Spi1DmaTxInitialise(const SpiSettings * const settings);
+void Spi1DmaTxDeinitialise(void);
+void Spi1DmaTxTransfer(const GPIO_PIN csPin_, const void* const data, const size_t numberOfBytes, void (*transferComplete_)(void));
+bool Spi1DmaTxTransferInProgress(void);
 
 #endif
 
