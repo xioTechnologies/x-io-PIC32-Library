@@ -46,21 +46,7 @@ duplicate(
 )
 
 duplicate(
-    ("Spi/Spi?.c", "Spi/Spi?.h"),
-    ("Spi?", "SPI?", "spi?"),
-    1,
-    (2, 3, 4, 5, 6),
-)
-
-duplicate(
-    ("Spi/Spi?Dma.c", "Spi/Spi?Dma.h"),
-    ("Spi?", "SPI?", "spi?"),
-    1,
-    (2, 3, 4, 5, 6),
-)
-
-duplicate(
-    ("Spi/Spi?DmaTx.c", "Spi/Spi?DmaTx.h"),
+    ("Spi/Spi?.c", "Spi/Spi?.h", "Spi/Spi?Dma.c", "Spi/Spi?Dma.h", "Spi/Spi?DmaTx.c", "Spi/Spi?DmaTx.h"),
     ("Spi?", "SPI?", "spi?"),
     1,
     (2, 3, 4, 5, 6),

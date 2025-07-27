@@ -16,7 +16,7 @@
 // Definitions
 
 /**
- * @brief UART read conditions.
+ * @brief Read conditions.
  */
 typedef struct {
     uint32_t numberOfBytes;

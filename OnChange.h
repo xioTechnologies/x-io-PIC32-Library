@@ -27,14 +27,12 @@ typedef enum {
 } OnChangeEdge;
 
 /**
- * @brief On change structure. Structure members are used internally and must
- * not be accessed by the application.
+ * @brief On change structure. All structure members are private.
  */
 typedef struct {
     bool previousInput;
     uint64_t timeout;
 } OnChange;
-
 
 /**
  * @brief Returns the edge of the digital input change.

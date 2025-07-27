@@ -11,7 +11,7 @@
 // Definitions
 
 /**
- * @brief RTC time.
+ * @brief Time.
  */
 typedef struct {
     int year;

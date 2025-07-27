@@ -13,7 +13,7 @@
 //------------------------------------------------------------------------------
 // Variables
 
-static bool isAttached;
+static bool attached;
 
 //------------------------------------------------------------------------------
 // Functions
@@ -27,16 +27,16 @@ static bool isAttached;
  * the USB stack from detecting this.
  */
 bool UsbMsdAttachedGet(const DRV_HANDLE handle) {
-    return isAttached && (DRV_SDSPI_IsAttached(handle));
+    return attached && (DRV_SDSPI_IsAttached(handle));
 }
 
 /**
  * @brief Prevent or allow the USB stack from detecting an attached SD card.
- * @param isAttached_ True if the application allows detection of an attached SD
+ * @param attached_ True if the application allows detection of an attached SD
  * card.
  */
-void UsbMsdAttachedSet(const bool isAttached_) {
-    isAttached = isAttached_;
+void UsbMsdAttachedSet(const bool attached_) {
+    attached = attached_;
 }
 
 //------------------------------------------------------------------------------

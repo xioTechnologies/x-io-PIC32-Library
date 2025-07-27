@@ -17,7 +17,7 @@
 // Definitions
 
 /**
- * @brief UART parity and data. Values equal to PDSEL bits of UxMODE register.
+ * @brief Parity and data. Values equal to PDSEL bits of UxMODE register.
  */
 typedef enum {
     UartParityAndDataEightNone,
@@ -27,7 +27,7 @@ typedef enum {
 } UartParityAndData;
 
 /**
- * @brief UART stop bits. Values equal to STSEL bits of UxMODE register.
+ * @brief Stop bits. Values equal to STSEL bits of UxMODE register.
  */
 typedef enum {
     UartStopBitsOne,
@@ -35,7 +35,7 @@ typedef enum {
 } UartStopBits;
 
 /**
- * @brief UART settings.
+ * @brief Settings.
  */
 typedef struct {
     uint32_t baudRate;

@@ -11,7 +11,7 @@
 // Definitions
 
 /**
- * @brief Input capture edge.
+ * @brief Edge.
  */
 typedef enum {
     InputCaptureEdgeFalling,

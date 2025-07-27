@@ -31,7 +31,7 @@ typedef union {
 } NeoPixelsPixel;
 
 //------------------------------------------------------------------------------
-// Function declarations
+// Variable declarations
 
 extern const SpiSettings neoPixelsSpiSettings;
 

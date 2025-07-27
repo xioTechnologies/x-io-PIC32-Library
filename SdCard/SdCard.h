@@ -18,12 +18,12 @@
 // Definitions
 
 /**
- * @brief SD card maximum path size.
+ * @brief Maximum path size.
  */
 #define SD_CARD_MAX_PATH_SIZE (256)
 
 /**
- * @brief SD card result.
+ * @brief Result.
  */
 typedef enum {
     SdCardResultOk,
@@ -32,7 +32,7 @@ typedef enum {
 } SdCardResult;
 
 /**
- * @brief SD card file details.
+ * @brief File details.
  */
 typedef struct {
     size_t size;

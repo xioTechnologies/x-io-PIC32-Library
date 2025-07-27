@@ -18,9 +18,8 @@
 // Definitions
 
 /**
- * @brief FIFO structure. Structure members are used internally and must not
- * be accessed by the application except for initialisation.
- *
+ * @brief FIFO structure. All structure members are private except for
+ * initialisation.
  * Example:
  * @code
  * uint8_t data[1024];

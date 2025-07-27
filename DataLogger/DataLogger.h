@@ -19,7 +19,7 @@
 // Definitions
 
 /**
- * @brief Data logger file name suffix.
+ * @brief File name suffix.
  */
 typedef enum {
     DataLoggerSuffixNone,
@@ -28,7 +28,7 @@ typedef enum {
 } DataLoggerSuffix;
 
 /**
- * @brief Data logger settings.
+ * @brief Settings.
  */
 typedef struct {
     char directory[32];
@@ -40,7 +40,7 @@ typedef struct {
 } DataLoggerSettings;
 
 /**
- * @brief Data logger status.
+ * @brief Status.
  */
 typedef enum {
     DataLoggerStatusStart,
@@ -53,7 +53,7 @@ typedef enum {
 } DataLoggerStatus;
 
 /**
- * @brief Data logger error.
+ * @brief Error.
  */
 typedef enum {
     DataLoggerErrorFileNameUnavailable,
@@ -62,7 +62,7 @@ typedef enum {
 } DataLoggerError;
 
 /**
- * @brief Data logger callbacks.
+ * @brief Callbacks.
  */
 typedef struct {
     void (*writePreamble)(void);
