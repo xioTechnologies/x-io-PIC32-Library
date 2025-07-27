@@ -18,7 +18,7 @@
 // Definitions
 
 /**
- * @brief I2C clock frequency.
+ * @brief Clock frequency.
  */
 typedef enum {
     I2CClockFrequency100kHz = 100000,
@@ -27,8 +27,8 @@ typedef enum {
 } I2CClockFrequency;
 
 /**
- * @brief I2C timeout in timer ticks. Equal to 10 clock cycles for the slowest
- * clock frequency.
+ * @brief Timeout in timer ticks. Equal to 10 clock cycles for the slowest clock
+ * frequency.
  */
 #define I2C_TIMEOUT (TIMER_TICKS_PER_SECOND / (I2CClockFrequency100kHz / 10))
 
@@ -36,13 +36,13 @@ typedef enum {
  * @brief I2C interface.
  */
 typedef struct {
-    const void (*start)(void);
-    const void (*repeatedStart)(void);
-    const void (*stop)(void);
-    const bool (*send)(const uint8_t byte);
-    const bool (*sendAddressRead)(const uint8_t address);
-    const bool (*sendAddressWrite)(const uint8_t address);
-    const uint8_t(*receive)(const bool ack);
+    void (*start)(void);
+    void (*repeatedStart)(void);
+    void (*stop)(void);
+    bool (*send)(const uint8_t byte);
+    bool (*sendAddressRead)(const uint8_t address);
+    bool (*sendAddressWrite)(const uint8_t address);
+    uint8_t(*receive)(const bool ack);
 } I2C;
 
 //------------------------------------------------------------------------------

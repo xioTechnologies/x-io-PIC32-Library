@@ -15,12 +15,12 @@
 //------------------------------------------------------------------------------
 // Definitions
 
-#define I2CBB1_SCL_PIN              SCL_EEPROM_PIN
-#define I2CBB1_SDA_PIN              SDA_EEPROM_PIN
+#define I2CBB1_SCL_PIN              SCL2_PIN
+#define I2CBB1_SDA_PIN              SDA2_PIN
 #define I2CBB1_HALF_CLOCK_CYCLE     (5)
 
-#define I2CBB2_SCL_PIN              SCL_HAPTIC_PIN
-#define I2CBB2_SDA_PIN              SDA_HAPTIC_PIN
+#define I2CBB2_SCL_PIN              SCL2_PIN
+#define I2CBB2_SDA_PIN              SDA2_PIN
 #define I2CBB2_HALF_CLOCK_CYCLE     (5)
 
 #endif

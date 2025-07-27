@@ -34,7 +34,7 @@ const I2C i2cBB2 = {
 static const I2CBB i2cBB = {
     .sclPin = I2CBB2_SCL_PIN,
     .sdaPin = I2CBB2_SDA_PIN,
-    .halfClockCycle = 5, // 100 kHz
+    .halfClockCycle = I2CBB2_HALF_CLOCK_CYCLE,
 };
 
 //------------------------------------------------------------------------------
