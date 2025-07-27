@@ -422,25 +422,20 @@ size_t DataLoggerAvailableWrite(void) {
  * @brief Writes data to the write buffer.
  * @param data Data.
  * @param numberOfBytes Number of bytes.
+ * @return Result.
  */
-void DataLoggerWrite(const void* const data, const size_t numberOfBytes) {
-
-    // Do nothing if no space available
+FifoResult DataLoggerWrite(const void* const data, const size_t numberOfBytes) {
+#ifdef PRINT_STATISTICS
     if (numberOfBytes > DataLoggerAvailableWrite()) {
-#ifdef PRINT_STATISTICS
         bufferOverrun = true;
-#endif
-        return;
-    }
-
-    // Write data
-#ifdef PRINT_STATISTICS
-    const uint32_t bufferUsed = sizeof (fifoData) - DataLoggerAvailableWrite();
-    if (bufferUsed > maxbufferUsed) {
-        maxbufferUsed = bufferUsed;
+    } else {
+        const uint32_t bufferUsed = sizeof (fifoData) - DataLoggerAvailableWrite();
+        if (bufferUsed > maxbufferUsed) {
+            maxbufferUsed = bufferUsed;
+        }
     }
 #endif
-    FifoWrite(&fifo, data, numberOfBytes);
+    return FifoWrite(&fifo, data, numberOfBytes);
 }
 
 /**
