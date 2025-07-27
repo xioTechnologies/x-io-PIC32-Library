@@ -16,6 +16,11 @@
 #include <stddef.h>
 
 //------------------------------------------------------------------------------
+// Variable declarations
+
+extern const Spi spi4;
+
+//------------------------------------------------------------------------------
 // Function declarations
 
 void Spi4Initialise(const SpiSettings * const settings);

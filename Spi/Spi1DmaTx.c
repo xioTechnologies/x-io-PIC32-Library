@@ -9,6 +9,7 @@
 
 #include "definitions.h"
 #include "Spi1DmaTx.h"
+#include "SpiConfig.h"
 #include <stdio.h>
 #include "sys/kmem.h"
 
@@ -23,6 +24,10 @@
 //------------------------------------------------------------------------------
 // Variables
 
+const Spi spi1DmaTx = {
+    .transfer = Spi1DmaTxTransfer,
+    .transferInProgress = Spi1DmaTxTransferInProgress,
+};
 static GPIO_PIN csPin;
 static void (*transferComplete)(void);
 
@@ -108,7 +113,7 @@ void Spi1DmaTxDeinitialise(void) {
  * @param numberOfBytes_ Number of bytes.
  * @param transferComplete_ Transfer complete callback.
  */
-void Spi1DmaTxTransfer(const GPIO_PIN csPin_, const void* const data, const size_t numberOfBytes, void (*transferComplete_)(void)) {
+void Spi1DmaTxTransfer(const GPIO_PIN csPin_, void* const data, const size_t numberOfBytes, void (*transferComplete_)(void)) {
 
     // Store arguments
     csPin = csPin_;
@@ -125,7 +130,11 @@ void Spi1DmaTxTransfer(const GPIO_PIN csPin_, const void* const data, const size
 
     // Begin transfer
     if (csPin != GPIO_PIN_NONE) {
+#ifdef SPI1_CS_ACTIVE_HIGH
+        GPIO_PinSet(csPin);
+#else
         GPIO_PinClear(csPin);
+#endif
     }
     DCH0INTbits.CHBCIF = 0; // clear TX DMA channel interrupt flag
     DCH0CONbits.CHEN = 1; // enable TX DMA channel to begin transfer
@@ -138,7 +147,11 @@ void Spi1DmaTxTransfer(const GPIO_PIN csPin_, const void* const data, const size
 void Dma0InterruptHandler(void) {
     EVIC_SourceStatusClear(INT_SOURCE_DMA0); // clear interrupt flag first because callback may start new transfer
     if (csPin != GPIO_PIN_NONE) {
+#ifdef SPI1_CS_ACTIVE_HIGH
+        GPIO_PinClear(csPin);
+#else
         GPIO_PinSet(csPin);
+#endif
     }
     if (transferComplete != NULL) {
         transferComplete();

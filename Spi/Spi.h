@@ -11,13 +11,14 @@
 // Includes
 
 #include "definitions.h"
+#include <stddef.h>
 #include <stdint.h>
 
 //------------------------------------------------------------------------------
 // Definitions
 
 /**
- * @brief SPI clock polarity. Values equal the CKP bit of the SPIxCON register.
+ * @brief Clock polarity. Values equal the CKP bit of the SPIxCON register.
  */
 typedef enum {
     SpiClockPolarityIdleLow,
@@ -25,7 +26,7 @@ typedef enum {
 } SpiClockPolarity;
 
 /**
- * @brief SPI clock phase. Values equal the CKE bit of the SPIxCON register.
+ * @brief Clock phase. Values equal the CKE bit of the SPIxCON register.
  */
 typedef enum {
     SpiClockPhaseIdleToActive,
@@ -33,13 +34,21 @@ typedef enum {
 } SpiClockPhase;
 
 /**
- * @brief SPI settings.
+ * @brief Settings.
  */
 typedef struct {
     uint32_t clockFrequency;
     SpiClockPolarity clockPolarity;
     SpiClockPhase clockPhase;
 } SpiSettings;
+
+/**
+ * @brief SPI interface.
+ */
+typedef struct {
+    void (*transfer)(const GPIO_PIN csPin, void* const data, const size_t numberOfBytes, void (*transferComplete)(void));
+    bool (*transferInProgress)(void);
+} Spi;
 
 //------------------------------------------------------------------------------
 // Variable declarations

@@ -1,32 +1,31 @@
 /**
- * @file Spi1DmaTx.h
+ * @file SpiBus1.h
  * @author Seb Madgwick
- * @brief SPI driver using DMA for PIC32 devices. DMA used for TX only.
+ * @brief SPI bus.
  */
 
-#ifndef SPI1_DMA_TX_H
-#define SPI1_DMA_TX_H
+#ifndef SPI_BUS_1_H
+#define SPI_BUS_1_H
 
 //------------------------------------------------------------------------------
 // Includes
 
 #include "definitions.h"
-#include "Spi.h"
+#include "SpiBus.h"
 #include <stdbool.h>
 #include <stddef.h>
 
 //------------------------------------------------------------------------------
 // Variable declarations
 
-extern const Spi spi1DmaTx;
+extern const SpiBus spiBus1;
 
 //------------------------------------------------------------------------------
 // Function declarations
 
-void Spi1DmaTxInitialise(const SpiSettings * const settings);
-void Spi1DmaTxDeinitialise(void);
-void Spi1DmaTxTransfer(const GPIO_PIN csPin_, void* const data, const size_t numberOfBytes, void (*transferComplete_)(void));
-bool Spi1DmaTxTransferInProgress(void);
+SpiBusClient * const SpiBus1AddClient(const GPIO_PIN csPin);
+void SpiBus1Transfer(SpiBusClient * const client, void* const data, const size_t numberOfBytes, void (*transferComplete)(void));
+bool SpiBus1TransferInProgress(const SpiBusClient * const client);
 
 #endif
 

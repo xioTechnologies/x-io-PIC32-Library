@@ -16,6 +16,11 @@
 #include <stddef.h>
 
 //------------------------------------------------------------------------------
+// Variable declarations
+
+extern const Spi spi2Dma;
+
+//------------------------------------------------------------------------------
 // Function declarations
 
 void Spi2DmaInitialise(const SpiSettings * const settings);

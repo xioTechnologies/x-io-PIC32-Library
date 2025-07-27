@@ -16,11 +16,16 @@
 #include <stddef.h>
 
 //------------------------------------------------------------------------------
+// Variable declarations
+
+extern const Spi spi4DmaTx;
+
+//------------------------------------------------------------------------------
 // Function declarations
 
 void Spi4DmaTxInitialise(const SpiSettings * const settings);
 void Spi4DmaTxDeinitialise(void);
-void Spi4DmaTxTransfer(const GPIO_PIN csPin_, const void* const data, const size_t numberOfBytes, void (*transferComplete_)(void));
+void Spi4DmaTxTransfer(const GPIO_PIN csPin_, void* const data, const size_t numberOfBytes, void (*transferComplete_)(void));
 bool Spi4DmaTxTransferInProgress(void);
 
 #endif

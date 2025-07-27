@@ -9,6 +9,7 @@
 
 #include "definitions.h"
 #include "Spi6.h"
+#include "SpiConfig.h"
 
 //------------------------------------------------------------------------------
 // Definitions
@@ -21,6 +22,10 @@
 //------------------------------------------------------------------------------
 // Variables
 
+const Spi spi6 = {
+    .transfer = Spi6Transfer,
+    .transferInProgress = Spi6TransferInProgress,
+};
 static GPIO_PIN csPin;
 static uint8_t* data;
 static size_t numberOfBytes;
@@ -96,7 +101,11 @@ void Spi6Transfer(const GPIO_PIN csPin_, void* const data_, const size_t numberO
 
     // Begin transfer
     if (csPin != GPIO_PIN_NONE) {
+#ifdef SPI6_CS_ACTIVE_HIGH
+        GPIO_PinSet(csPin);
+#else
         GPIO_PinClear(csPin);
+#endif
     }
     for (size_t index = 0; index < numberOfBytes; index++) {
         while (SPI6STATbits.SPITBF == 1); // wait while no available space in the FIFO
@@ -121,7 +130,11 @@ void Spi6RXInterruptHandler(void) {
 
     // End transfer
     if (csPin != GPIO_PIN_NONE) {
+#ifdef SPI6_CS_ACTIVE_HIGH
+        GPIO_PinClear(csPin);
+#else
         GPIO_PinSet(csPin);
+#endif
     }
 #ifdef PRINT_TRANSFERS
     SpiPrintTransferComplete(data, numberOfBytes);

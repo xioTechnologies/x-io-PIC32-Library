@@ -9,6 +9,7 @@
 
 #include "definitions.h"
 #include "Spi2Dma.h"
+#include "SpiConfig.h"
 #include "sys/kmem.h"
 
 //------------------------------------------------------------------------------
@@ -22,6 +23,10 @@
 //------------------------------------------------------------------------------
 // Variables
 
+const Spi spi2Dma = {
+    .transfer = Spi2DmaTransfer,
+    .transferInProgress = Spi2DmaTransferInProgress,
+};
 static GPIO_PIN csPin;
 #ifdef PRINT_TRANSFERS
 static void* data;
@@ -162,7 +167,11 @@ void Spi2DmaTransfer(const GPIO_PIN csPin_, void* const data_, const size_t numb
 
     // Begin transfer
     if (csPin != GPIO_PIN_NONE) {
+#ifdef SPI2_CS_ACTIVE_HIGH
+        GPIO_PinSet(csPin);
+#else
         GPIO_PinClear(csPin);
+#endif
     }
     DCH1INTbits.CHBCIF = 0; // clear RX DMA channel interrupt flag
     DCH1CONbits.CHEN = 1; // enable RX DMA channel
@@ -176,7 +185,11 @@ void Spi2DmaTransfer(const GPIO_PIN csPin_, void* const data_, const size_t numb
 void Dma1InterruptHandler(void) {
     EVIC_SourceStatusClear(INT_SOURCE_DMA1); // clear interrupt flag first because transfer complete callback may start new transfer
     if (csPin != GPIO_PIN_NONE) {
+#ifdef SPI2_CS_ACTIVE_HIGH
+        GPIO_PinClear(csPin);
+#else
         GPIO_PinSet(csPin);
+#endif
     }
 #ifdef PRINT_TRANSFERS
     SpiPrintTransferComplete(data, numberOfBytes);
