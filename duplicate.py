@@ -74,6 +74,13 @@ duplicate(
 )
 
 duplicate(
+    ("NeoPixels/NeoPixels?.c", "NeoPixels/NeoPixels?.h"),
+    ("NeoPixels?", "NEOPIXELS_?", "neoPixels?"),
+    1,
+    (2, 3, 4, 5, 6),
+)
+
+duplicate(
     ("Uart/Uart?.c", "Uart/Uart?.h", "Uart/Uart?Dma.c", "Uart/Uart?Dma.h", "Uart/Uart?DmaRx.c", "Uart/Uart?DmaRx.h", "Uart/Uart?DmaTx.c", "Uart/Uart?DmaTx.h"),
     ("Uart?", "U?", "UART?", "UART_?"),
     1,

@@ -1,39 +1,32 @@
 /**
- * @file NeoPixels.h
+ * @file NeoPixels1.h
  * @author Seb Madgwick
  * @brief NeoPixels driver.
  */
 
-#ifndef NEOPIXELS_H
-#define NEOPIXELS_H
+#ifndef NEOPIXELS_1_H
+#define NEOPIXELS_1_H
 
 //------------------------------------------------------------------------------
 // Includes
 
-#include "Spi/Spi.h"
-#include <stdint.h>
+#include "NeoPixels.h"
+#include "NeoPixelsConfig.h"
+#include <stddef.h>
 
 //------------------------------------------------------------------------------
-// Definitions
+// Variable declarations
 
-/**
- * @brief Pixel.
- */
-typedef union {
-
-    struct {
-        uint8_t blue;
-        uint8_t green;
-        uint8_t red;
-        unsigned : 8;
-    } __attribute__((__packed__));
-    uint32_t rgb;
-} NeoPixelsPixel;
+extern NeoPixelsPixel neoPixels1Pixels[NEOPIXELS_1_HAL_NUMBER_OF_PIXELS];
+#ifndef NEOPIXELS_1_SPI
+extern void* const neoPixels1SpiData;
+extern const size_t neoPixels1SpiNumberOfBytes;
+#endif
 
 //------------------------------------------------------------------------------
 // Function declarations
 
-extern const SpiSettings neoPixelsSpiSettings;
+void NeoPixels1Update(void);
 
 #endif
 
