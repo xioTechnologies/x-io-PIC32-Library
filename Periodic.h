@@ -1,11 +1,11 @@
 /**
- * @file TimerScheduler.h
+ * @file Periodic.h
  * @author Seb Madgwick
- * @brief Scheduler for periodic events.
+ * @brief Periodic event scheduler.
  */
 
-#ifndef TIMER_SCHEDULER_H
-#define TIMER_SCHEDULER_H
+#ifndef PERIODIC_H
+#define PERIODIC_H
 
 //------------------------------------------------------------------------------
 // Includes
@@ -13,31 +13,31 @@
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "Timer.h"
+#include "Timer/Timer.h"
 
 //------------------------------------------------------------------------------
 // Definitions
 
 /**
- * @brief Scheduler structure. Structure members are used internally and must
- * not be accessed by the application.
+ * @brief Periodic structure. All structure members are private.
  */
 typedef struct {
     bool enabled;
     float periodSeconds;
     uint64_t periodTicks;
     uint64_t timeout;
-} TimerScheduler;
+} Periodic;
 
 /**
  * @brief Returns true if the period has elapsed. The period starts on the
  * first function call. A period of zero or infinity will always return false.
- * @param scheduler Scheduler structure.
+ * @param periodic Periodic structure.
  * @param period Period in seconds.
+ * @return True if the period has elapsed.
  */
-#define TIMER_SCHEDULER_POLL(period) ({ \
-    static TimerScheduler scheduler; \
-    TimerSchedulerPoll(&scheduler, period); \
+#define PERIODIC_POLL(period) ({ \
+    static Periodic periodic; \
+    PeriodicPoll(&periodic, period); \
 })
 
 //------------------------------------------------------------------------------
@@ -46,46 +46,46 @@ typedef struct {
 /**
  * @brief Returns true if the period has elapsed. The period starts on the
  * first function call. A period of zero or infinity will always return false.
- * @param scheduler Scheduler structure.
+ * @param periodic Periodic structure.
  * @param period Period in seconds.
  * @return True if the period has elapsed.
  */
-static inline __attribute__((always_inline)) bool TimerSchedulerPoll(TimerScheduler * const scheduler, const float period) {
+static inline __attribute__((always_inline)) bool PeriodicPoll(Periodic * const periodic, const float period) {
 
     // Recalculate if period changed
-    if (scheduler->periodSeconds != period) {
+    if (periodic->periodSeconds != period) {
 
         // Disable if period invalid, zero, or infinity
-        scheduler->periodSeconds = period;
-        scheduler->enabled = false;
+        periodic->periodSeconds = period;
+        periodic->enabled = false;
         if (period <= 0.0f) {
             return false;
         }
         if (isinf(period) != 0) {
             return false;
         }
-        scheduler->enabled = true;
+        periodic->enabled = true;
 
         // Calculate internal variables
-        scheduler->periodTicks = (uint64_t) (period * (float) TIMER_TICKS_PER_SECOND);
-        scheduler->timeout = TimerGetTicks64() + scheduler->periodTicks;
+        periodic->periodTicks = (uint64_t) (period * (float) TIMER_TICKS_PER_SECOND);
+        periodic->timeout = TimerGetTicks64() + periodic->periodTicks;
     }
 
     // Do nothing else if disabled
-    if (scheduler->enabled == false) {
+    if (periodic->enabled == false) {
         return false;
     }
 
     // Do nothing else if period has not elapsed
     const uint64_t ticks = TimerGetTicks64();
-    if (ticks < scheduler->timeout) {
+    if (ticks < periodic->timeout) {
         return false;
     }
 
     // Calculate time of next event
-    scheduler->timeout += scheduler->periodTicks;
-    if (scheduler->timeout < ticks) {
-        scheduler->timeout = ticks + scheduler->periodTicks;
+    periodic->timeout += periodic->periodTicks;
+    if (periodic->timeout < ticks) {
+        periodic->timeout = ticks + periodic->periodTicks;
     }
     return true;
 }
