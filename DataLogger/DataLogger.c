@@ -7,6 +7,7 @@
 //------------------------------------------------------------------------------
 // Includes
 
+#include "Config.h"
 #include "DataLogger.h"
 #include "definitions.h"
 #include "Fifo.h"
@@ -64,7 +65,7 @@ static State state = StateDisabled;
 char fileName[SD_CARD_MAX_PATH_SIZE];
 static uint64_t fileStartTicks;
 static uint32_t fileSize;
-static uint8_t fifoData[380000];
+static uint8_t fifoData[DATA_LOGGER_BUFFER_SIZE];
 static Fifo fifo = {.data = fifoData, .dataSize = sizeof (fifoData)};
 #ifdef PRINT_STATISTICS
 static uint32_t maxWritePeriod;

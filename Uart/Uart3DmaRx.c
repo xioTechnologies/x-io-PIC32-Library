@@ -7,6 +7,7 @@
 //------------------------------------------------------------------------------
 // Includes
 
+#include "Config.h"
 #include "definitions.h"
 #include <stdint.h>
 #include "sys/kmem.h"
@@ -25,7 +26,7 @@ static inline __attribute__((always_inline)) void TXInterruptTasks(void);
 
 static void (*read)(const void* const data, const size_t numberOfBytes);
 static uint8_t __attribute__((coherent)) readBuffer[1024]; // must be declared __attribute__((coherent)) for PIC32MZ devices
-static uint8_t writeData[4096];
+static uint8_t writeData[UART3_WRITE_BUFFER_SIZE];
 static Fifo writeFifo = {.data = writeData, .dataSize = sizeof (writeData)};
 
 //------------------------------------------------------------------------------

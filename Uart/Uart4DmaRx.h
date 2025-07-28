@@ -19,7 +19,7 @@
 //------------------------------------------------------------------------------
 // Function declarations
 
-void Uart4DmaRxInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions);
+void Uart4DmaRxInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions, void (*read_)(const void* const data, const size_t numberOfBytes));
 void Uart4DmaRxDeinitialise(void);
 void Uart4DmaRxRead(void);
 size_t Uart4DmaRxAvailableWrite(void);

@@ -7,6 +7,7 @@
 //------------------------------------------------------------------------------
 // Includes
 
+#include "Config.h"
 #include "definitions.h"
 #include "Fifo.h"
 #include <stdint.h>
@@ -22,7 +23,7 @@ static inline __attribute__((always_inline)) void RXInterruptTasks(void);
 // Variables
 
 static bool receiveBufferOverrun;
-static uint8_t readData[4096];
+static uint8_t readData[UART3_READ_BUFFER_SIZE];
 static Fifo readFifo = {.data = readData, .dataSize = sizeof (readData)};
 static void (*writeComplete)(void);
 

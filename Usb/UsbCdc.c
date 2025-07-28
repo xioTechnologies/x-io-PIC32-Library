@@ -7,6 +7,7 @@
 //------------------------------------------------------------------------------
 // Includes
 
+#include "Config.h"
 #include "definitions.h"
 #include "UsbCdc.h"
 
@@ -27,9 +28,9 @@ static bool portOpen;
 static uint8_t __attribute__((coherent)) readRequestData[512]; // must be declared __attribute__((coherent)) for PIC32MZ devices
 static bool readInProgress;
 static bool writeInProgress;
-static uint8_t readData[4096];
+static uint8_t readData[USB_CDC_READ_BUFFER_SIZE];
 static Fifo readFifo = {.data = readData, .dataSize = sizeof (readData)};
-static uint8_t writeData[4096];
+static uint8_t writeData[USB_CDC_WRITE_BUFFER_SIZE];
 static Fifo writeFifo = {.data = writeData, .dataSize = sizeof (writeData)};
 
 //------------------------------------------------------------------------------

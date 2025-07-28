@@ -7,6 +7,7 @@
 //------------------------------------------------------------------------------
 // Includes
 
+#include "Config.h"
 #include "definitions.h"
 #include <stdint.h>
 #include "Uart4.h"
@@ -21,9 +22,9 @@ static inline __attribute__((always_inline)) void TXInterruptTasks(void);
 // Variables
 
 static bool receiveBufferOverrun;
-static uint8_t readData[4096];
+static uint8_t readData[UART4_READ_BUFFER_SIZE];
 static Fifo readFifo = {.data = readData, .dataSize = sizeof (readData)};
-static uint8_t writeData[4096];
+static uint8_t writeData[UART4_WRITE_BUFFER_SIZE];
 static Fifo writeFifo = {.data = writeData, .dataSize = sizeof (writeData)};
 
 //------------------------------------------------------------------------------
