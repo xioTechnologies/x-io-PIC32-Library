@@ -26,7 +26,7 @@ const SpiBus spiBus1 = {
 };
 static int numberOfClients;
 static SpiBusClient clients[SPI_BUS_1_MAX_NUMBER_OF_CLIENTS];
-static SpiBusClient* activeClient;
+static SpiBusClient * volatile activeClient;
 
 //------------------------------------------------------------------------------
 // Functions
@@ -56,7 +56,7 @@ SpiBusClient * const SpiBus1AddClient(const GPIO_PIN csPin) {
  * @param numberOfBytes Number of bytes.
  * @param transferComplete Transfer complete callback.
  */
-void SpiBus1Transfer(SpiBusClient * const client, void* const data, const size_t numberOfBytes, void (*transferComplete)(void)) {
+void SpiBus1Transfer(SpiBusClient * const client, volatile void* const data, const size_t numberOfBytes, void (*transferComplete)(void)) {
     if (client == NULL) {
         return;
     }
@@ -109,7 +109,7 @@ static void TransferComplete(void) {
     activeClient = NULL;
 
     // Begin next transfer
-    for (int index = 0; index < numberOfClients; index++) {
+    for (int index = 0; index < SPI_BUS_1_MAX_NUMBER_OF_CLIENTS; index++) {
         if (clients[index].inProgress) {
             BeginTrasnfer(&clients[index]);
             return;

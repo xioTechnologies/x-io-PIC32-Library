@@ -113,7 +113,7 @@ void Spi1DmaTxDeinitialise(void) {
  * @param numberOfBytes_ Number of bytes.
  * @param transferComplete_ Transfer complete callback.
  */
-void Spi1DmaTxTransfer(const GPIO_PIN csPin_, void* const data, const size_t numberOfBytes, void (*transferComplete_)(void)) {
+void Spi1DmaTxTransfer(const GPIO_PIN csPin_, volatile void* const data, const size_t numberOfBytes, void (*transferComplete_)(void)) {
 
     // Store arguments
     csPin = csPin_;

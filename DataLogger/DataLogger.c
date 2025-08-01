@@ -69,8 +69,8 @@ static uint8_t fifoData[DATA_LOGGER_BUFFER_SIZE];
 static Fifo fifo = {.data = fifoData, .dataSize = sizeof (fifoData)};
 #ifdef PRINT_STATISTICS
 static uint32_t maxWritePeriod;
-static uint32_t maxbufferUsed;
-static bool bufferOverrun;
+static volatile uint32_t maxbufferUsed;
+static volatile bool bufferOverrun;
 #endif
 
 //------------------------------------------------------------------------------
@@ -326,7 +326,7 @@ static int Write(void) {
 #ifdef PRINT_STATISTICS
     const uint64_t writeStart = TimerGetTicks64();
 #endif
-    const SdCardResult error = SdCardFileWrite(&fifo.data[fifo.readIndex], numberOfBytes);
+    const SdCardResult error = SdCardFileWrite((void*) &fifo.data[fifo.readIndex], numberOfBytes);
     fifo.readIndex = newReadIndex;
     fileSize += numberOfBytes;
 #ifdef PRINT_STATISTICS

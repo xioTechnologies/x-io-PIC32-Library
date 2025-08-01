@@ -24,7 +24,7 @@ extern const SpiBus spiBus1;
 // Function declarations
 
 SpiBusClient * const SpiBus1AddClient(const GPIO_PIN csPin);
-void SpiBus1Transfer(SpiBusClient * const client, void* const data, const size_t numberOfBytes, void (*transferComplete)(void));
+void SpiBus1Transfer(SpiBusClient * const client, volatile void* const data, const size_t numberOfBytes, void (*transferComplete)(void));
 bool SpiBus1TransferInProgress(const SpiBusClient * const client);
 
 #endif

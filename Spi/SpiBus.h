@@ -22,10 +22,10 @@
  */
 typedef struct {
     GPIO_PIN csPin;
-    void* data;
+    volatile void* data;
     size_t numberOfBytes;
     void (*transferComplete)(void);
-    bool inProgress;
+    volatile bool inProgress;
 } SpiBusClient;
 
 /**
@@ -33,7 +33,7 @@ typedef struct {
  */
 typedef struct {
     SpiBusClient * const (*addClient)(const GPIO_PIN csPin);
-    void (*transfer)(SpiBusClient * const client, void* const data, const size_t numberOfBytes, void (*transferComplete)(void));
+    void (*transfer)(SpiBusClient * const client, volatile void* const data, const size_t numberOfBytes, void (*transferComplete)(void));
     bool (*transferInProgress)(const SpiBusClient * const client);
 } SpiBus;
 

@@ -19,7 +19,7 @@
 
 extern NeoPixelsPixel neoPixels1Pixels[NEOPIXELS_1_HAL_NUMBER_OF_PIXELS];
 #ifndef NEOPIXELS_1_SPI
-extern void* const neoPixels1SpiData;
+extern volatile void* const neoPixels1SpiData;
 extern const size_t neoPixels1SpiNumberOfBytes;
 #endif
 

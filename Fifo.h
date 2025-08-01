@@ -27,10 +27,10 @@
  * @endcode
  */
 typedef struct {
-    uint8_t * const data;
+    volatile uint8_t * const data;
     const size_t dataSize;
-    size_t writeIndex;
-    size_t readIndex;
+    volatile size_t writeIndex;
+    volatile size_t readIndex;
 } Fifo;
 
 /**
@@ -81,12 +81,12 @@ static inline __attribute__((always_inline)) size_t FifoRead(Fifo * const fifo, 
     // Read data
     if ((fifo->readIndex + numberOfBytes) >= fifo->dataSize) {
         const size_t numberOfBytesBeforeWraparound = fifo->dataSize - fifo->readIndex;
-        memcpy(destination, &fifo->data[fifo->readIndex], numberOfBytesBeforeWraparound);
+        memcpy(destination, (void*) &fifo->data[fifo->readIndex], numberOfBytesBeforeWraparound);
         const size_t numberOfBytesAfterWraparound = numberOfBytes - numberOfBytesBeforeWraparound;
-        memcpy(&((uint8_t*) destination)[numberOfBytesBeforeWraparound], fifo->data, numberOfBytesAfterWraparound);
+        memcpy(&((uint8_t*) destination)[numberOfBytesBeforeWraparound], (void*) fifo->data, numberOfBytesAfterWraparound);
         fifo->readIndex = numberOfBytesAfterWraparound;
     } else {
-        memcpy(destination, &fifo->data[fifo->readIndex], numberOfBytes);
+        memcpy(destination, (void*) &fifo->data[fifo->readIndex], numberOfBytes);
         fifo->readIndex += numberOfBytes;
     }
     return numberOfBytes;
@@ -137,12 +137,12 @@ static inline __attribute__((always_inline)) FifoResult FifoWrite(Fifo * const f
     // Write data
     if ((fifo->writeIndex + numberOfBytes) >= fifo->dataSize) {
         const size_t numberOfBytesBeforeWraparound = fifo->dataSize - fifo->writeIndex;
-        memcpy(&fifo->data[fifo->writeIndex], data, numberOfBytesBeforeWraparound);
+        memcpy((void*) &fifo->data[fifo->writeIndex], data, numberOfBytesBeforeWraparound);
         const size_t numberOfBytesAfterWraparound = numberOfBytes - numberOfBytesBeforeWraparound;
-        memcpy(fifo->data, &((uint8_t*) data)[numberOfBytesBeforeWraparound], numberOfBytesAfterWraparound);
+        memcpy((void*) fifo->data, &((uint8_t*) data)[numberOfBytesBeforeWraparound], numberOfBytesAfterWraparound);
         fifo->writeIndex = numberOfBytesAfterWraparound;
     } else {
-        memcpy(&fifo->data[fifo->writeIndex], data, numberOfBytes);
+        memcpy((void*) &fifo->data[fifo->writeIndex], data, numberOfBytes);
         fifo->writeIndex += numberOfBytes;
     }
     return FifoResultOk;

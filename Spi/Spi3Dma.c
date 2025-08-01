@@ -142,12 +142,12 @@ void Spi3DmaDeinitialise(void) {
  * @param numberOfBytes_ Number of bytes.
  * @param transferComplete_ Transfer complete callback.
  */
-void Spi3DmaTransfer(const GPIO_PIN csPin_, void* const data_, const size_t numberOfBytes_, void (*transferComplete_)(void)) {
+void Spi3DmaTransfer(const GPIO_PIN csPin_, volatile void* const data_, const size_t numberOfBytes_, void (*transferComplete_)(void)) {
 
     // Store arguments
     csPin = csPin_;
 #ifdef PRINT_TRANSFERS
-    data = data_;
+    data = (uint8_t*) data_;
     numberOfBytes = numberOfBytes_;
 #endif
     transferComplete = transferComplete_;

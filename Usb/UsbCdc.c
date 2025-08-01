@@ -22,12 +22,12 @@ static void WriteTasks(void);
 //------------------------------------------------------------------------------
 // Variables
 
-static USB_DEVICE_HANDLE usbDeviceHandle = USB_DEVICE_HANDLE_INVALID;
-static bool hostConnected;
-static bool portOpen;
-static uint8_t __attribute__((coherent)) readRequestData[512]; // must be declared __attribute__((coherent)) for PIC32MZ devices
-static bool readInProgress;
-static bool writeInProgress;
+static volatile USB_DEVICE_HANDLE usbDeviceHandle = USB_DEVICE_HANDLE_INVALID;
+static volatile bool hostConnected;
+static volatile bool portOpen;
+static volatile uint8_t __attribute__((coherent)) readRequestData[512]; // must be declared __attribute__((coherent)) for PIC32MZ devices
+static volatile bool readInProgress;
+static volatile bool writeInProgress;
 static uint8_t readData[USB_CDC_READ_BUFFER_SIZE];
 static Fifo readFifo = {.data = readData, .dataSize = sizeof (readData)};
 static uint8_t writeData[USB_CDC_WRITE_BUFFER_SIZE];
@@ -118,7 +118,7 @@ static void APP_USBDeviceCDCEventHandler(USB_DEVICE_CDC_INDEX index, USB_DEVICE_
         case USB_DEVICE_CDC_EVENT_READ_COMPLETE:
             if (readInProgress) { // prevent unexpected read event for PIC32MZ devices when host reconnected
                 const size_t numberOfBytes = ((USB_DEVICE_CDC_EVENT_DATA_READ_COMPLETE*) pData)->length;
-                FifoWrite(&readFifo, readRequestData, numberOfBytes);
+                FifoWrite(&readFifo, (void*) readRequestData, numberOfBytes);
                 readInProgress = false;
             }
             break;
@@ -146,7 +146,7 @@ static void ReadTasks(void) {
     // Schedule read
     readInProgress = true;
     static USB_DEVICE_CDC_TRANSFER_HANDLE usbDeviceCdcTransferHandle = USB_DEVICE_CDC_TRANSFER_HANDLE_INVALID;
-    const USB_DEVICE_CDC_RESULT usbDeviceCdcResult = USB_DEVICE_CDC_Read(USB_DEVICE_CDC_INDEX_0, &usbDeviceCdcTransferHandle, readRequestData, sizeof (readRequestData));
+    const USB_DEVICE_CDC_RESULT usbDeviceCdcResult = USB_DEVICE_CDC_Read(USB_DEVICE_CDC_INDEX_0, &usbDeviceCdcTransferHandle, (void*) readRequestData, sizeof (readRequestData));
     if (usbDeviceCdcResult != USB_DEVICE_CDC_RESULT_OK) {
         readInProgress = false;
         return;
