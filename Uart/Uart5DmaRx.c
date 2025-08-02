@@ -38,7 +38,7 @@ static Fifo writeFifo = {.data = writeData, .dataSize = sizeof (writeData)};
  * @param readConditions Read conditions.
  * @param read Read callback.
  */
-void Uart5DmaRxInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions, void (*read_)(const void* const data, const size_t numberOfBytes)) {
+void Uart5DmaRxInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions, void (*const read_) (const void* const data, const size_t numberOfBytes)) {
 
     // Ensure default register states
     Uart5DmaRxDeinitialise();
@@ -248,7 +248,7 @@ size_t Uart5DmaRxAvailableWrite(void) {
  * @param numberOfBytes Number of bytes.
  * @return Result.
  */
- FifoResult Uart5DmaRxWrite(const void* const data, const size_t numberOfBytes) {
+FifoResult Uart5DmaRxWrite(const void* const data, const size_t numberOfBytes) {
     const FifoResult result = FifoWrite(&writeFifo, data, numberOfBytes);
     EVIC_SourceEnable(INT_SOURCE_UART5_TX);
     return result;

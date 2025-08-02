@@ -16,7 +16,7 @@
 //------------------------------------------------------------------------------
 // Function declarations
 
-void InputCapture8Initialise(const InputCaptureEdge edge, void (*captureEvent_)(const uint64_t ticks));
+void InputCapture8Initialise(const InputCaptureEdge edge, void (*const captureEvent_) (const uint64_t ticks));
 void InputCapture8Deinitialise(void);
 void InputCapture8Trigger(void);
 

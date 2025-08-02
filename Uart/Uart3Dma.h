@@ -18,10 +18,10 @@
 //------------------------------------------------------------------------------
 // Function declarations
 
-void Uart3DmaInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions);
+void Uart3DmaInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions, void (*const read_) (const void* const data, const size_t numberOfBytes));
 void Uart3DmaDeinitialise(void);
 void Uart3DmaRead(void);
-void Uart3DmaWrite(const void* const data, const size_t numberOfBytes);
+void Uart3DmaWrite(const void* const data, const size_t numberOfBytes, void (*const writeComplete_) (void));
 bool Uart3DmaWriteInProgress(void);
 bool Uart3DmaReceiveBufferOverrun(void);
 bool Uart3DmaTransmitionComplete(void);

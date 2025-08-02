@@ -22,7 +22,7 @@ void Uart3DmaTxDeinitialise(void);
 size_t Uart3DmaTxAvailableRead(void);
 size_t Uart3DmaTxRead(void* const destination, size_t numberOfBytes);
 uint8_t Uart3DmaTxReadByte(void);
-void Uart3DmaTxWrite(const void* const data, const size_t numberOfBytes, void (*writeComplete_)(void));
+void Uart3DmaTxWrite(const void* const data, const size_t numberOfBytes, void (*const writeComplete_) (void));
 bool Uart3DmaTxWriteInProgress(void);
 void Uart3DmaTxClearReadBuffer(void);
 bool Uart3DmaTxReceiveBufferOverrun(void);

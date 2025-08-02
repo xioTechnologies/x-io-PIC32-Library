@@ -25,7 +25,7 @@ extern const Spi spi2DmaTx;
 
 void Spi2DmaTxInitialise(const SpiSettings * const settings);
 void Spi2DmaTxDeinitialise(void);
-void Spi2DmaTxTransfer(const GPIO_PIN csPin_, volatile void* const data, const size_t numberOfBytes, void (*transferComplete_)(void));
+void Spi2DmaTxTransfer(const GPIO_PIN csPin_, volatile void* const data, const size_t numberOfBytes, void (*const transferComplete_) (void));
 bool Spi2DmaTxTransferInProgress(void);
 
 #endif

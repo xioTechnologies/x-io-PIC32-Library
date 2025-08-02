@@ -35,7 +35,7 @@ static void (*writeComplete)(void);
  * @param readConditions Read conditions.
  * @param read Read callback.
  */
-void Uart6DmaInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions, void (*read_)(const void* const data, const size_t numberOfBytes)) {
+void Uart6DmaInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions, void (*const read_) (const void* const data, const size_t numberOfBytes)) {
 
     // Ensure default register states
     Uart6DmaDeinitialise();
@@ -261,7 +261,7 @@ static inline __attribute__((always_inline)) void TransferAborted(void) {
  * @param numberOfBytes Number of bytes.
  * @param writeComplete_ Write complete callback.
  */
-void Uart6DmaWrite(const void* const data, const size_t numberOfBytes, void (*writeComplete_)(void)) {
+void Uart6DmaWrite(const void* const data, const size_t numberOfBytes, void (*const writeComplete_) (void)) {
     writeComplete = writeComplete_;
     DCH0SSA = KVA_TO_PA(data); // source address
     DCH0SSIZ = numberOfBytes; // source size

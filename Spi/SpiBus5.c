@@ -56,7 +56,7 @@ SpiBusClient * const SpiBus5AddClient(const GPIO_PIN csPin) {
  * @param numberOfBytes Number of bytes.
  * @param transferComplete Transfer complete callback.
  */
-void SpiBus5Transfer(SpiBusClient * const client, volatile void* const data, const size_t numberOfBytes, void (*transferComplete)(void)) {
+void SpiBus5Transfer(SpiBusClient * const client, volatile void* const data, const size_t numberOfBytes, void (*const transferComplete) (void)) {
     if (client == NULL) {
         return;
     }

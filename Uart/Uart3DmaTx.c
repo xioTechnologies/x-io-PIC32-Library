@@ -155,7 +155,7 @@ uint8_t Uart3DmaTxReadByte(void) {
  * @param numberOfBytes Number of bytes.
  * @param writeComplete_ Write complete callback.
  */
-void Uart3DmaTxWrite(const void* const data, const size_t numberOfBytes, void (*writeComplete_)(void)) {
+void Uart3DmaTxWrite(const void* const data, const size_t numberOfBytes, void (*const writeComplete_) (void)) {
     writeComplete = writeComplete_;
     DCH0SSA = KVA_TO_PA(data); // source address
     DCH0SSIZ = numberOfBytes; // source size

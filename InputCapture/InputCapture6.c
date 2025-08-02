@@ -24,7 +24,7 @@ static void (*captureEvent)(const uint64_t ticks);
  * @param edge Edge.
  * @param captureEvent_ Capture event callback.
  */
-void InputCapture6Initialise(const InputCaptureEdge edge, void (*captureEvent_)(const uint64_t ticks)) {
+void InputCapture6Initialise(const InputCaptureEdge edge, void (*const captureEvent_) (const uint64_t ticks)) {
 
     // Ensure default register states
     InputCapture6Deinitialise();

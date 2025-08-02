@@ -16,7 +16,7 @@
 //------------------------------------------------------------------------------
 // Function declarations
 
-void InputCapture2Initialise(const InputCaptureEdge edge, void (*captureEvent_)(const uint64_t ticks));
+void InputCapture2Initialise(const InputCaptureEdge edge, void (*const captureEvent_) (const uint64_t ticks));
 void InputCapture2Deinitialise(void);
 void InputCapture2Trigger(void);
 

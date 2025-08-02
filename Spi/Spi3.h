@@ -25,7 +25,7 @@ extern const Spi spi3;
 
 void Spi3Initialise(const SpiSettings * const settings);
 void Spi3Deinitialise(void);
-void Spi3Transfer(const GPIO_PIN csPin_, volatile void* const data_, const size_t numberOfBytes_, void (*transferComplete_)(void));
+void Spi3Transfer(const GPIO_PIN csPin_, volatile void* const data_, const size_t numberOfBytes_, void (*const transferComplete_) (void));
 bool Spi3TransferInProgress(void);
 
 #endif

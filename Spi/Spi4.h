@@ -25,7 +25,7 @@ extern const Spi spi4;
 
 void Spi4Initialise(const SpiSettings * const settings);
 void Spi4Deinitialise(void);
-void Spi4Transfer(const GPIO_PIN csPin_, volatile void* const data_, const size_t numberOfBytes_, void (*transferComplete_)(void));
+void Spi4Transfer(const GPIO_PIN csPin_, volatile void* const data_, const size_t numberOfBytes_, void (*const transferComplete_) (void));
 bool Spi4TransferInProgress(void);
 
 #endif

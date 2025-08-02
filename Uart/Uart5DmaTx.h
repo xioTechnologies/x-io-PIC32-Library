@@ -22,7 +22,7 @@ void Uart5DmaTxDeinitialise(void);
 size_t Uart5DmaTxAvailableRead(void);
 size_t Uart5DmaTxRead(void* const destination, size_t numberOfBytes);
 uint8_t Uart5DmaTxReadByte(void);
-void Uart5DmaTxWrite(const void* const data, const size_t numberOfBytes, void (*writeComplete_)(void));
+void Uart5DmaTxWrite(const void* const data, const size_t numberOfBytes, void (*const writeComplete_) (void));
 bool Uart5DmaTxWriteInProgress(void);
 void Uart5DmaTxClearReadBuffer(void);
 bool Uart5DmaTxReceiveBufferOverrun(void);

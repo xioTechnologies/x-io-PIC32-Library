@@ -22,7 +22,7 @@ void Uart2DmaTxDeinitialise(void);
 size_t Uart2DmaTxAvailableRead(void);
 size_t Uart2DmaTxRead(void* const destination, size_t numberOfBytes);
 uint8_t Uart2DmaTxReadByte(void);
-void Uart2DmaTxWrite(const void* const data, const size_t numberOfBytes, void (*writeComplete_)(void));
+void Uart2DmaTxWrite(const void* const data, const size_t numberOfBytes, void (*const writeComplete_) (void));
 bool Uart2DmaTxWriteInProgress(void);
 void Uart2DmaTxClearReadBuffer(void);
 bool Uart2DmaTxReceiveBufferOverrun(void);

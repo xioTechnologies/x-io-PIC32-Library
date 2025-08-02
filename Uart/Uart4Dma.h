@@ -18,10 +18,10 @@
 //------------------------------------------------------------------------------
 // Function declarations
 
-void Uart4DmaInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions);
+void Uart4DmaInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions, void (*const read_) (const void* const data, const size_t numberOfBytes));
 void Uart4DmaDeinitialise(void);
 void Uart4DmaRead(void);
-void Uart4DmaWrite(const void* const data, const size_t numberOfBytes);
+void Uart4DmaWrite(const void* const data, const size_t numberOfBytes, void (*const writeComplete_) (void));
 bool Uart4DmaWriteInProgress(void);
 bool Uart4DmaReceiveBufferOverrun(void);
 bool Uart4DmaTransmitionComplete(void);
