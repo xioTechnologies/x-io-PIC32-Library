@@ -60,7 +60,6 @@ void SpiBus1Transfer(SpiBusClient * const client, volatile void* const data, con
     if (client == NULL) {
         return;
     }
-
     client->data = data;
     client->numberOfBytes = numberOfBytes;
     client->transferComplete = transferComplete;
