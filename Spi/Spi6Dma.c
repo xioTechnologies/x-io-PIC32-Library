@@ -16,7 +16,7 @@
 // Definitions
 
 /**
- * @brief Uncomment this line to enable printing of transfers.
+ * @brief Uncomment this line to print transfers.
  */
 //#define PRINT_TRANSFERS
 

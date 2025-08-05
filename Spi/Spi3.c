@@ -15,7 +15,7 @@
 // Definitions
 
 /**
- * @brief Uncomment this line to enable printing of transfers.
+ * @brief Uncomment this line to print transfers.
  */
 //#define PRINT_TRANSFERS
 
@@ -77,6 +77,7 @@ void Spi3Deinitialise(void) {
 
 /**
  * @brief Transfers data. The data will be overwritten with the received data.
+ * This function will block if the number of bytes is greater than the 16 bytes.
  * This function must not be called while a transfer is in progress. The
  * transfer complete callback will be called from within an interrupt once the
  * transfer is complete.
@@ -108,7 +109,7 @@ void Spi3Transfer(const GPIO_PIN csPin_, volatile void* const data_, const size_
 #endif
     }
     for (size_t index = 0; index < numberOfBytes; index++) {
-        while (SPI3STATbits.SPITBF == 1); // wait while no available space in the FIFO
+        while (SPI3STATbits.SPITBF == 1); // wait while no space available in the FIFO
         SPI3BUF = data[index];
     }
 }

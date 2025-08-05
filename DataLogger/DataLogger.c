@@ -27,7 +27,7 @@
 #define COUNTER_FILE_NAME "Counter.txt"
 
 /**
- * @brief Uncomment this line to enable printing of statistics.
+ * @brief Uncomment this line to print statistics.
  */
 //#define PRINT_STATISTICS
 

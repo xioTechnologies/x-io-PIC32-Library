@@ -15,7 +15,7 @@
 // Definitions
 
 /**
- * @brief Uncomment this line to enable printing of messages.
+ * @brief Uncomment this line to print messages.
  */
 //#define PRINT_MESSAGES
 

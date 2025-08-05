@@ -27,7 +27,7 @@
 #define MOUNT_NAME "/mnt/myDrive"
 
 /**
- * @brief Uncomment this line to enable printing of file system errors.
+ * @brief Uncomment this line to print file system errors.
  */
 //#define PRINT_FILE_SYSTEM_ERRORS
 
