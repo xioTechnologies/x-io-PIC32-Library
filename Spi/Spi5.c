@@ -30,7 +30,7 @@ static GPIO_PIN csPin;
 static uint8_t* data;
 static size_t numberOfBytes;
 static void (*transferComplete)(void);
-static size_t readIndex;
+static volatile size_t readIndex;
 
 //------------------------------------------------------------------------------
 // Functions
