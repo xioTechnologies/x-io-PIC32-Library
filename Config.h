@@ -32,40 +32,40 @@
 #define I2CBB2_HALF_CLOCK_CYCLE             (5)
 
 #define NEOPIXELS_1_HAL_NUMBER_OF_PIXELS    (4)
-// #define NEOPIXELS_1_NO_RESET_CODE
+//#define NEOPIXELS_1_NO_RESET_CODE
 #define NEOPIXELS_1_SPI                     spi1Dma
 
 #define NEOPIXELS_2_HAL_NUMBER_OF_PIXELS    (4)
-// #define NEOPIXELS_2_NO_RESET_CODE
+//#define NEOPIXELS_2_NO_RESET_CODE
 #define NEOPIXELS_2_SPI                     spi2Dma
 
 #define NEOPIXELS_3_HAL_NUMBER_OF_PIXELS    (4)
-// #define NEOPIXELS_3_NO_RESET_CODE
+//#define NEOPIXELS_3_NO_RESET_CODE
 #define NEOPIXELS_3_SPI                     spi3Dma
 
 #define NEOPIXELS_4_HAL_NUMBER_OF_PIXELS    (4)
-// #define NEOPIXELS_4_NO_RESET_CODE
+//#define NEOPIXELS_4_NO_RESET_CODE
 #define NEOPIXELS_4_SPI                     spi4Dma
 
 #define NEOPIXELS_5_HAL_NUMBER_OF_PIXELS    (4)
-// #define NEOPIXELS_5_NO_RESET_CODE
+//#define NEOPIXELS_5_NO_RESET_CODE
 #define NEOPIXELS_5_SPI                     spi5Dma
 
 #define NEOPIXELS_6_HAL_NUMBER_OF_PIXELS    (4)
-// #define NEOPIXELS_6_NO_RESET_CODE
+//#define NEOPIXELS_6_NO_RESET_CODE
 #define NEOPIXELS_6_SPI                     spi6Dma
 
-// #define SPI1_CS_ACTIVE_HIGH
+//#define SPI1_CS_ACTIVE_HIGH
 
-// #define SPI2_CS_ACTIVE_HIGH
+//#define SPI2_CS_ACTIVE_HIGH
 
-// #define SPI3_CS_ACTIVE_HIGH
+//#define SPI3_CS_ACTIVE_HIGH
 
-// #define SPI4_CS_ACTIVE_HIGH
+//#define SPI4_CS_ACTIVE_HIGH
 
-// #define SPI5_CS_ACTIVE_HIGH
+//#define SPI5_CS_ACTIVE_HIGH
 
-// #define SPI6_CS_ACTIVE_HIGH
+//#define SPI6_CS_ACTIVE_HIGH
 
 #define SPI_BUS_1_MAX_NUMBER_OF_CLIENTS     (4)
 #define SPI_BUS_1_SPI                       spi1Dma
