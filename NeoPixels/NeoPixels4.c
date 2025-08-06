@@ -19,7 +19,9 @@
  */
 typedef struct {
     BitPattern pixels[NEOPIXELS_4_HAL_NUMBER_OF_PIXELS];
+#ifndef NEOPIXELS_4_NO_RESET_CODE
     uint8_t resetCode[35]; // 84 us
+#endif
 } __attribute__((__packed__)) SpiData;
 
 //------------------------------------------------------------------------------
@@ -50,7 +52,9 @@ void NeoPixels4Update(void) {
     }
 
     // Clear reset code bytes
+#ifndef NEOPIXELS_4_NO_RESET_CODE
     memset(spiData.resetCode, 0, sizeof (spiData.resetCode));
+#endif
 
     // Begin transfer
 #ifdef NEOPIXELS_4_SPI
