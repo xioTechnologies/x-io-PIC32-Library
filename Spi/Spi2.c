@@ -77,10 +77,10 @@ void Spi2Deinitialise(void) {
 
 /**
  * @brief Transfers data. The data will be overwritten with the received data.
- * This function will block if the number of bytes is greater than the 16 bytes.
- * This function must not be called while a transfer is in progress. The
- * transfer complete callback will be called from within an interrupt once the
- * transfer is complete.
+ * This function will block if the number of bytes is greater than 16. This
+ * function must not be called while a transfer is in progress. The transfer
+ * complete callback will be called from within an interrupt once the transfer
+ * is complete.
  * @param csPin_ CS pin.
  * @param data_ Data.
  * @param numberOfBytes_ Number of bytes.
