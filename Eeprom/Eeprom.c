@@ -39,7 +39,7 @@
 // Function declarations
 
 static void StartSequence(const I2C * const i2c, const uint16_t address);
-static void PrintLine(const I2C * const i2c, const uint16_t address, const uint8_t * const data);
+static void PrintLine(const uint16_t address, const uint8_t * const data);
 
 //------------------------------------------------------------------------------
 // Functions
@@ -90,8 +90,8 @@ void EepromWrite(const I2C * const i2c, uint16_t address, const void* const data
 }
 
 /**
- * @brief Writes data only if the data being written is different to the data
- * on the EEPROM.
+ * @brief Writes data only if the data being written is different to the data in
+ * the EEPROM.
  * @param i2c I2C interface.
  * @param address Address.
  * @param data Data.
@@ -169,21 +169,21 @@ void EepromPrint(const I2C * const i2c) {
 
         // Print first and last line
         if ((address == 0) || (address == (EEPROM_SIZE - PRINT_LINE_LENGTH))) {
-            PrintLine(i2c, address, data);
+            PrintLine(address, data);
             continue;
         }
 
         // Print line if data not blank
         const uint8_t blankData[] = {[0 ... (PRINT_LINE_LENGTH - 1)] = 0xFF};
         if (memcmp(blankData, data, sizeof (data)) != 0) {
-            PrintLine(i2c, address, data);
+            PrintLine(address, data);
             printEllipses = true;
             continue;
         }
 
         // Print ellipses
         if (printEllipses) {
-            PrintLine(i2c, 0xFFFF, data);
+            PrintLine(0xFFFF, data);
             printEllipses = false;
         }
     }
@@ -191,11 +191,10 @@ void EepromPrint(const I2C * const i2c) {
 
 /**
  * @brief Prints line.
- * @param i2c I2C interface.
  * @param address Address. 0xFFFF for ellipses.
  * @param data Data.
  */
-static void PrintLine(const I2C * const i2c, const uint16_t address, const uint8_t * const data) {
+static void PrintLine(const uint16_t address, const uint8_t * const data) {
 
     // Print address
     if (address == 0xFFFF) {
