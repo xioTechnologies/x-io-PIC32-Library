@@ -1,7 +1,7 @@
 /**
  * @file SerialNumber.h
  * @author Seb Madgwick
- * @brief Provides the serial number of PIC32MZ devices.
+ * @brief Provides the 64-bit serial number of a PIC32MZ device.
  */
 
 #ifndef SERIAL_NUMBER_H
@@ -15,8 +15,8 @@
 //------------------------------------------------------------------------------
 // Function declarations
 
-uint64_t SerialNumberGetValue(void);
-const char* SerialNumberGetString(void);
+uint64_t SerialNumberU64(void);
+const char* SerialNumberString(void);
 
 #endif
 
