@@ -47,7 +47,7 @@ static uint8_t __attribute__((coherent)) buffer[NVM_FLASH_PAGESIZE];
 //------------------------------------------------------------------------------
 // Function declarations
 
-static void PrintLine(const uint32_t address, const uint8_t * const data);
+static void PrintData(const uint8_t * const data);
 
 //------------------------------------------------------------------------------
 // Functions
@@ -111,34 +111,26 @@ void LastPagePrint(void) {
 
         // Print line with address
         if (isFirstLine || isLastLine || isNotBlank) {
-            PrintLine(address, &buffer[address]);
+            printf("%08X | ", LAST_PAGE_ADDRESS + address);
+            PrintData(&buffer[address]);
             printEllipses = true;
             continue;
         }
 
         // Print line with ellipses
         if (printEllipses) {
-            PrintLine(0xFFFFFFFF, &buffer[address]);
+            printf("...      | ");
+            PrintData(&buffer[address]);
             printEllipses = false;
         }
     }
 }
 
 /**
- * @brief Prints line.
- * @param address Address. 0xFFFFFFFF for ellipses.
+ * @brief Prints data.
  * @param data Data.
  */
-static void PrintLine(const uint32_t address, const uint8_t * const data) {
-
-    // Print address
-    if (address == 0xFFFFFFFF) {
-        printf("...      | ");
-    } else {
-        printf("%08X | ", LAST_PAGE_ADDRESS + address);
-    }
-
-    // Print data
+static void PrintData(const uint8_t * const data) {
     for (size_t index = 0; index < PRINT_LINE_LENGTH; index++) {
         if ((data[index] >= 0x20) && (data[index] <= 0x7E)) { // if printable character
             printf(" %c ", (char) data[index]);
