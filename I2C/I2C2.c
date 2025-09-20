@@ -23,6 +23,7 @@
 //------------------------------------------------------------------------------
 // Function declarations
 
+static inline __attribute__((always_inline)) bool Send(const uint8_t byte);
 static void WaitForInterruptOrTimeout(void);
 
 //------------------------------------------------------------------------------
@@ -114,11 +115,7 @@ void I2C2Stop(void) {
  * @return True if an ACK was generated.
  */
 bool I2C2Send(const uint8_t byte) {
-    EVIC_SourceStatusClear(INT_SOURCE_I2C2_MASTER);
-    I2C2STATbits.ACKSTAT = 0;
-    I2C2TRN = byte;
-    WaitForInterruptOrTimeout();
-    const bool ack = I2C2STATbits.ACKSTAT == 0;
+    const bool ack = Send(byte);
 #ifdef PRINT_MESSAGES
     I2CPrintByte(byte);
     I2CPrintAckNack(ack);
@@ -133,7 +130,7 @@ bool I2C2Send(const uint8_t byte) {
  * @return True if an ACK was generated.
  */
 bool I2C2SendAddressRead(const uint8_t address) {
-    const bool ack = I2C2Send(I2CAddressRead(address));
+    const bool ack = Send(I2CAddressRead(address));
 #ifdef PRINT_MESSAGES
     I2CPrintReadAddress(address);
     I2CPrintAckNack(ack);
@@ -148,12 +145,24 @@ bool I2C2SendAddressRead(const uint8_t address) {
  * @return True if an ACK was generated.
  */
 bool I2C2SendAddressWrite(const uint8_t address) {
-    const bool ack = I2C2Send(I2CAddressWrite(address));
+    const bool ack = Send(I2CAddressWrite(address));
 #ifdef PRINT_MESSAGES
     I2CPrintWriteAddress(address);
     I2CPrintAckNack(ack);
 #endif
     return ack;
+}
+
+/**
+ * @brief Sends a byte and checks for ACK.
+ * @param byte Byte.
+ * @return True if an ACK was generated.
+ */
+static inline __attribute__((always_inline)) bool Send(const uint8_t byte) {
+    EVIC_SourceStatusClear(INT_SOURCE_I2C2_MASTER);
+    I2C2TRN = byte;
+    WaitForInterruptOrTimeout();
+    return I2C2STATbits.ACKSTAT == 0;
 }
 
 /**
