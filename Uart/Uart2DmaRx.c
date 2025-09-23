@@ -36,7 +36,7 @@ static Fifo writeFifo = {.data = writeData, .dataSize = sizeof (writeData)};
  * @brief Initialises the module.
  * @param settings Settings.
  * @param readConditions Read conditions.
- * @param read Read callback.
+ * @param read Read callback. NULL if unused.
  */
 void Uart2DmaRxInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions, void (*const read_) (const void* const data, const size_t numberOfBytes)) {
 

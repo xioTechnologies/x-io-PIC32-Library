@@ -33,7 +33,7 @@ static void (*writeComplete)(void);
  * @brief Initialises the module.
  * @param settings Settings.
  * @param readConditions Read conditions.
- * @param read Read callback.
+ * @param read Read callback. NULL if unused.
  */
 void Uart2DmaInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions, void (*const read_) (const void* const data, const size_t numberOfBytes)) {
 
@@ -259,7 +259,7 @@ static inline __attribute__((always_inline)) void TransferAborted(void) {
  * progress.
  * @param data Data.
  * @param numberOfBytes Number of bytes.
- * @param writeComplete_ Write complete callback.
+ * @param writeComplete_ Write complete callback. NULL if unused.
  */
 void Uart2DmaWrite(const void* const data, const size_t numberOfBytes, void (*const writeComplete_) (void)) {
     writeComplete = writeComplete_;

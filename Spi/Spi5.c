@@ -84,7 +84,7 @@ void Spi5Deinitialise(void) {
  * @param csPin_ CS pin.
  * @param data_ Data.
  * @param numberOfBytes_ Number of bytes.
- * @param transferComplete_ Transfer complete callback.
+ * @param transferComplete_ Transfer complete callback. NULL if unused.
  */
 void Spi5Transfer(const GPIO_PIN csPin_, volatile void* const data_, const size_t numberOfBytes_, void (*const transferComplete_) (void)) {
 

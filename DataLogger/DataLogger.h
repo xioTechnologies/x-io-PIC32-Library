@@ -62,7 +62,7 @@ typedef enum {
 } DataLoggerError;
 
 /**
- * @brief Callbacks.
+ * @brief Callbacks. NULL if unused.
  */
 typedef struct {
     void (*writePreamble)(void);

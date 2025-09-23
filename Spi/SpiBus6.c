@@ -54,7 +54,7 @@ SpiBusClient * const SpiBus6AddClient(const GPIO_PIN csPin) {
  * @param client Client.
  * @param data Data.
  * @param numberOfBytes Number of bytes.
- * @param transferComplete Transfer complete callback.
+ * @param transferComplete Transfer complete callback. NULL if unused.
  */
 void SpiBus6Transfer(SpiBusClient * const client, volatile void* const data, const size_t numberOfBytes, void (*const transferComplete) (void)) {
     if (client == NULL) {
