@@ -21,6 +21,10 @@
 //------------------------------------------------------------------------------
 // Definitions
 
+#define EEPROM_I2C_ADDRESS                  (0x50)
+#define EEPROM_SIZE                         (0x1000)
+#define EEPROM_PAGE_SIZE                    (32)
+
 #define DATA_LOGGER_BUFFER_SIZE             (393216)
 
 #define I2CBB1_SCL_PIN                      SCL1_PIN

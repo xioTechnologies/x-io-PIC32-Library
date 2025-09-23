@@ -1,7 +1,7 @@
 /**
  * @file Eeprom.h
  * @author Seb Madgwick
- * @brief Microchip 24xx32 I2C EEPROM driver.
+ * @brief Microchip 24-series I2C EEPROM driver.
  */
 
 #ifndef EEPROM_H
