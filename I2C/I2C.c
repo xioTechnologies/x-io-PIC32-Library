@@ -17,7 +17,7 @@
 /**
  * @brief I2C peripheral clock frequency.
  */
-#if (defined __PIC32MX__) || (defined __PIC32MM__)
+#if (defined __PIC32MM__) || (defined __PIC32MX__)
 #define I2C_PERIPHERAL_CLOCK (PERIPHERAL_BUS_CLOCK_FREQUENCY)
 #elif defined __PIC32MZ__
 #define I2C_PERIPHERAL_CLOCK (PERIPHERAL_BUS_CLOCK_2_FREQUENCY)
