@@ -183,6 +183,20 @@ static void WriteTasks(void) {
 }
 
 /**
+ * @brief Returns true if VBUS is valid.
+ * @return True if VBUS is valid.
+ */
+bool UsbCdcVbusValid(void) {
+#if (defined __PIC32MM__) || (defined __PIC32MX__)
+    return U1OTGSTATbits.VBUSVD == 1;
+#elif defined __PIC32MZ__
+    return USBOTGbits.VBUS == 0b11;
+#else
+#error "Unsupported device."
+#endif
+}
+
+/**
  * @brief Returns true if the USB host is connected.
  * @return True if the USB host is connected.
  */

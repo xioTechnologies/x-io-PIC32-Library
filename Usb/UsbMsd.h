@@ -16,6 +16,7 @@
 // Function declarations
 
 void UsbMsdTasks(void);
+bool UsbCdcVbusValid(void);
 bool UsbMsdHostConnected(void);
 
 #endif

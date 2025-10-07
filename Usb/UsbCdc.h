@@ -19,6 +19,7 @@
 // Function declarations
 
 void UsbCdcTasks(void);
+bool UsbCdcVbusValid(void);
 bool UsbCdcHostConnected(void);
 bool UsbCdcPortOpen(void);
 size_t UsbCdcAvailableRead(void);
