@@ -645,6 +645,7 @@ const char* SdCardPathJoin(const int numberOfParts, ...) {
 
 /**
  * @brief Prints file system error.
+ * @param functionName Function name.
  * @param sysFsError File system error.
  */
 static void PrintFileSystemError(const char* functionName, const SYS_FS_ERROR sysFsError) {
