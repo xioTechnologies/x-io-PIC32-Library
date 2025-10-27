@@ -65,9 +65,9 @@ typedef enum {
  * @brief Callbacks. NULL if unused.
  */
 typedef struct {
-    void (*writePreamble)(void);
-    void (*status)(const DataLoggerStatus status);
-    void (*error)(const DataLoggerError error);
+    void (*const writePreamble)(void); // use SdCardFileWrite to write preamble
+    void (*const status)(const DataLoggerStatus status);
+    void (*const error)(const DataLoggerError error);
 } DataLoggerCallbacks;
 
 //------------------------------------------------------------------------------

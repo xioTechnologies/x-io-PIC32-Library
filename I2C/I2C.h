@@ -36,12 +36,12 @@ typedef enum {
  * @brief I2C interface.
  */
 typedef struct {
-    void (*start)(void);
-    void (*repeatedStart)(void);
-    void (*stop)(void);
-    bool (*send)(const uint8_t byte);
-    bool (*sendAddressRead)(const uint8_t address);
-    bool (*sendAddressWrite)(const uint8_t address);
+    void (*const start)(void);
+    void (*const repeatedStart)(void);
+    void (*const stop)(void);
+    bool (*const send)(const uint8_t byte);
+    bool (*const sendAddressRead)(const uint8_t address);
+    bool (*const sendAddressWrite)(const uint8_t address);
     uint8_t(*receive)(const bool ack);
 } I2C;
 

@@ -232,7 +232,7 @@ static int Open(void) {
 
     // Write preamble
     if (callbacks.writePreamble != NULL) {
-        callbacks.writePreamble(); // use SdCardFileWrite to write preamble
+        callbacks.writePreamble();
     }
 
     // Reset statistics

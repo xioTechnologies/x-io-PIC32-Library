@@ -46,8 +46,8 @@ typedef struct {
  * @brief SPI interface.
  */
 typedef struct {
-    void (*transfer)(const GPIO_PIN csPin, volatile void* const data, const size_t numberOfBytes, void (*const transferComplete) (void));
-    bool (*transferInProgress)(void);
+    void (*const transfer)(const GPIO_PIN csPin, volatile void* const data, const size_t numberOfBytes, void (*const transferComplete) (void));
+    bool (*const transferInProgress)(void);
 } Spi;
 
 //------------------------------------------------------------------------------
