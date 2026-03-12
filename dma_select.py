@@ -1,7 +1,7 @@
 import re
 
 
-def dma_Select(path, new_channels):
+def dma_Select(path: str, new_channels: tuple[int]):
     with open(path) as file:
         code = file.read()
 

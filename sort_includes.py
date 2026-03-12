@@ -1,7 +1,7 @@
 import os
 from itertools import dropwhile, takewhile
 
-paths = []
+paths: list[str] = []
 
 for root, _, file_names in os.walk(os.path.dirname(os.path.realpath(__file__))):
     if "config" in root:

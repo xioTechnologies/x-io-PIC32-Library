@@ -1,4 +1,9 @@
-def duplicate(files, keywords, source_id, destination_ids):
+def duplicate(
+    files: tuple[str],
+    keywords: tuple[str],
+    source_id: tuple[int],
+    destination_ids: tuple[int],
+):
     source_files = [f.replace("?", str(source_id)) for f in files]
     source_keywords = [k.replace("?", str(source_id)) for k in keywords]
 

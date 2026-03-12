@@ -2,7 +2,7 @@ import os
 from itertools import chain, dropwhile, takewhile
 
 
-def insert(path, block, id):
+def insert(path, id, block):
     with open(path) as file:
         lines = file.readlines()
 
@@ -43,26 +43,29 @@ if not os.path.exists(path):
 with open(path) as file:
     lines = file.readlines()
 
-prefix = "RCON_RESET_CAUSE_"
+PREFIX = "RCON_RESET_CAUSE_"
 
-enums = [prefix + line.split(prefix)[1].split(" ")[0] for line in lines if prefix in line]
+enums = [PREFIX + line.split(PREFIX)[1].split(" ")[0] for line in lines if PREFIX in line]
 
 # Insert code in ResetCauseGet()
 path = "ResetCause.c"
 
-code = "    const RCON_RESET_CAUSE mask = " + " | ".join(enums) + ";\n"
-
-insert(path, code, "0")
-
-code = "".join(
-    [
-        f"""\
-    if ((cause & {e}) != 0) {{
-        printf("{e.replace("RCON_RESET_CAUSE_", "")} ");
-    }}
-"""
-        for e in enums
-    ]
+insert(
+    path,
+    0,
+    "    const RCON_RESET_CAUSE mask = " + " | ".join(enums) + ";\n",
 )
 
-insert(path, code, "1")
+insert(
+    path,
+    1,
+    "".join(
+        [
+            f"""\
+    if ((cause & {e}) != 0) {{
+        printf("{e.replace("RCON_RESET_CAUSE_", "")} ");
+    }}\n"""
+            for e in enums
+        ],
+    ),
+)
