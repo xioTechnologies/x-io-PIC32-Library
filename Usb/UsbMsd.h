@@ -4,8 +4,8 @@
  * @brief Application interface for USB MSD functionality using MPLAB Harmony.
  */
 
-#ifndef USB_MSD_H
-#define USB_MSD_H
+#ifndef USB_MSD_H_
+#define USB_MSD_H_
 
 //------------------------------------------------------------------------------
 // Includes
