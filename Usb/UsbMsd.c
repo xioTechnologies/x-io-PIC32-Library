@@ -57,7 +57,7 @@ static void APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void * pEventData,
             break;
         case USB_DEVICE_EVENT_POWER_REMOVED:
             USB_DEVICE_Detach(usbDeviceHandle);
-			isHostConnected = false;
+            isHostConnected = false;
             break;
         default:
             break;
@@ -68,7 +68,7 @@ static void APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void * pEventData,
  * @brief Returns true if VBUS is valid.
  * @return True if VBUS is valid.
  */
-bool UsbCdcVbusValid(void) {
+bool UsbMsdVbusValid(void) {
 #if (defined __PIC32MM__) || (defined __PIC32MX__)
     return U1OTGSTATbits.VBUSVD == 1;
 #elif defined __PIC32MZ__
