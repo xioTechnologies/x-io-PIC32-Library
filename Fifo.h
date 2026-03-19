@@ -46,6 +46,15 @@ typedef enum {
 // Inline functions
 
 /**
+ * @brief Returns the capacity of the FIFO.
+ * @param fifo FIFO structure.
+ * @return Capacity of the FIFO.
+ */
+static inline __attribute__((always_inline)) size_t FifoCapacity(Fifo * const fifo) {
+    return fifo->dataSize - 1;
+}
+
+/**
  * @brief Returns the number of bytes available to read from the FIFO.
  * @param fifo FIFO structure.
  * @return Number of bytes available in the buffer.
@@ -115,9 +124,9 @@ static inline __attribute__((always_inline)) uint8_t FifoReadByte(Fifo * const f
 static inline __attribute__((always_inline)) size_t FifoAvailableWrite(Fifo * const fifo) {
     const size_t readIndex = fifo->readIndex; // avoid asynchronous hazard
     if (fifo->writeIndex < readIndex) {
-        return (fifo->dataSize - 1) - (fifo->dataSize - readIndex) - fifo->writeIndex;
+        return FifoCapacity(fifo) - (fifo->dataSize - readIndex) - fifo->writeIndex;
     } else {
-        return (fifo->dataSize - 1) - (fifo->writeIndex - readIndex);
+        return FifoCapacity(fifo) - (fifo->writeIndex - readIndex);
     }
 }
 
