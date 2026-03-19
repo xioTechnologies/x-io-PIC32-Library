@@ -25,11 +25,11 @@ static inline __attribute__((always_inline)) BitPattern BitPatternFrom(const uin
     static const uint32_t map[] = {{
 {"\n".join(map_lines)}
     }};
-    const BitPattern bitBattern = {{
+    const BitPattern bitPattern = {{
         .green = map[green],
         .red = map[red],
         .blue = map[blue],
     }};
-    return bitBattern;
+    return bitPattern;
 }}
 """)

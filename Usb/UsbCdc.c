@@ -1,5 +1,5 @@
 /**
- * @file UsbCdcMsd.c
+ * @file UsbCdc.c
  * @author Seb Madgwick
  * @brief Application interface for a USB CDC device using MPLAB Harmony.
  */
@@ -94,10 +94,10 @@ static void APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void * eventData, 
 /**
  * @brief USB device CDC event handler based on MPLAB Harmony examples.
  */
-static void APP_USBDeviceCDCEventHandler(USB_DEVICE_CDC_INDEX index, USB_DEVICE_CDC_EVENT event, void * pData, uintptr_t userData) {
+static void APP_USBDeviceCDCEventHandler(USB_DEVICE_CDC_INDEX index, USB_DEVICE_CDC_EVENT event, void * pData, uintptr_t context) {
     static USB_CDC_LINE_CODING usbCdcLineCoding = {
         .bDataBits = 8,
-        .dwDTERate = 115000,
+        .dwDTERate = 115200,
         .bCharFormat = 0,
         .bParityType = 0
     };

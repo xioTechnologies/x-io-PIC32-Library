@@ -9,7 +9,6 @@
 
 #include "Config.h"
 #include "definitions.h"
-#include <stdint.h>
 #include "sys/kmem.h"
 #include "Timer/Timer.h"
 #include "Uart4DmaRx.h"
@@ -162,7 +161,12 @@ void Uart4DmaRxDeinitialise(void) {
 
     // Disable interrupts
     EVIC_SourceDisable(INT_SOURCE_DMA0);
+    EVIC_SourceDisable(INT_SOURCE_UART4_TX);
     EVIC_SourceStatusClear(INT_SOURCE_DMA0);
+    EVIC_SourceStatusClear(INT_SOURCE_UART4_TX);
+
+    // Clear buffers
+    Uart4DmaRxClearWriteBuffer();
 }
 
 /**
@@ -289,7 +293,7 @@ bool Uart4DmaRxReceiveBufferOverrun(void) {
  * @brief Returns true if all data has been transmitted.
  * @return True if all data has been transmitted.
  */
-bool Uart4DmaRxTransmitionComplete(void) {
+bool Uart4DmaRxTransmissionComplete(void) {
     return (EVIC_SourceIsEnabled(INT_SOURCE_UART4_TX) == false) && (U4STAbits.TRMT == 1);
 }
 

@@ -1,7 +1,7 @@
 import re
 
 
-def dma_Select(path: str, new_channels: tuple[int]):
+def dma_select(path: str, new_channels: tuple[int, ...]):
     with open(path) as file:
         code = file.read()
 
@@ -26,37 +26,37 @@ def dma_Select(path: str, new_channels: tuple[int]):
         file.write(code)
 
 
-dma_Select("Spi/Spi1Dma.c", (0, 1))
-dma_Select("Spi/Spi2Dma.c", (0, 1))
-dma_Select("Spi/Spi3Dma.c", (0, 1))
-dma_Select("Spi/Spi4Dma.c", (0, 1))
-dma_Select("Spi/Spi5Dma.c", (0, 1))
-dma_Select("Spi/Spi6Dma.c", (0, 1))
+dma_select("Spi/Spi1Dma.c", (0, 1))
+dma_select("Spi/Spi2Dma.c", (0, 1))
+dma_select("Spi/Spi3Dma.c", (0, 1))
+dma_select("Spi/Spi4Dma.c", (0, 1))
+dma_select("Spi/Spi5Dma.c", (0, 1))
+dma_select("Spi/Spi6Dma.c", (0, 1))
 
-dma_Select("Spi/Spi1DmaTx.c", (0,))
-dma_Select("Spi/Spi2DmaTx.c", (0,))
-dma_Select("Spi/Spi3DmaTx.c", (0,))
-dma_Select("Spi/Spi4DmaTx.c", (0,))
-dma_Select("Spi/Spi5DmaTx.c", (0,))
-dma_Select("Spi/Spi6DmaTx.c", (0,))
+dma_select("Spi/Spi1DmaTx.c", (0,))
+dma_select("Spi/Spi2DmaTx.c", (0,))
+dma_select("Spi/Spi3DmaTx.c", (0,))
+dma_select("Spi/Spi4DmaTx.c", (0,))
+dma_select("Spi/Spi5DmaTx.c", (0,))
+dma_select("Spi/Spi6DmaTx.c", (0,))
 
-dma_Select("Uart/Uart1Dma.c", (0, 1, 2))
-dma_Select("Uart/Uart2Dma.c", (0, 1, 2))
-dma_Select("Uart/Uart3Dma.c", (0, 1, 2))
-dma_Select("Uart/Uart4Dma.c", (0, 1, 2))
-dma_Select("Uart/Uart5Dma.c", (0, 1, 2))
-dma_Select("Uart/Uart6Dma.c", (0, 1, 2))
+dma_select("Uart/Uart1Dma.c", (0, 1, 2))
+dma_select("Uart/Uart2Dma.c", (0, 1, 2))
+dma_select("Uart/Uart3Dma.c", (0, 1, 2))
+dma_select("Uart/Uart4Dma.c", (0, 1, 2))
+dma_select("Uart/Uart5Dma.c", (0, 1, 2))
+dma_select("Uart/Uart6Dma.c", (0, 1, 2))
 
-dma_Select("Uart/Uart1DmaTx.c", (0,))
-dma_Select("Uart/Uart2DmaTx.c", (0,))
-dma_Select("Uart/Uart3DmaTx.c", (0,))
-dma_Select("Uart/Uart4DmaTx.c", (0,))
-dma_Select("Uart/Uart5DmaTx.c", (0,))
-dma_Select("Uart/Uart6DmaTx.c", (0,))
+dma_select("Uart/Uart1DmaTx.c", (0,))
+dma_select("Uart/Uart2DmaTx.c", (0,))
+dma_select("Uart/Uart3DmaTx.c", (0,))
+dma_select("Uart/Uart4DmaTx.c", (0,))
+dma_select("Uart/Uart5DmaTx.c", (0,))
+dma_select("Uart/Uart6DmaTx.c", (0,))
 
-dma_Select("Uart/Uart1DmaRx.c", (0, 1))
-dma_Select("Uart/Uart2DmaRx.c", (0, 1))
-dma_Select("Uart/Uart3DmaRx.c", (0, 1))
-dma_Select("Uart/Uart4DmaRx.c", (0, 1))
-dma_Select("Uart/Uart5DmaRx.c", (0, 1))
-dma_Select("Uart/Uart6DmaRx.c", (0, 1))
+dma_select("Uart/Uart1DmaRx.c", (0, 1))
+dma_select("Uart/Uart2DmaRx.c", (0, 1))
+dma_select("Uart/Uart3DmaRx.c", (0, 1))
+dma_select("Uart/Uart4DmaRx.c", (0, 1))
+dma_select("Uart/Uart5DmaRx.c", (0, 1))
+dma_select("Uart/Uart6DmaRx.c", (0, 1))

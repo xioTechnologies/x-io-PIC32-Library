@@ -12,6 +12,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 #include "Uart.h"
 
 //------------------------------------------------------------------------------
@@ -26,7 +27,7 @@ void Uart4DmaTxWrite(const void* const data, const size_t numberOfBytes, void (*
 bool Uart4DmaTxWriteInProgress(void);
 void Uart4DmaTxClearReadBuffer(void);
 bool Uart4DmaTxReceiveBufferOverrun(void);
-bool Uart4DmaTxTransmitionComplete(void);
+bool Uart4DmaTxTransmissionComplete(void);
 
 #endif
 

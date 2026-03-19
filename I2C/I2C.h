@@ -42,7 +42,7 @@ typedef struct {
     bool (*const send)(const uint8_t byte);
     bool (*const sendAddressRead)(const uint8_t address);
     bool (*const sendAddressWrite)(const uint8_t address);
-    uint8_t(*receive)(const bool ack);
+    uint8_t(*const receive)(const bool ack);
 } I2C;
 
 //------------------------------------------------------------------------------

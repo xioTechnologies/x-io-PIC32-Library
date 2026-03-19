@@ -39,7 +39,7 @@ uint32_t I2CCalculateI2Cxbrg(const uint32_t fsk) {
 }
 
 /**
- * @brief Appends the R/W bit on a 7-bit I2C client address to indicate a write.
+ * @brief Appends the R/W bit on a 7-bit I2C client address to indicate a read.
  * @param address 7-bit client address.
  * @return 7-bit client address with appended R/W bit.
  */
@@ -48,7 +48,7 @@ uint8_t I2CAddressRead(const uint8_t address) {
 }
 
 /**
- * @brief Appends the R/W bit on a 7-bit I2C client address to indicate a read.
+ * @brief Appends the R/W bit on a 7-bit I2C client address to indicate a write.
  * @param address 7-bit client address.
  * @return 7-bit client address with appended R/W bit.
  */

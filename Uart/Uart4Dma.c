@@ -180,7 +180,9 @@ void Uart4DmaDeinitialise(void) {
     T9CON = 0;
 
     // Disable interrupts
+    EVIC_SourceDisable(INT_SOURCE_DMA0);
     EVIC_SourceDisable(INT_SOURCE_DMA1);
+    EVIC_SourceStatusClear(INT_SOURCE_DMA0);
     EVIC_SourceStatusClear(INT_SOURCE_DMA1);
 }
 
@@ -306,7 +308,7 @@ bool Uart4DmaReceiveBufferOverrun(void) {
  * @brief Returns true if all data has been transmitted.
  * @return True if all data has been transmitted.
  */
-bool Uart4DmaTransmitionComplete(void) {
+bool Uart4DmaTransmissionComplete(void) {
     return (Uart4DmaWriteInProgress() == false) && (U4STAbits.TRMT == 1);
 }
 

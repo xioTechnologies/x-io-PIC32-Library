@@ -19,7 +19,7 @@ static void APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void * pEventData,
 // Variables
 
 static USB_DEVICE_HANDLE usbDeviceHandle = USB_DEVICE_HANDLE_INVALID;
-static bool isHostConnected;
+static bool hostConnected;
 
 //------------------------------------------------------------------------------
 // Functions
@@ -38,18 +38,18 @@ void UsbMsdTasks(void) {
 }
 
 /**
- * @breif USB device event handler based on MPLAB Harmony examples.
+ * @brief USB device event handler based on MPLAB Harmony examples.
  */
 static void APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void * pEventData, uintptr_t context) {
     switch (event) {
         case USB_DEVICE_EVENT_RESET:
         case USB_DEVICE_EVENT_SUSPENDED:
         case USB_DEVICE_EVENT_DECONFIGURED:
-            isHostConnected = false;
+            hostConnected = false;
             break;
         case USB_DEVICE_EVENT_CONFIGURED:
             if (((USB_DEVICE_EVENT_DATA_CONFIGURED *) pEventData)->configurationValue == 1) {
-                isHostConnected = true;
+                hostConnected = true;
             }
             break;
         case USB_DEVICE_EVENT_POWER_DETECTED:
@@ -57,7 +57,7 @@ static void APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void * pEventData,
             break;
         case USB_DEVICE_EVENT_POWER_REMOVED:
             USB_DEVICE_Detach(usbDeviceHandle);
-            isHostConnected = false;
+            hostConnected = false;
             break;
         default:
             break;
@@ -83,7 +83,7 @@ bool UsbMsdVbusValid(void) {
  * @return True if the USB host is connected.
  */
 bool UsbMsdHostConnected(void) {
-    return isHostConnected;
+    return hostConnected;
 }
 
 //------------------------------------------------------------------------------

@@ -185,7 +185,7 @@ RtcResult RtcValidate(const RtcTime * const time) {
 
 /**
  * @brief Returns the result message.
- * @param result Result
+ * @param result Result.
  * @return Result message.
  */
 const char* RtcResultToString(const RtcResult result) {

@@ -58,7 +58,7 @@ void InputCapture5Deinitialise(void) {
 }
 
 /**
- * @brief Triggers a capture vent.
+ * @brief Triggers a capture event.
  */
 void InputCapture5Trigger(void) {
     EVIC_SourceStatusSet(INT_SOURCE_INPUT_CAPTURE_5);

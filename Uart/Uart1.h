@@ -13,6 +13,7 @@
 #include "Fifo.h"
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 #include "Uart.h"
 
 //------------------------------------------------------------------------------
@@ -29,7 +30,7 @@ FifoResult Uart1WriteByte(const uint8_t byte);
 void Uart1ClearReadBuffer(void);
 void Uart1ClearWriteBuffer(void);
 bool Uart1ReceiveBufferOverrun(void);
-bool Uart1TransmitionComplete(void);
+bool Uart1TransmissionComplete(void);
 
 #endif
 

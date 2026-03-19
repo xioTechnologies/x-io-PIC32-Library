@@ -29,8 +29,10 @@ typedef struct {
 
 NeoPixelsPixel neoPixels2Pixels[NEOPIXELS_2_HAL_NUMBER_OF_PIXELS];
 static __attribute__((coherent)) SpiData spiData; // data must be declared __attribute__((coherent)) for DMA transfers on PIC32MZ devices
+#ifndef NEOPIXELS_2_SPI
 volatile void* const neoPixels2SpiData = &spiData;
 const size_t neoPixels2SpiNumberOfBytes = sizeof (spiData);
+#endif
 
 //------------------------------------------------------------------------------
 // Functions

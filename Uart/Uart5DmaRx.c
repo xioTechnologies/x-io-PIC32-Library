@@ -9,7 +9,6 @@
 
 #include "Config.h"
 #include "definitions.h"
-#include <stdint.h>
 #include "sys/kmem.h"
 #include "Timer/Timer.h"
 #include "Uart5DmaRx.h"
@@ -162,7 +161,12 @@ void Uart5DmaRxDeinitialise(void) {
 
     // Disable interrupts
     EVIC_SourceDisable(INT_SOURCE_DMA0);
+    EVIC_SourceDisable(INT_SOURCE_UART5_TX);
     EVIC_SourceStatusClear(INT_SOURCE_DMA0);
+    EVIC_SourceStatusClear(INT_SOURCE_UART5_TX);
+
+    // Clear buffers
+    Uart5DmaRxClearWriteBuffer();
 }
 
 /**
@@ -289,7 +293,7 @@ bool Uart5DmaRxReceiveBufferOverrun(void) {
  * @brief Returns true if all data has been transmitted.
  * @return True if all data has been transmitted.
  */
-bool Uart5DmaRxTransmitionComplete(void) {
+bool Uart5DmaRxTransmissionComplete(void) {
     return (EVIC_SourceIsEnabled(INT_SOURCE_UART5_TX) == false) && (U5STAbits.TRMT == 1);
 }
 

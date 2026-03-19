@@ -1,5 +1,5 @@
 /**
- * @file Spi.h
+ * @file Spi.c
  * @author Seb Madgwick
  * @brief SPI driver for PIC32 devices.
  */

@@ -180,7 +180,9 @@ void Uart6DmaDeinitialise(void) {
     T9CON = 0;
 
     // Disable interrupts
+    EVIC_SourceDisable(INT_SOURCE_DMA0);
     EVIC_SourceDisable(INT_SOURCE_DMA1);
+    EVIC_SourceStatusClear(INT_SOURCE_DMA0);
     EVIC_SourceStatusClear(INT_SOURCE_DMA1);
 }
 
@@ -306,7 +308,7 @@ bool Uart6DmaReceiveBufferOverrun(void) {
  * @brief Returns true if all data has been transmitted.
  * @return True if all data has been transmitted.
  */
-bool Uart6DmaTransmitionComplete(void) {
+bool Uart6DmaTransmissionComplete(void) {
     return (Uart6DmaWriteInProgress() == false) && (U6STAbits.TRMT == 1);
 }
 

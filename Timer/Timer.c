@@ -51,11 +51,13 @@ void TimerDeinitialise(void) {
     CCP1CON1 = 0;
     CCP1TMR = 0;
     EVIC_SourceDisable(INT_SOURCE_CCT1);
+    EVIC_SourceStatusClear(INT_SOURCE_CCT1);
 #else
     T2CON = 0;
     T3CON = 0;
     TMR2 = 0;
     EVIC_SourceDisable(INT_SOURCE_TIMER_3);
+    EVIC_SourceStatusClear(INT_SOURCE_TIMER_3);
 #endif
     overflowCounter = 0;
 }
@@ -86,7 +88,7 @@ uint64_t TimerGetTicks64(void) {
 #else
         dword0 = TMR2; // read 32-bit timer value
 #endif
-    } while (dword1 != overflowCounter); // avoid seconds overflow hazard
+    } while (dword1 != overflowCounter); // avoid asynchronous hazard
     return ((uint64_t) dword1 << 32) | (uint64_t) dword0;
 }
 

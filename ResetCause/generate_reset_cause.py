@@ -63,7 +63,7 @@ insert(
         [
             f"""\
     if ((cause & {e}) != 0) {{
-        printf("{e.replace("RCON_RESET_CAUSE_", "")} ");
+        printf("{e.replace(PREFIX, "")} ");
     }}\n"""
             for e in enums
         ],

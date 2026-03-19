@@ -8,6 +8,7 @@
 // Includes
 
 #include "definitions.h"
+#include "SerialNumber.h"
 #include <stdio.h>
 #include <string.h>
 

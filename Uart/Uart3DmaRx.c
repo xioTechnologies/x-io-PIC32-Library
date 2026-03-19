@@ -9,7 +9,6 @@
 
 #include "Config.h"
 #include "definitions.h"
-#include <stdint.h>
 #include "sys/kmem.h"
 #include "Timer/Timer.h"
 #include "Uart3DmaRx.h"
@@ -162,7 +161,12 @@ void Uart3DmaRxDeinitialise(void) {
 
     // Disable interrupts
     EVIC_SourceDisable(INT_SOURCE_DMA0);
+    EVIC_SourceDisable(INT_SOURCE_UART3_TX);
     EVIC_SourceStatusClear(INT_SOURCE_DMA0);
+    EVIC_SourceStatusClear(INT_SOURCE_UART3_TX);
+
+    // Clear buffers
+    Uart3DmaRxClearWriteBuffer();
 }
 
 /**
@@ -289,7 +293,7 @@ bool Uart3DmaRxReceiveBufferOverrun(void) {
  * @brief Returns true if all data has been transmitted.
  * @return True if all data has been transmitted.
  */
-bool Uart3DmaRxTransmitionComplete(void) {
+bool Uart3DmaRxTransmissionComplete(void) {
     return (EVIC_SourceIsEnabled(INT_SOURCE_UART3_TX) == false) && (U3STAbits.TRMT == 1);
 }
 

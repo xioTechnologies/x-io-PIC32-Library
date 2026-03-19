@@ -29,7 +29,7 @@ void Pwm8Initialise(const uint16_t dutyCycle) {
     OC8RS = dutyCycle;
 #endif
 
-    // Configure timer
+    // Configure output compare
 #if defined __PIC32MM__
     CCP4CON1bits.MOD = 0b0100; // dual Edge Compare mode
     CCP4CON1bits.ON = 1;

@@ -9,7 +9,6 @@
 
 #include "Config.h"
 #include "definitions.h"
-#include <stdint.h>
 #include "Uart1.h"
 
 //------------------------------------------------------------------------------
@@ -186,7 +185,7 @@ bool Uart1ReceiveBufferOverrun(void) {
  * @brief Returns true if all data has been transmitted.
  * @return True if all data has been transmitted.
  */
-bool Uart1TransmitionComplete(void) {
+bool Uart1TransmissionComplete(void) {
     return (EVIC_SourceIsEnabled(INT_SOURCE_UART1_TX) == false) && (U1STAbits.TRMT == 1);
 }
 

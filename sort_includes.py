@@ -66,7 +66,7 @@ for path in paths:
         '"time.h"',
         '"uchar.h"',
         '"wchar.h"',
-        '"wctype.h",',
+        '"wctype.h"',
     )  # https://en.wikipedia.org/wiki/C_standard_library
 
     for index, include_line in enumerate(include_lines):

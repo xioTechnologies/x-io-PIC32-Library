@@ -109,7 +109,7 @@ void Spi5DmaTxDeinitialise(void) {
  * not be called while a transfer is in progress. The transfer complete callback
  * will be called from within an interrupt once the transfer is complete.
  * @param csPin_ CS pin.
- * @param data_ Data.
+ * @param data Data.
  * @param numberOfBytes_ Number of bytes.
  * @param transferComplete_ Transfer complete callback. NULL if unused.
  */
@@ -163,7 +163,7 @@ void Dma0InterruptHandler(void) {
  * @return True while the transfer is in progress.
  */
 bool Spi5DmaTxTransferInProgress(void) {
-    return DCH0CONbits.CHEN == 1; // if TX DMA channel interrupt enabled
+    return DCH0CONbits.CHEN == 1; // if TX DMA channel enabled
 }
 
 //------------------------------------------------------------------------------

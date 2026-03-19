@@ -1,5 +1,5 @@
 /**
- * @file Uart.h
+ * @file Uart.c
  * @author Seb Madgwick
  * @brief UART driver for PIC32 devices.
  */

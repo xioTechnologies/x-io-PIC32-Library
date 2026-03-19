@@ -25,7 +25,7 @@
 typedef struct {
     const GPIO_PIN sclPin;
     const GPIO_PIN sdaPin;
-    const uint32_t halfClockCycle; /* microseconds */
+    const uint32_t halfClockCycle; // microseconds
 } I2CBB;
 
 //------------------------------------------------------------------------------
@@ -39,6 +39,7 @@ typedef struct {
  * @param i2cBB I2C bit bang structure.
  */
 static inline __attribute__((always_inline)) void I2CBBBusClear(const I2CBB * const i2cBB) {
+    GPIO_PinWrite(i2cBB->sclPin, true);
     for (int index = 0; index < 9; index++) {
         TimerDelayMicroseconds(i2cBB->halfClockCycle);
         if (GPIO_PinRead(i2cBB->sdaPin)) { // sample data during clock high period

@@ -267,10 +267,10 @@ static inline __attribute__((always_inline)) BitPattern BitPatternFrom(const uin
         0xE8EEEEEE,
         0xEEEEEEEE,
     };
-    const BitPattern bitBattern = {
+    const BitPattern bitPattern = {
         .green = map[green],
         .red = map[red],
         .blue = map[blue],
     };
-    return bitBattern;
+    return bitPattern;
 }

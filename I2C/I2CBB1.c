@@ -45,7 +45,6 @@ static const I2CBB i2cBB = {
  * if the SDA line is stuck low.
  * See page 20 of UM10204 I2C-bus specification and user manual Rev. 6 - 4 April
  * 2014.
- * @param i2cBB I2C bit bang structure.
  */
 void I2CBB1BusClear(void) {
     I2CBBBusClear(&i2cBB);

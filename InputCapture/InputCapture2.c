@@ -58,7 +58,7 @@ void InputCapture2Deinitialise(void) {
 }
 
 /**
- * @brief Triggers a capture vent.
+ * @brief Triggers a capture event.
  */
 void InputCapture2Trigger(void) {
     EVIC_SourceStatusSet(INT_SOURCE_INPUT_CAPTURE_2);

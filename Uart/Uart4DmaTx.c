@@ -10,7 +10,6 @@
 #include "Config.h"
 #include "definitions.h"
 #include "Fifo.h"
-#include <stdint.h>
 #include "sys/kmem.h"
 #include "Uart4DmaTx.h"
 
@@ -208,7 +207,7 @@ bool Uart4DmaTxReceiveBufferOverrun(void) {
  * @brief Returns true if all data has been transmitted.
  * @return True if all data has been transmitted.
  */
-bool Uart4DmaTxTransmitionComplete(void) {
+bool Uart4DmaTxTransmissionComplete(void) {
     return (Uart4DmaTxWriteInProgress() == false) && (U4STAbits.TRMT == 1);
 }
 

@@ -9,7 +9,6 @@
 
 #include "definitions.h"
 #include "I2C3.h"
-#include <stddef.h>
 #include "Timer/Timer.h"
 
 //------------------------------------------------------------------------------
@@ -60,7 +59,7 @@ void I2C3Initialise(const I2CClockFrequency clockFrequency) {
 }
 
 /**
- * @brief Disable the module.
+ * @brief Disables the module.
  */
 void I2C3Deinitialise(void) {
 

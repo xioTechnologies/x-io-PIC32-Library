@@ -9,7 +9,6 @@
 
 #include "definitions.h"
 #include "ResetCause.h"
-#include <stdbool.h>
 #include <stdio.h>
 
 //------------------------------------------------------------------------------
@@ -30,7 +29,6 @@ RCON_RESET_CAUSE ResetCauseGet(void) {
 
 /**
  * @brief Prints the reset cause.
- * @return Reset cause.
  */
 void ResetCausePrint(const RCON_RESET_CAUSE cause) {
     printf("Reset ");
