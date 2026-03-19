@@ -8,6 +8,11 @@
 #define RTC_WEAK_H
 
 //------------------------------------------------------------------------------
+// Includes
+
+#include <stddef.h>
+
+//------------------------------------------------------------------------------
 // Definitions
 
 /**
@@ -22,13 +27,37 @@ typedef struct {
     int second;
 } RtcTime;
 
+/**
+ * @brief Result.
+ */
+typedef enum {
+    RtcResultOk,
+    RtcResultInvalidYear,
+    RtcResultInvalidMonth,
+    RtcResultInvalidDay,
+    RtcResultInvalidHour,
+    RtcResultInvalidMinute,
+    RtcResultInvalidSecond,
+    RtcResultDestinationTooSmall,
+    RtcResultInvalidStringFormat,
+} RtcResult;
+
+/**
+ * @brief String size.
+ */
+#define RTC_STRING_SIZE (sizeof("YYYY-MM-DD hh:mm:ss"))
+
 //------------------------------------------------------------------------------
 // Function declarations
 
 void RtcGetTime(RtcTime * const time);
-void RtcSetTime(const RtcTime * const time);
-int RtcTimeFromString(RtcTime * const time, const char* const string);
-char* RtcTimeToString(const RtcTime * const time);
+RtcResult RtcSetTime(const RtcTime * const time);
+RtcResult RtcGetTimeAsString(char* const destination, const size_t destinationSize);
+RtcResult RtcSetTimeFromString(const char* const string);
+RtcResult RtcTimeToString(const RtcTime * const time, char* const destination, const size_t destinationSize);
+RtcResult RtcTimeFromString(RtcTime * const time, const char* const string);
+RtcResult RtcValidate(const RtcTime * const time);
+const char* RtcResultToString(const RtcResult result);
 
 #endif
 
