@@ -54,7 +54,7 @@ void RtcGetTime(RtcTime * const time);
 RtcResult RtcSetTime(const RtcTime * const time);
 RtcResult RtcGetTimeAsString(char* const destination, const size_t destinationSize);
 RtcResult RtcSetTimeFromString(const char* const string);
-RtcResult RtcTimeToString(const RtcTime * const time, char* const destination, const size_t destinationSize);
+RtcResult RtcTimeToString(char* const destination, const size_t destinationSize, const RtcTime * const time);
 RtcResult RtcTimeFromString(RtcTime * const time, const char* const string);
 RtcResult RtcValidate(const RtcTime * const time);
 const char* RtcResultToString(const RtcResult result);

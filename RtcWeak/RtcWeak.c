@@ -62,7 +62,7 @@ __attribute__((weak)) RtcResult RtcSetTime(const RtcTime * const time) {
 RtcResult RtcGetTimeAsString(char* const destination, const size_t destinationSize) {
     RtcTime time;
     RtcGetTime(&time);
-    return RtcTimeToString(&time, destination, destinationSize);
+    return RtcTimeToString(destination, destinationSize, &time);
 }
 
 /**
@@ -83,12 +83,12 @@ RtcResult RtcSetTimeFromString(const char* const string) {
  * @brief Creates a string representation of the time. This function
  * intentionally does not validate the time so that invalid times can be printed
  * for debugging purposes.
- * @param time Time.
  * @param destination Destination.
  * @param destinationSize Destination size.
+ * @param time Time.
  * @return Result.
  */
-RtcResult RtcTimeToString(const RtcTime * const time, char* const destination, const size_t destinationSize) {
+RtcResult RtcTimeToString(char* const destination, const size_t destinationSize, const RtcTime * const time) {
     if (destinationSize < RTC_STRING_SIZE) {
         return RtcResultDestinationTooSmall;
     }
