@@ -69,6 +69,35 @@ static inline __attribute__((always_inline)) size_t FifoAvailableRead(Fifo * con
 }
 
 /**
+ * @brief Provides a pointer to the next contiguous block of data in the FIFO.
+ * FifoReadPointerComplete must be called after data has been read.
+ * @param fifo FIFO structure.
+ * @param pointer Pointer.
+ * @param numberOfBytes Number of bytes.
+ */
+static inline __attribute__((always_inline)) void FifoReadPointer(Fifo * const fifo, volatile void* * const pointer, size_t * const numberOfBytes) {
+    *pointer = (void*) &fifo->data[fifo->readIndex];
+    const size_t writeIndex = fifo->writeIndex; // avoid asynchronous hazard
+    if (writeIndex < fifo->readIndex) {
+        *numberOfBytes = fifo->dataSize - fifo->readIndex;
+    } else {
+        *numberOfBytes = writeIndex - fifo->readIndex;
+    }
+}
+
+/**
+ * @brief Updates the FIFO after FifoReadPointer.
+ * @param fifo FIFO structure.
+ * @param numberOfBytes Number of bytes.
+ */
+static inline __attribute__((always_inline)) void FifoReadPointerComplete(Fifo * const fifo, const size_t numberOfBytes) {
+    fifo->readIndex += numberOfBytes;
+    if (fifo->readIndex >= fifo->dataSize) {
+        fifo->readIndex = 0;
+    }
+}
+
+/**
  * @brief Reads data from the FIFO.
  * @param fifo FIFO structure.
  * @param destination Destination.
