@@ -77,15 +77,15 @@ static inline __attribute__((always_inline)) bool PeriodicPoll(Periodic * const 
     }
 
     // Do nothing else if period has not elapsed
-    const uint64_t ticks = TimerGetTicks64();
-    if (ticks < periodic->timeout) {
+    const uint64_t now = TimerGetTicks64();
+    if (now < periodic->timeout) {
         return false;
     }
 
     // Calculate time of next event
     periodic->timeout += periodic->periodTicks;
-    if (periodic->timeout < ticks) {
-        periodic->timeout = ticks + periodic->periodTicks;
+    if (periodic->timeout < now) {
+        periodic->timeout = now + periodic->periodTicks;
     }
     return true;
 }

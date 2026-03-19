@@ -72,12 +72,12 @@ static inline __attribute__((always_inline)) OnChangeEdge OnChangePoll(OnChange 
         onChange->previousInput = input;
         return input ? OnChangeEdgeLowToHigh : OnChangeEdgeHighToLow;
     }
-    const uint64_t ticks = TimerGetTicks64();
-    if (ticks < onChange->timeout) {
+    const uint64_t now = TimerGetTicks64();
+    if (now < onChange->timeout) {
         return OnChangeEdgeNone;
     }
     onChange->previousInput = input;
-    onChange->timeout = ticks + (debouncePeriod * TIMER_TICKS_PER_MILLISECOND);
+    onChange->timeout = now + (debouncePeriod * TIMER_TICKS_PER_MILLISECOND);
     return input ? OnChangeEdgeLowToHigh : OnChangeEdgeHighToLow;
 }
 
