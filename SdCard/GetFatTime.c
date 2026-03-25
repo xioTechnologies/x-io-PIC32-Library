@@ -1,7 +1,7 @@
 /**
  * @file GetFatTime.c
  * @author Seb Madgwick
- * @brief Overrides the MPLAB Harmony function get_fattime in disk.io.
+ * @brief Overrides the MPLAB Harmony function get_fattime in diskio.c.
  */
 
 //------------------------------------------------------------------------------
@@ -15,9 +15,9 @@
 // Functions
 
 /**
- * @brief Returns the current time for use by the file system.
- * @return Current time expressed as a single 32-bit value. This value is equal
- * to the packedTime member of the SYS_FS_TIME structure.
+ * @brief Returns the current time. See weak implementation in diskio.c for more
+ * information.
+ * @return Current time.
  */
 DWORD get_fattime(void) {
 
@@ -26,7 +26,7 @@ DWORD get_fattime(void) {
     RtcGetTime(&rtcTime);
 
     // Parse time
-    const SYS_FS_TIME sysFSTime = {
+    const SYS_FS_TIME fsTime = {
         .discreteTime.second = rtcTime.second / 2,
         .discreteTime.minute = rtcTime.minute,
         .discreteTime.hour = rtcTime.hour,
@@ -34,7 +34,7 @@ DWORD get_fattime(void) {
         .discreteTime.month = rtcTime.month,
         .discreteTime.year = rtcTime.year - 1980,
     };
-    return sysFSTime.packedTime;
+    return fsTime.packedTime;
 }
 
 //------------------------------------------------------------------------------

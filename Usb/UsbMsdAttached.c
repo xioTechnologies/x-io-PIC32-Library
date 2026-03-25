@@ -1,8 +1,8 @@
 /**
  * @file UsbMsdAttached.c
  * @author Seb Madgwick
- * @brief Functions to allow an application to prevent the detection of an
- * attached SD card by MPLAB Harmony.
+ * @brief Overrides DRV_SDSPI_IsAttached to allow the application to prevent
+ * SD card detection by the USB MSD stack.
  */
 
 //------------------------------------------------------------------------------
@@ -13,30 +13,29 @@
 //------------------------------------------------------------------------------
 // Variables
 
-static bool attached;
+static bool enabled;
 
 //------------------------------------------------------------------------------
 // Functions
 
 /**
  * @brief Returns true if the SD card is attached and the application has not
- * prevented the USB stack from detecting this. This function should be used
- * instead of DRV_SDSPI_IsAttached in usb_device_init_data.c.
+ * prevented detection. This function should be used instead of
+ * DRV_SDSPI_IsAttached in usb_device_init_data.c.
  * @param handle Handle
  * @return True if the SD card is attached and the application has not prevented
- * the USB stack from detecting this.
+ * detection.
  */
 bool UsbMsdAttachedGet(const DRV_HANDLE handle) {
-    return attached && (DRV_SDSPI_IsAttached(handle));
+    return enabled && (DRV_SDSPI_IsAttached(handle));
 }
 
 /**
- * @brief Prevent or allow the USB stack from detecting an attached SD card.
- * @param attached_ True if the application allows detection of an attached SD
- * card.
+ * @brief Sets the application override for SD card detection.
+ * @param enabled_ True to enable detection.
  */
-void UsbMsdAttachedSet(const bool attached_) {
-    attached = attached_;
+void UsbMsdAttachedSet(const bool enabled_) {
+    enabled = enabled_;
 }
 
 //------------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 /**
  * @file UsbMsd.h
  * @author Seb Madgwick
- * @brief Application interface for USB MSD functionality using MPLAB Harmony.
+ * @brief Wrapper for the MPLAB Harmony USB MSD device driver.
  */
 
 #ifndef USB_MSD_H_

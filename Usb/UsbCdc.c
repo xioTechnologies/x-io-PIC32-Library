@@ -1,7 +1,7 @@
 /**
  * @file UsbCdc.c
  * @author Seb Madgwick
- * @brief Application interface for a USB CDC device using MPLAB Harmony.
+ * @brief Wrapper for the MPLAB Harmony USB CDC device driver.
  */
 
 //------------------------------------------------------------------------------

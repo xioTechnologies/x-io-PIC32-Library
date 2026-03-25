@@ -1,8 +1,8 @@
 /**
  * @file UsbMsdAttached.h
  * @author Seb Madgwick
- * @brief Functions to allow an application to prevent the detection of an
- * attached SD card by MPLAB Harmony.
+ * @brief Overrides DRV_SDSPI_IsAttached to allow the application to prevent
+ * SD card detection by the USB MSD stack.
  */
 
 #ifndef USB_MSD_ATTACHED_H

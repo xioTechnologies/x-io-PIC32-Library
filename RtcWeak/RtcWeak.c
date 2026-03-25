@@ -103,7 +103,7 @@ RtcResult RtcTimeToString(char* const destination, const size_t destinationSize,
 }
 
 /**
- * @brief Creates time from a string. The string is parsed by first replacing
+ * @brief Creates a time from a string. The string is parsed by first replacing
  * all non-digit characters with space characters and then taking the first
  * six numbers as the time. This allows the string format to use any characters
  * as separators, and to include arbitrary trailing sequences such as a time
@@ -184,9 +184,9 @@ RtcResult RtcValidate(const RtcTime * const time) {
 }
 
 /**
- * @brief Returns the result message.
+ * @brief Returns a string representation of the result.
  * @param result Result.
- * @return Result message.
+ * @return String representation of the result.
  */
 const char* RtcResultToString(const RtcResult result) {
     switch (result) {
