@@ -30,7 +30,7 @@ typedef enum {
  * @brief Timeout in timer ticks. Equal to 10 clock cycles for the slowest clock
  * frequency.
  */
-#define I2C_TIMEOUT (TIMER_TICKS_PER_SECOND / (I2CClockFrequency100kHz / 10))
+#define I2C_TIMEOUT (TIMER_TICKS_PER_SECOND / ((unsigned) I2CClockFrequency100kHz / 10U))
 
 /**
  * @brief I2C interface.
