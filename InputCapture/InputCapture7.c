@@ -70,8 +70,10 @@ void InputCapture7Trigger(void) {
  */
 void InputCapture7InterruptHandler(void) {
     const uint64_t now = TimerGetTicks64();
-    const uint32_t latency = (uint32_t) now - (uint32_t) IC7BUF;
-    captureEvent(now - (uint64_t) latency);
+    while (IC7CONbits.ICBNE) {
+        const uint32_t latency = (uint32_t) now - (uint32_t) IC7BUF;
+        captureEvent(now - (uint64_t) latency);
+    }
     EVIC_SourceStatusClear(INT_SOURCE_INPUT_CAPTURE_7);
 }
 

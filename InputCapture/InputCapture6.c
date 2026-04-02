@@ -70,8 +70,10 @@ void InputCapture6Trigger(void) {
  */
 void InputCapture6InterruptHandler(void) {
     const uint64_t now = TimerGetTicks64();
-    const uint32_t latency = (uint32_t) now - (uint32_t) IC6BUF;
-    captureEvent(now - (uint64_t) latency);
+    while (IC6CONbits.ICBNE) {
+        const uint32_t latency = (uint32_t) now - (uint32_t) IC6BUF;
+        captureEvent(now - (uint64_t) latency);
+    }
     EVIC_SourceStatusClear(INT_SOURCE_INPUT_CAPTURE_6);
 }
 
