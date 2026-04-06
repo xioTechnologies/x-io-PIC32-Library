@@ -14,6 +14,12 @@
 //------------------------------------------------------------------------------
 // Variables
 
+const InputCapture inputCapture1 = {
+    .initialise = InputCapture1Initialise,
+    .deinitialise = InputCapture1Deinitialise,
+    .bufferOverrun = InputCapture1BufferOverrun,
+};
+
 static void (*captureEvent)(const uint64_t ticks);
 
 //------------------------------------------------------------------------------
@@ -21,21 +27,38 @@ static void (*captureEvent)(const uint64_t ticks);
 
 /**
  * @brief Initialises the module.
- * @param edge Edge.
+ * @param settings Settings.
  * @param captureEvent_ Capture event callback.
  */
-void InputCapture1Initialise(const InputCaptureEdge edge, void (*const captureEvent_) (const uint64_t ticks)) {
+void InputCapture1Initialise(const InputCaptureSettings * const settings, void (*const captureEvent_) (const uint64_t ticks)) {
 
     // Ensure default register states
     InputCapture1Deinitialise();
 
     // Configure input capture
-    switch (edge) {
+    switch (settings->edge) {
         case InputCaptureEdgeFalling:
             IC1CONbits.ICM = 0b010; // simple Capture Event mode - every falling edge
             break;
         case InputCaptureEdgeRising:
             IC1CONbits.ICM = 0b011; // simple Capture Event mode - every rising edge
+            break;
+        case InputCaptureEdgeEvery:
+            IC1CONbits.ICM = 0b110; // simple Capture Event mode ? every edge, specified edge first and every edge thereafter
+            break;
+    }
+    switch (settings->interrupt) {
+        case InputCaptureInterruptEvery:
+            IC1CONbits.ICI = 0b00; // interrupt on every capture event
+            break;
+        case InputCaptureInterruptSecond:
+            IC1CONbits.ICI = 0b01; // interrupt on every second capture event
+            break;
+        case InputCaptureInterruptThird:
+            IC1CONbits.ICI = 0b10; // interrupt on every third capture event
+            break;
+        case InputCaptureInterruptFourth:
+            IC1CONbits.ICI = 0b11; // interrupt on every forth capture event
             break;
     }
     IC1CONbits.C32 = 1;
@@ -62,6 +85,14 @@ void InputCapture1Deinitialise(void) {
  */
 void InputCapture1Trigger(void) {
     EVIC_SourceStatusSet(INT_SOURCE_INPUT_CAPTURE_1);
+}
+
+/**
+ * @brief Returns true if the hardware receive buffer has overrun.
+ * @return True if the hardware receive buffer has overrun.
+ */
+bool InputCapture1BufferOverrun(void) {
+    return IC1CONbits.ICOV;
 }
 
 /**

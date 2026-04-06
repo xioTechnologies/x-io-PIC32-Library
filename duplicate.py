@@ -38,7 +38,7 @@ duplicate(
 
 duplicate(
     ("InputCapture/InputCapture?.c", "InputCapture/InputCapture?.h"),
-    ("InputCapture?", "IC?", "INPUT_CAPTURE_?"),
+    ("InputCapture?", "IC?", "INPUT_CAPTURE_?", "inputCapture?"),
     1,
     (2, 3, 4, 5, 6, 7, 8, 9),
 )

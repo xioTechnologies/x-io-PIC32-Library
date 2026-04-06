@@ -11,14 +11,21 @@
 // Includes
 
 #include "InputCapture.h"
+#include <stdbool.h>
 #include <stdint.h>
+
+//------------------------------------------------------------------------------
+// Variable declarations
+
+extern const InputCapture inputCapture4;
 
 //------------------------------------------------------------------------------
 // Function declarations
 
-void InputCapture4Initialise(const InputCaptureEdge edge, void (*const captureEvent_) (const uint64_t ticks));
+void InputCapture4Initialise(const InputCaptureSettings * const settings, void (*const captureEvent_) (const uint64_t ticks));
 void InputCapture4Deinitialise(void);
 void InputCapture4Trigger(void);
+bool InputCapture4BufferOverrun(void);
 
 #endif
 

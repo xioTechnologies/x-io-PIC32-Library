@@ -8,6 +8,12 @@
 #define INPUT_CAPTURE_H
 
 //------------------------------------------------------------------------------
+// Includes
+
+#include <stdbool.h>
+#include <stdint.h>
+
+//------------------------------------------------------------------------------
 // Definitions
 
 /**
@@ -16,7 +22,40 @@
 typedef enum {
     InputCaptureEdgeFalling,
     InputCaptureEdgeRising,
+    InputCaptureEdgeEvery,
 } InputCaptureEdge;
+
+/**
+ * @brief Interrupt.
+ */
+typedef enum {
+    InputCaptureInterruptEvery,
+    InputCaptureInterruptSecond,
+    InputCaptureInterruptThird,
+    InputCaptureInterruptFourth,
+} InputCaptureInterrupt;
+
+/**
+ * @brief Settings.
+ */
+typedef struct {
+    InputCaptureEdge edge;
+    InputCaptureInterrupt interrupt;
+} InputCaptureSettings;
+
+/**
+ * @brief Input capture interface.
+ */
+typedef struct {
+    void (*const initialise) (const InputCaptureSettings * const settings, void (*const captureEvent_) (const uint64_t ticks));
+    void (*const deinitialise) (void);
+    bool (*const bufferOverrun) (void);
+} InputCapture;
+
+//------------------------------------------------------------------------------
+// Variable declarations
+
+extern const InputCaptureSettings inputCaptureSettingsDefault;
 
 #endif
 
