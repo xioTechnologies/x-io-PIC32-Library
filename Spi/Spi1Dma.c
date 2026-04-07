@@ -27,6 +27,7 @@ const Spi spi1Dma = {
     .transfer = Spi1DmaTransfer,
     .transferInProgress = Spi1DmaTransferInProgress,
 };
+
 static GPIO_PIN csPin;
 #ifdef PRINT_TRANSFERS
 static void* data;

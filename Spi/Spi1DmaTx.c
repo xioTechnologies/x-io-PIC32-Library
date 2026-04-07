@@ -28,6 +28,7 @@ const Spi spi1DmaTx = {
     .transfer = Spi1DmaTxTransfer,
     .transferInProgress = Spi1DmaTxTransferInProgress,
 };
+
 static GPIO_PIN csPin;
 static void (*transferComplete)(void);
 

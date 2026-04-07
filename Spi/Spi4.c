@@ -26,6 +26,7 @@ const Spi spi4 = {
     .transfer = Spi4Transfer,
     .transferInProgress = Spi4TransferInProgress,
 };
+
 static GPIO_PIN csPin;
 static uint8_t* data;
 static size_t numberOfBytes;
