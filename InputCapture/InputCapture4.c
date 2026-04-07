@@ -33,7 +33,7 @@ static void (*captureEvent)(const uint64_t ticks);
 void InputCapture4Initialise(const InputCaptureSettings * const settings, void (*const captureEvent_) (const uint64_t ticks)) {
 
     // Ensure default register states
-    InputCapture4Deinitialise();            
+    InputCapture4Deinitialise();
 
     // Configure input capture
     switch (settings->edge) {
