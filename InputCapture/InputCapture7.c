@@ -33,7 +33,7 @@ static void (*captureEvent)(const uint64_t ticks);
 void InputCapture7Initialise(const InputCaptureSettings * const settings, void (*const captureEvent_) (const uint64_t ticks)) {
 
     // Ensure default register states
-    InputCapture7Deinitialise();
+    InputCapture7Deinitialise();            
 
     // Configure input capture
     switch (settings->edge) {
@@ -44,7 +44,7 @@ void InputCapture7Initialise(const InputCaptureSettings * const settings, void (
             IC7CONbits.ICM = 0b011; // simple Capture Event mode - every rising edge
             break;
         case InputCaptureEdgeEvery:
-            IC7CONbits.ICM = 0b110; // simple Capture Event mode ? every edge, specified edge first and every edge thereafter
+            IC7CONbits.ICM = 0b110; // simple Capture Event mode - every edge, specified edge first and every edge thereafter
             break;
     }
     switch (settings->interrupt) {
@@ -61,6 +61,7 @@ void InputCapture7Initialise(const InputCaptureSettings * const settings, void (
             IC7CONbits.ICI = 0b11; // interrupt on every forth capture event
             break;
     }
+    IC7CONbits.FEDGE = settings->firstEdge ? 1 : 0;
     IC7CONbits.C32 = 1;
 
     // Enable interrupt

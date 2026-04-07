@@ -15,6 +15,7 @@
 const InputCaptureSettings inputCaptureSettingsDefault = {
     .edge = InputCaptureEdgeRising,
     .interrupt = InputCaptureInterruptEvery,
+    .firstEdge = false,
 };
 
 //------------------------------------------------------------------------------

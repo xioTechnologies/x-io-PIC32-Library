@@ -41,6 +41,7 @@ typedef enum {
 typedef struct {
     InputCaptureEdge edge;
     InputCaptureInterrupt interrupt;
+    bool firstEdge; // only applicable for InputCaptureEdgeEvery
 } InputCaptureSettings;
 
 /**

@@ -33,7 +33,7 @@ static void (*captureEvent)(const uint64_t ticks);
 void InputCapture6Initialise(const InputCaptureSettings * const settings, void (*const captureEvent_) (const uint64_t ticks)) {
 
     // Ensure default register states
-    InputCapture6Deinitialise();
+    InputCapture6Deinitialise();            
 
     // Configure input capture
     switch (settings->edge) {
@@ -44,7 +44,7 @@ void InputCapture6Initialise(const InputCaptureSettings * const settings, void (
             IC6CONbits.ICM = 0b011; // simple Capture Event mode - every rising edge
             break;
         case InputCaptureEdgeEvery:
-            IC6CONbits.ICM = 0b110; // simple Capture Event mode ? every edge, specified edge first and every edge thereafter
+            IC6CONbits.ICM = 0b110; // simple Capture Event mode - every edge, specified edge first and every edge thereafter
             break;
     }
     switch (settings->interrupt) {
@@ -61,6 +61,7 @@ void InputCapture6Initialise(const InputCaptureSettings * const settings, void (
             IC6CONbits.ICI = 0b11; // interrupt on every forth capture event
             break;
     }
+    IC6CONbits.FEDGE = settings->firstEdge ? 1 : 0;
     IC6CONbits.C32 = 1;
 
     // Enable interrupt
