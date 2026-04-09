@@ -60,9 +60,9 @@ void Spi4DmaTxInitialise(const SpiSettings * const settings) {
 
     // Configure TX DMA channel
 #ifdef _SPI4_TX_IRQ
-    DCH0ECONbits.CHSIRQ = _SPI4_TX_IRQ;
+    DCH0ECONbits.CHSIRQ = _SPI4_TX_IRQ; // channel transfer start IRQ
 #else
-    DCH0ECONbits.CHSIRQ = _SPI4_TX_VECTOR;
+    DCH0ECONbits.CHSIRQ = _SPI4_TX_VECTOR; // channel transfer start IRQ
 #endif
     DCH0ECONbits.SIRQEN = 1; // start channel cell transfer if an interrupt matching CHSIRQ occurs
     DCH0DSA = KVA_TO_PA(&SPI4BUF); // destination address
