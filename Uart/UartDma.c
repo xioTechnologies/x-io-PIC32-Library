@@ -1,5 +1,5 @@
 /**
- * @file UartDma.h
+ * @file UartDma.c
  * @author Seb Madgwick
  * @brief UART driver using DMA for PIC32 devices.
  */
@@ -29,7 +29,7 @@
 
 const UartDmaReadConditions uartDmaReadConditionsDefault = {
     .numberOfBytes = 1024,
-    .terminationByte = -1,
+    .termination = -1,
     .timeout = 10,
 };
 
@@ -41,8 +41,12 @@ const UartDmaReadConditions uartDmaReadConditionsDefault = {
  * @param timeout Timeout in milliseconds.
  * @return Timer reset value.
  */
-uint32_t UartDmaCalculateTimerResetValue(const uint32_t timeout) {
-    return UINT32_MAX - (timeout * (TIMER_PERIPHERAL_CLOCK / 1000));
+uint32_t UartDmaCalculateTimerReset(const uint32_t timeout) {
+    const uint64_t offset = (uint64_t) timeout * (TIMER_PERIPHERAL_CLOCK / 1000U);
+    if (offset > (uint64_t) UINT32_MAX) {
+        return 0;
+    }
+    return UINT32_MAX - offset;
 }
 
 //------------------------------------------------------------------------------

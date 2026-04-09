@@ -23,8 +23,13 @@ static inline __attribute__((always_inline)) void TxInterruptTasks(void);
 //------------------------------------------------------------------------------
 // Variables
 
+#ifdef UART3_DMA_TIMEOUT_POLL
+static uint64_t readTimeoutTicks;
+static uint64_t readTimeoutExpiry;
+#endif
+static bool receiveBufferOverrun;
 static void (*read)(const void* const data, const size_t numberOfBytes);
-static uint8_t __attribute__((coherent)) readBuffer[1024]; // must be declared __attribute__((coherent)) for PIC32MZ devices
+static uint8_t __attribute__((coherent)) readData[UART3_DMA_READ_TRANSFER_SIZE]; // must be declared __attribute__((coherent)) for PIC32MZ devices
 static uint8_t writeData[UART3_WRITE_BUFFER_SIZE];
 static Fifo writeFifo = {.data = writeData, .dataSize = sizeof (writeData)};
 
@@ -46,7 +51,7 @@ void Uart3DmaRxInitialise(const UartSettings * const settings, const UartDmaRead
     if (settings->rtsCtsEnabled) {
         U3MODEbits.UEN = 0b10; // UxTX, UxRX, UxCTS and UxRTS pins are enabled and used
     }
-    if (settings->invertTXRX) {
+    if (settings->invertTxRx) {
         U3MODEbits.RXINV = 1; // UxRX Idle state is '0'
         U3STAbits.UTXINV = 1; // UxTX Idle state is '0'
     }
@@ -59,60 +64,55 @@ void Uart3DmaRxInitialise(const UartSettings * const settings, const UartDmaRead
     U3BRG = UartCalculateUxbrg(settings->baudRate);
     U3MODEbits.ON = 1; // UARTx is enabled. UARTx pins are controlled by UARTx as defined by UEN<1:0> and UTXEN control bits
 
-    // Limit read condition values to valid range
-    UartDmaReadConditions validReadConditions = *readConditions;
-    if (validReadConditions.numberOfBytes > sizeof (readBuffer)) {
-        validReadConditions.numberOfBytes = sizeof (readBuffer);
-    }
-    if (validReadConditions.terminationByte != -1) {
-        validReadConditions.terminationByte &= 0xFF;
-    }
-    if (validReadConditions.timeout > 1000) {
-        validReadConditions.timeout = 1000;
-    }
-
-    // Store callback
+    // Store read arguments
+#ifdef UART3_DMA_TIMEOUT_POLL
+    readTimeoutTicks = (uint64_t) readConditions->timeout * TIMER_TICKS_PER_MILLISECOND;
+#endif
     read = read_;
 
     // Enable DMA
     DMACONbits.ON = 1;
 
     // Configure RX DMA channel
-    DCH0ECONbits.CHAIRQ = _TIMER_9_VECTOR;
-    DCH0ECONbits.CHSIRQ = _UART3_RX_VECTOR;
-    DCH0ECONbits.SIRQEN = 1; // start channel cell transfer if an interrupt matching CHSIRQ occurs
+#ifndef UART3_DMA_TIMEOUT_POLL
+    DCH0ECONbits.CHAIRQ = _TIMER_9_VECTOR; // channel transfer abort IRQ
     DCH0ECONbits.AIRQEN = 1; // channel transfer is aborted if an interrupt matching CHAIRQ occurs
-    if (readConditions->terminationByte != -1) {
+#endif
+    DCH0ECONbits.CHSIRQ = _UART3_RX_VECTOR; // channel transfer start IRQ
+    DCH0ECONbits.SIRQEN = 1; // start channel cell transfer if an interrupt matching CHSIRQ occurs
+    if (readConditions->termination != -1) {
         DCH0ECONbits.PATEN = 1; // abort transfer and clear CHEN on pattern match
     }
     DCH0SSA = KVA_TO_PA(&U3RXREG); // source address
-    DCH0DSA = KVA_TO_PA(readBuffer); // destination address
+    DCH0DSA = KVA_TO_PA(readData); // destination address
     DCH0SSIZ = 1; // source size
-    DCH0DSIZ = validReadConditions.numberOfBytes; // destination size
+    DCH0DSIZ = readConditions->numberOfBytes > sizeof (readData) ? sizeof (readData) : readConditions->numberOfBytes; // destination size
     DCH0CSIZ = 1; // transfers per event
-    DCH0DAT = validReadConditions.terminationByte; // pattern data
-    DCH0INTbits.CHBCIE = 1; // channel Block Transfer Complete Interrupt Enable bit
-    DCH0INTbits.CHTAIE = 1; // channel Transfer Abort Interrupt Enable bit
+    DCH0DAT = readConditions->termination & 0xFF; // pattern data
+    DCH0INTbits.CHBCIE = 1; // channel block transfer complete interrupt enable bit
+    DCH0INTbits.CHTAIE = 1; // channel transfer abort interrupt enable bit
     DCH0CONbits.CHEN = 1; // channel is enabled
 
     // Calculate timer reset value
-    static uint32_t __attribute__((coherent)) timerResetValue[1]; // must be declared __attribute__((coherent)) for PIC32MZ devices
-    timerResetValue[0] = UartDmaCalculateTimerResetValue(validReadConditions.timeout);
+#ifndef UART3_DMA_TIMEOUT_POLL
+    static uint32_t __attribute__((coherent)) timerReset[1]; // must be declared __attribute__((coherent)) for PIC32MZ devices
+    timerReset[0] = UartDmaCalculateTimerReset(readConditions->timeout);
 
     // Configure timer DMA channel
     DCH1CONbits.CHAEN = 1; // channel is continuously enabled, and not automatically disabled after a block transfer is complete
-    DCH1ECONbits.CHSIRQ = _UART3_RX_VECTOR;
+    DCH1ECONbits.CHSIRQ = _UART3_RX_VECTOR; // channel transfer start IRQ
     DCH1ECONbits.SIRQEN = 1; // start channel cell transfer if an interrupt matching CHSIRQ occurs
-    DCH1SSA = KVA_TO_PA(timerResetValue); // source address
+    DCH1SSA = KVA_TO_PA(timerReset); // source address
     DCH1DSA = KVA_TO_PA(&TMR8); // destination address
-    DCH1SSIZ = sizeof (timerResetValue); // source size
-    DCH1DSIZ = sizeof (timerResetValue); // destination size
-    DCH1CSIZ = sizeof (timerResetValue); // transfers per event
+    DCH1SSIZ = sizeof (timerReset); // source size
+    DCH1DSIZ = sizeof (timerReset); // destination size
+    DCH1CSIZ = sizeof (timerReset); // transfers per event
     DCH1CONbits.CHEN = 1; // channel is enabled
 
     // Configure timer
     T8CONbits.T32 = 1;
     T8CONbits.ON = 1;
+#endif
 
     // Enable interrupts
     EVIC_SourceEnable(INT_SOURCE_DMA0);
@@ -142,6 +142,7 @@ void Uart3DmaRxDeinitialise(void) {
     DCH0DAT = 0;
 
     // Disable timer DMA channel and restore default register states
+#ifndef UART3_DMA_TIMEOUT_POLL
     DCH1CON = 0;
     DCH1ECON = 0;
     DCH1INT = 0;
@@ -158,6 +159,7 @@ void Uart3DmaRxDeinitialise(void) {
     // Disable timer and restore default register states
     T8CON = 0;
     T9CON = 0;
+#endif
 
     // Disable interrupts
     EVIC_SourceDisable(INT_SOURCE_DMA0);
@@ -165,15 +167,48 @@ void Uart3DmaRxDeinitialise(void) {
     EVIC_SourceStatusClear(INT_SOURCE_DMA0);
     EVIC_SourceStatusClear(INT_SOURCE_UART3_TX);
 
-    // Clear buffers
+    // Clear buffer
+    receiveBufferOverrun = false;
     Uart3DmaRxClearWriteBuffer();
 }
 
 /**
- * @brief Triggers the read callback to be called if any data is available.
+ * @brief Module tasks. This function should be called repeatedly within the
+ * main program loop.
  */
-void Uart3DmaRxRead(void) {
+void Uart3DmaRxTasks(void) {
+
+    // Clear receive buffer overrun flag
+    if (U3STAbits.OERR == 1) {
+        U3STAbits.OERR = 0;
+        receiveBufferOverrun = true;
+    }
+
+    // Do nothing else if no data available
+#ifdef UART3_DMA_TIMEOUT_POLL
+    const size_t available = DCH0DPTR;
+    static size_t previous;
+    if (available == 0) {
+        previous = 0;
+        return;
+    }
+
+    // Reset timeout if new data received
+    if (available != previous) {
+        readTimeoutExpiry = TimerGetTicks64() + readTimeoutTicks;
+        previous = available;
+        return;
+    }
+
+    // Wait for timeout
+    if (TimerGetTicks64() < readTimeoutExpiry) {
+        return;
+    }
+
+    // Read
     DCH0INTbits.CHTAIF = 1; // trigger transfer abort interrupt
+    previous = 0;
+#endif
 }
 
 /**
@@ -206,21 +241,16 @@ static inline __attribute__((always_inline)) void BlockTransferComplete(void) {
     size_t numberOfBytes;
     if (DCH0ECONbits.PATEN == 1) {
         numberOfBytes = 0;
-        while (true) {
-            if (readBuffer[numberOfBytes] == DCH0DAT) {
-                numberOfBytes++;
+        while (numberOfBytes < DCH0DSIZ) { // count number of bytes up to and including termination
+            if (readData[numberOfBytes++] == DCH0DAT) {
                 break;
             }
-            if (numberOfBytes >= DCH0DSIZ) {
-                break;
-            }
-            numberOfBytes++;
         }
     } else {
         numberOfBytes = DCH0DSIZ;
     }
     if (read != NULL) {
-        read(readBuffer, numberOfBytes);
+        read(readData, numberOfBytes);
     }
 }
 
@@ -234,7 +264,7 @@ static inline __attribute__((always_inline)) void TransferAborted(void) {
     const size_t numberOfBytes = DCH0DPTR;
     DCH0ECONbits.CABORT = 1; // reset DMA channel
     if (read != NULL) {
-        read(readBuffer, numberOfBytes);
+        read(readData, numberOfBytes);
     }
 }
 
@@ -277,13 +307,13 @@ void Uart3DmaRxClearWriteBuffer(void) {
 }
 
 /**
- * @brief Returns true if the hardware receive buffer has overrun. Calling this
- * function will reset the flag.
- * @return True if the hardware receive buffer has overrun.
+ * @brief Returns true if the receive buffer has overrun. Calling this function
+ * will reset the flag.
+ * @return True if the receive buffer has overrun.
  */
 bool Uart3DmaRxReceiveBufferOverrun(void) {
-    if (U3STAbits.OERR == 1) {
-        U3STAbits.OERR = 0;
+    if (receiveBufferOverrun) {
+        receiveBufferOverrun = false;
         return true;
     }
     return false;

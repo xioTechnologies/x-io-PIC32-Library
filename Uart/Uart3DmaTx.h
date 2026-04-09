@@ -10,6 +10,7 @@
 //------------------------------------------------------------------------------
 // Includes
 
+#include "Fifo.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -23,9 +24,12 @@ void Uart3DmaTxDeinitialise(void);
 size_t Uart3DmaTxAvailableRead(void);
 size_t Uart3DmaTxRead(void* const destination, size_t numberOfBytes);
 uint8_t Uart3DmaTxReadByte(void);
-void Uart3DmaTxWrite(const void* const data, const size_t numberOfBytes, void (*const writeComplete_) (void));
-bool Uart3DmaTxWriteInProgress(void);
+size_t Uart3DmaTxAvailableWrite(void);
+FifoResult Uart3DmaTxWrite(const void* const data, const size_t numberOfBytes);
+void Uart3DmaTxWriteTransfer(const void* const data, const size_t numberOfBytes, void (*const writeTransferComplete_) (void));
+bool Uart3DmaTxWriteTransferInProgress(void);
 void Uart3DmaTxClearReadBuffer(void);
+void Uart3DmaTxClearWriteBuffer(void);
 bool Uart3DmaTxReceiveBufferOverrun(void);
 bool Uart3DmaTxTransmissionComplete(void);
 

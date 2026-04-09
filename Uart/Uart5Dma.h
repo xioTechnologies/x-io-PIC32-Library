@@ -10,6 +10,7 @@
 //------------------------------------------------------------------------------
 // Includes
 
+#include "Fifo.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include "Uart.h"
@@ -20,9 +21,12 @@
 
 void Uart5DmaInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions, void (*const read_) (const void* const data, const size_t numberOfBytes));
 void Uart5DmaDeinitialise(void);
-void Uart5DmaRead(void);
-void Uart5DmaWrite(const void* const data, const size_t numberOfBytes, void (*const writeComplete_) (void));
-bool Uart5DmaWriteInProgress(void);
+void Uart5DmaTasks(void);
+size_t Uart5DmaAvailableWrite(void);
+FifoResult Uart5DmaWrite(const void* const data, const size_t numberOfBytes);
+void Uart5DmaWriteTransfer(const void* const data, const size_t numberOfBytes, void (*const writeTransferComplete_) (void));
+bool Uart5DmaWriteTransferInProgress(void);
+void Uart5DmaClearWriteBuffer(void);
 bool Uart5DmaReceiveBufferOverrun(void);
 bool Uart5DmaTransmissionComplete(void);
 

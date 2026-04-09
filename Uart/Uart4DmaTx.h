@@ -10,6 +10,7 @@
 //------------------------------------------------------------------------------
 // Includes
 
+#include "Fifo.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -23,9 +24,12 @@ void Uart4DmaTxDeinitialise(void);
 size_t Uart4DmaTxAvailableRead(void);
 size_t Uart4DmaTxRead(void* const destination, size_t numberOfBytes);
 uint8_t Uart4DmaTxReadByte(void);
-void Uart4DmaTxWrite(const void* const data, const size_t numberOfBytes, void (*const writeComplete_) (void));
-bool Uart4DmaTxWriteInProgress(void);
+size_t Uart4DmaTxAvailableWrite(void);
+FifoResult Uart4DmaTxWrite(const void* const data, const size_t numberOfBytes);
+void Uart4DmaTxWriteTransfer(const void* const data, const size_t numberOfBytes, void (*const writeTransferComplete_) (void));
+bool Uart4DmaTxWriteTransferInProgress(void);
 void Uart4DmaTxClearReadBuffer(void);
+void Uart4DmaTxClearWriteBuffer(void);
 bool Uart4DmaTxReceiveBufferOverrun(void);
 bool Uart4DmaTxTransmissionComplete(void);
 

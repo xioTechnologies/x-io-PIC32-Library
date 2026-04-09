@@ -42,7 +42,7 @@ void Uart6Initialise(const UartSettings * const settings) {
     if (settings->rtsCtsEnabled) {
         U6MODEbits.UEN = 0b10; // UxTX, UxRX, UxCTS and UxRTS pins are enabled and used
     }
-    if (settings->invertTXRX) {
+    if (settings->invertTxRx) {
         U6MODEbits.RXINV = 1; // UxRX Idle state is '0'
         U6STAbits.UTXINV = 1; // UxTX Idle state is '0'
     }
@@ -76,6 +76,7 @@ void Uart6Deinitialise(void) {
     EVIC_SourceStatusClear(INT_SOURCE_UART6_TX);
 
     // Clear buffers
+    receiveBufferOverrun = false;
     Uart6ClearReadBuffer();
     Uart6ClearWriteBuffer();
 }
@@ -86,13 +87,13 @@ void Uart6Deinitialise(void) {
  */
 size_t Uart6AvailableRead(void) {
 
-    // Trigger RX interrupt if hardware receive buffer not empty
+    // Trigger RX interrupt if receive buffer not empty
     if (U6STAbits.URXDA == 1) {
         EVIC_SourceEnable(INT_SOURCE_UART6_RX);
         EVIC_SourceStatusSet(INT_SOURCE_UART6_RX);
     }
 
-    // Clear hardware receive buffer overrun flag
+    // Clear receive buffer overrun flag
     if (U6STAbits.OERR == 1) {
         U6STAbits.OERR = 0;
         receiveBufferOverrun = true;
@@ -109,7 +110,7 @@ size_t Uart6AvailableRead(void) {
  * @return Number of bytes read.
  */
 size_t Uart6Read(void* const destination, size_t numberOfBytes) {
-    Uart6AvailableRead(); // process hardware receive buffer
+    Uart6AvailableRead(); // process receive buffer
     return FifoRead(&readFifo, destination, numberOfBytes);
 }
 
@@ -158,7 +159,7 @@ FifoResult Uart6WriteByte(const uint8_t byte) {
  */
 void Uart6ClearReadBuffer(void) {
     FifoClear(&readFifo);
-    Uart6ReceiveBufferOverrun();
+    Uart6ReceiveBufferOverrun(); // clear flag
 }
 
 /**
@@ -169,9 +170,9 @@ void Uart6ClearWriteBuffer(void) {
 }
 
 /**
- * @brief Returns true if the hardware receive buffer has overrun. Calling this
- * function will reset the flag.
- * @return True if the hardware receive buffer has overrun.
+ * @brief Returns true if the receive buffer has overrun. Calling this function
+ * will reset the flag.
+ * @return True if the receive buffer has overrun.
  */
 bool Uart6ReceiveBufferOverrun(void) {
     if (receiveBufferOverrun) {
@@ -239,9 +240,8 @@ static inline __attribute__((always_inline)) void RxInterruptTasks(void) {
         if (FifoAvailableWrite(&readFifo) == 0) { // if read buffer full
             EVIC_SourceDisable(INT_SOURCE_UART6_RX);
             break;
-        } else {
-            FifoWriteByte(&readFifo, U6RXREG);
         }
+        FifoWriteByte(&readFifo, U6RXREG);
     }
     EVIC_SourceStatusClear(INT_SOURCE_UART6_RX);
 }

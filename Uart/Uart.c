@@ -32,7 +32,7 @@ const UartSettings uartSettingsDefault = {
     .rtsCtsEnabled = false,
     .parityAndData = UartParityAndDataEightNone,
     .stopBits = UartStopBitsOne,
-    .invertTXRX = false,
+    .invertTxRx = false,
 };
 
 //------------------------------------------------------------------------------

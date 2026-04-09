@@ -16,6 +16,7 @@
 //------------------------------------------------------------------------------
 // Function declarations
 
+static void WriteTransferComplete(void);
 static inline __attribute__((always_inline)) void RxInterruptTasks(void);
 
 //------------------------------------------------------------------------------
@@ -24,7 +25,9 @@ static inline __attribute__((always_inline)) void RxInterruptTasks(void);
 static bool receiveBufferOverrun;
 static uint8_t readData[UART4_READ_BUFFER_SIZE];
 static Fifo readFifo = {.data = readData, .dataSize = sizeof (readData)};
-static void (*writeComplete)(void);
+static uint8_t writeData[UART4_WRITE_BUFFER_SIZE];
+static Fifo writeFifo = {.data = writeData, .dataSize = sizeof (writeData)};
+static void (*writeTransferComplete)(void);
 
 //------------------------------------------------------------------------------
 // Functions
@@ -42,7 +45,7 @@ void Uart4DmaTxInitialise(const UartSettings * const settings) {
     if (settings->rtsCtsEnabled) {
         U4MODEbits.UEN = 0b10; // UxTX, UxRX, UxCTS and UxRTS pins are enabled and used
     }
-    if (settings->invertTXRX) {
+    if (settings->invertTxRx) {
         U4MODEbits.RXINV = 1; // UxRX Idle state is '0'
         U4STAbits.UTXINV = 1; // UxTX Idle state is '0'
     }
@@ -59,12 +62,12 @@ void Uart4DmaTxInitialise(const UartSettings * const settings) {
     DMACONbits.ON = 1;
 
     // Configure TX DMA channel
-    DCH0ECONbits.CHSIRQ = _UART4_TX_VECTOR;
+    DCH0ECONbits.CHSIRQ = _UART4_TX_VECTOR; // channel transfer start IRQ
     DCH0ECONbits.SIRQEN = 1; // start channel cell transfer if an interrupt matching CHSIRQ occurs
     DCH0DSA = KVA_TO_PA(&U4TXREG); // destination address
     DCH0DSIZ = 1; // destination size
     DCH0CSIZ = 1; // transfers per event
-    DCH0INTbits.CHBCIE = 1; // channel Block Transfer Complete Interrupt Enable bit
+    DCH0INTbits.CHBCIE = 1; // channel block transfer complete interrupt enable bit
 
     // Enable interrupts
     EVIC_SourceEnable(INT_SOURCE_UART4_RX);
@@ -100,8 +103,10 @@ void Uart4DmaTxDeinitialise(void) {
     EVIC_SourceStatusClear(INT_SOURCE_UART4_RX);
     EVIC_SourceStatusClear(INT_SOURCE_DMA0);
 
-    // Clear buffer
+    // Clear buffers
+    receiveBufferOverrun = false;
     Uart4DmaTxClearReadBuffer();
+    Uart4DmaTxClearWriteBuffer();
 }
 
 /**
@@ -110,13 +115,13 @@ void Uart4DmaTxDeinitialise(void) {
  */
 size_t Uart4DmaTxAvailableRead(void) {
 
-    // Trigger RX interrupt if hardware receive buffer not empty
+    // Trigger RX interrupt if receive buffer not empty
     if (U4STAbits.URXDA == 1) {
         EVIC_SourceEnable(INT_SOURCE_UART4_RX);
         EVIC_SourceStatusSet(INT_SOURCE_UART4_RX);
     }
 
-    // Clear hardware receive buffer overrun flag
+    // Clear receive buffer overrun flag
     if (U4STAbits.OERR == 1) {
         U4STAbits.OERR = 0;
         receiveBufferOverrun = true;
@@ -133,7 +138,7 @@ size_t Uart4DmaTxAvailableRead(void) {
  * @return Number of bytes read.
  */
 size_t Uart4DmaTxRead(void* const destination, size_t numberOfBytes) {
-    Uart4DmaTxAvailableRead(); // process hardware receive buffer
+    Uart4DmaTxAvailableRead(); // process receive buffer
     return FifoRead(&readFifo, destination, numberOfBytes);
 }
 
@@ -147,15 +152,49 @@ uint8_t Uart4DmaTxReadByte(void) {
 }
 
 /**
- * @brief Writes data. The data must be declared __attribute__((coherent)) for
- * PIC32MZ devices. This function must not be called while a write is in
- * progress.
+ * @brief Returns the space available in the write buffer.
+ * @return Space available in the write buffer.
+ */
+size_t Uart4DmaTxAvailableWrite(void) {
+    return FifoAvailableWrite(&writeFifo);
+}
+
+/**
+ * @brief Writes data to the write buffer.
  * @param data Data.
  * @param numberOfBytes Number of bytes.
- * @param writeComplete_ Write complete callback.
+ * @return Result.
  */
-void Uart4DmaTxWrite(const void* const data, const size_t numberOfBytes, void (*const writeComplete_) (void)) {
-    writeComplete = writeComplete_;
+FifoResult Uart4DmaTxWrite(const void* const data, const size_t numberOfBytes) {
+    const FifoResult result = FifoWrite(&writeFifo, data, numberOfBytes);
+    if (Uart4DmaTxWriteTransferInProgress() == false) {
+        WriteTransferComplete();
+    }
+    return result;
+}
+
+/**
+ * @brief Write transfer complete callback.
+ */
+static void WriteTransferComplete(void) {
+    static __attribute__((coherent)) uint8_t data[UART4_DMA_WRITE_TRANSFER_SIZE];
+    const size_t numberOfBytes = FifoRead(&writeFifo, data, sizeof (data));
+    if (numberOfBytes > 0) {
+        Uart4DmaTxWriteTransfer(data, numberOfBytes, WriteTransferComplete);
+    }
+}
+
+/**
+ * @brief Writes data directly to the transmit buffer through a DMA transfer.
+ * The data must be declared __attribute__((coherent)) for PIC32MZ devices. This
+ * function must not be called while a transfer is in progress.
+ * @param data Data.
+ * @param numberOfBytes Number of bytes.
+ * @param writeTransferComplete_ Write transfer complete callback. NULL if
+ * unused.
+ */
+void Uart4DmaTxWriteTransfer(const void* const data, const size_t numberOfBytes, void (*const writeTransferComplete_) (void)) {
+    writeTransferComplete = writeTransferComplete_;
     DCH0SSA = KVA_TO_PA(data); // source address
     DCH0SSIZ = numberOfBytes; // source size
     DCH0INTbits.CHBCIF = 0; // clear TX DMA channel interrupt flag
@@ -168,17 +207,16 @@ void Uart4DmaTxWrite(const void* const data, const size_t numberOfBytes, void (*
  */
 void Dma0InterruptHandler(void) {
     EVIC_SourceStatusClear(INT_SOURCE_DMA0); // clear interrupt flag first because callback may start new write
-    if (writeComplete != NULL) {
-        writeComplete();
+    if (writeTransferComplete != NULL) {
+        writeTransferComplete();
     }
 }
 
 /**
- * @brief Returns true while data is being transferred to the hardware transmit
- * buffer.
- * @return True while data is being transferred to the hardware transmit buffer.
+ * @brief Returns true while data is being transferred to the transmit buffer.
+ * @return True while data is being transferred to the transmit buffer.
  */
-bool Uart4DmaTxWriteInProgress(void) {
+bool Uart4DmaTxWriteTransferInProgress(void) {
     return DCH0CONbits.CHEN == 1;
 }
 
@@ -187,13 +225,20 @@ bool Uart4DmaTxWriteInProgress(void) {
  */
 void Uart4DmaTxClearReadBuffer(void) {
     FifoClear(&readFifo);
-    Uart4DmaTxReceiveBufferOverrun();
+    Uart4DmaTxReceiveBufferOverrun(); // clear flag
 }
 
 /**
- * @brief Returns true if the hardware receive buffer has overrun. Calling this
- * function will reset the flag.
- * @return True if the hardware receive buffer has overrun.
+ * @brief Clears the write buffer.
+ */
+void Uart4DmaTxClearWriteBuffer(void) {
+    FifoClear(&writeFifo);
+}
+
+/**
+ * @brief Returns true if the receive buffer has overrun. Calling this function
+ * will reset the flag.
+ * @return True if the receive buffer has overrun.
  */
 bool Uart4DmaTxReceiveBufferOverrun(void) {
     if (receiveBufferOverrun) {
@@ -208,7 +253,7 @@ bool Uart4DmaTxReceiveBufferOverrun(void) {
  * @return True if all data has been transmitted.
  */
 bool Uart4DmaTxTransmissionComplete(void) {
-    return (Uart4DmaTxWriteInProgress() == false) && (U4STAbits.TRMT == 1);
+    return (Uart4DmaTxWriteTransferInProgress() == false) && (U4STAbits.TRMT == 1);
 }
 
 #ifdef _UART_4_VECTOR
@@ -217,7 +262,7 @@ bool Uart4DmaTxTransmissionComplete(void) {
  * @brief UART RX and TX interrupt handler. This function should be called by
  * the ISR implementation generated by MPLAB Harmony.
  */
-void Uart4DmaTxInterruptHandler(void) {
+void Uart4InterruptHandler(void) {
     if (EVIC_SourceStatusGet(INT_SOURCE_UART4_RX)) {
         RxInterruptTasks();
     }
@@ -243,9 +288,8 @@ static inline __attribute__((always_inline)) void RxInterruptTasks(void) {
         if (FifoAvailableWrite(&readFifo) == 0) { // if read buffer full
             EVIC_SourceDisable(INT_SOURCE_UART4_RX);
             break;
-        } else {
-            FifoWriteByte(&readFifo, U4RXREG);
         }
+        FifoWriteByte(&readFifo, U4RXREG);
     }
     EVIC_SourceStatusClear(INT_SOURCE_UART4_RX);
 }

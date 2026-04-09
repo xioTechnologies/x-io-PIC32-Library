@@ -10,6 +10,7 @@
 //------------------------------------------------------------------------------
 // Includes
 
+#include <stddef.h>
 #include <stdint.h>
 
 //------------------------------------------------------------------------------
@@ -19,8 +20,8 @@
  * @brief Read conditions.
  */
 typedef struct {
-    uint32_t numberOfBytes;
-    int terminationByte; // -1 to disable
+    size_t numberOfBytes;
+    int termination; // 0 to 255 (-1 = disabled)
     uint32_t timeout; // milliseconds
 } UartDmaReadConditions;
 
@@ -32,7 +33,7 @@ extern const UartDmaReadConditions uartDmaReadConditionsDefault;
 //------------------------------------------------------------------------------
 // Function declarations
 
-uint32_t UartDmaCalculateTimerResetValue(const uint32_t timeout);
+uint32_t UartDmaCalculateTimerReset(const uint32_t timeout);
 
 #endif
 

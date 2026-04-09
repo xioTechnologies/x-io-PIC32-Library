@@ -89,23 +89,41 @@
 #define SPI_BUS_6_MAX_NUMBER_OF_CLIENTS     (4)
 #define SPI_BUS_6_SPI                       spi6Dma
 
+//#define UART1_DMA_TIMEOUT_POLL
 #define UART1_READ_BUFFER_SIZE              (4096)
 #define UART1_WRITE_BUFFER_SIZE             (4096)
+#define UART1_DMA_READ_TRANSFER_SIZE        (1024)
+#define UART1_DMA_WRITE_TRANSFER_SIZE       (1024)
 
+//#define UART2_DMA_TIMEOUT_POLL
 #define UART2_READ_BUFFER_SIZE              (4096)
 #define UART2_WRITE_BUFFER_SIZE             (4096)
+#define UART2_DMA_READ_TRANSFER_SIZE        (1024)
+#define UART2_DMA_WRITE_TRANSFER_SIZE       (1024)
 
+//#define UART3_DMA_TIMEOUT_POLL
 #define UART3_READ_BUFFER_SIZE              (4096)
 #define UART3_WRITE_BUFFER_SIZE             (4096)
+#define UART3_DMA_READ_TRANSFER_SIZE        (1024)
+#define UART3_DMA_WRITE_TRANSFER_SIZE       (1024)
 
+//#define UART4_DMA_TIMEOUT_POLL
 #define UART4_READ_BUFFER_SIZE              (4096)
 #define UART4_WRITE_BUFFER_SIZE             (4096)
+#define UART4_DMA_READ_TRANSFER_SIZE        (1024)
+#define UART4_DMA_WRITE_TRANSFER_SIZE       (1024)
 
+//#define UART5_DMA_TIMEOUT_POLL
 #define UART5_READ_BUFFER_SIZE              (4096)
 #define UART5_WRITE_BUFFER_SIZE             (4096)
+#define UART5_DMA_READ_TRANSFER_SIZE        (1024)
+#define UART5_DMA_WRITE_TRANSFER_SIZE       (1024)
 
+//#define UART6_DMA_TIMEOUT_POLL
 #define UART6_READ_BUFFER_SIZE              (4096)
 #define UART6_WRITE_BUFFER_SIZE             (4096)
+#define UART6_DMA_READ_TRANSFER_SIZE        (1024)
+#define UART6_DMA_WRITE_TRANSFER_SIZE       (1024)
 
 #define USB_CDC_READ_BUFFER_SIZE            (4096)
 #define USB_CDC_WRITE_BUFFER_SIZE           (4096)
