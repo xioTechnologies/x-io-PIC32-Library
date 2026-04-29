@@ -37,28 +37,28 @@
 
 #define LTC_INPUT_CAPTURE                   inputCapture1
 
-#define NEOPIXELS_1_HAL_NUMBER_OF_PIXELS    (4)
 //#define NEOPIXELS_1_NO_RESET_CODE
+#define NEOPIXELS_1_HAL_NUMBER_OF_PIXELS    (4)
 #define NEOPIXELS_1_SPI                     spi1Dma
 
-#define NEOPIXELS_2_HAL_NUMBER_OF_PIXELS    (4)
 //#define NEOPIXELS_2_NO_RESET_CODE
+#define NEOPIXELS_2_HAL_NUMBER_OF_PIXELS    (4)
 #define NEOPIXELS_2_SPI                     spi2Dma
 
-#define NEOPIXELS_3_HAL_NUMBER_OF_PIXELS    (4)
 //#define NEOPIXELS_3_NO_RESET_CODE
+#define NEOPIXELS_3_HAL_NUMBER_OF_PIXELS    (4)
 #define NEOPIXELS_3_SPI                     spi3Dma
 
-#define NEOPIXELS_4_HAL_NUMBER_OF_PIXELS    (4)
 //#define NEOPIXELS_4_NO_RESET_CODE
+#define NEOPIXELS_4_HAL_NUMBER_OF_PIXELS    (4)
 #define NEOPIXELS_4_SPI                     spi4Dma
 
-#define NEOPIXELS_5_HAL_NUMBER_OF_PIXELS    (4)
 //#define NEOPIXELS_5_NO_RESET_CODE
+#define NEOPIXELS_5_HAL_NUMBER_OF_PIXELS    (4)
 #define NEOPIXELS_5_SPI                     spi5Dma
 
-#define NEOPIXELS_6_HAL_NUMBER_OF_PIXELS    (4)
 //#define NEOPIXELS_6_NO_RESET_CODE
+#define NEOPIXELS_6_HAL_NUMBER_OF_PIXELS    (4)
 #define NEOPIXELS_6_SPI                     spi6Dma
 
 //#define SPI1_CS_ACTIVE_HIGH
