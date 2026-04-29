@@ -35,6 +35,8 @@
 #define I2CBB2_SDA_PIN                      SDA2_PIN
 #define I2CBB2_HALF_CLOCK_CYCLE             (5)
 
+#define LTC_INPUT_CAPTURE                   inputCapture1
+
 #define NEOPIXELS_1_HAL_NUMBER_OF_PIXELS    (4)
 //#define NEOPIXELS_1_NO_RESET_CODE
 #define NEOPIXELS_1_SPI                     spi1Dma
@@ -88,6 +90,8 @@
 
 #define SPI_BUS_6_MAX_NUMBER_OF_CLIENTS     (4)
 #define SPI_BUS_6_SPI                       spi6Dma
+
+#define SYNC_INPUT_CAPTURE                  inputCapture1
 
 //#define UART1_DMA_TIMEOUT_POLL
 #define UART1_READ_BUFFER_SIZE              (4096)
