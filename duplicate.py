@@ -1,25 +1,26 @@
+from pathlib import Path
+
+
 def duplicate(
     files: tuple[str, ...],
     keywords: tuple[str, ...],
     source_id: tuple[int, ...],
     destination_ids: tuple[int, ...],
 ):
-    source_files = [f.replace("?", str(source_id)) for f in files]
+    source_files = [Path(f.replace("?", str(source_id))) for f in files]
     source_keywords = [k.replace("?", str(source_id)) for k in keywords]
 
     for destination_id in destination_ids:
-        destination_files = [f.replace("?", str(destination_id)) for f in files]
+        destination_files = [Path(f.replace("?", str(destination_id))) for f in files]
         destination_keywords = [k.replace("?", str(destination_id)) for k in keywords]
 
         for index, _ in enumerate(source_files):
-            with open(source_files[index]) as file:
-                code = file.read()
+            code = source_files[index].read_text()
 
             for keyword_index, _ in enumerate(source_keywords):
                 code = code.replace(source_keywords[keyword_index], destination_keywords[keyword_index])
 
-            with open(destination_files[index], "w") as file:
-                file.write(code)
+            destination_files[index].write_text(code)
 
 
 duplicate(
