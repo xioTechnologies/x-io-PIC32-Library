@@ -317,6 +317,7 @@ static inline __attribute__((always_inline)) bool DetectSyncWord(const bool bit)
     static State state = StateTwelveOnes;
     switch (state) {
         case StateTwelveOnes:
+        {
             static int count;
             if (bit == false) {
                 count = 0;
@@ -327,6 +328,7 @@ static inline __attribute__((always_inline)) bool DetectSyncWord(const bool bit)
                 state = StateFinalZero;
             }
             break;
+        }
         case StateFinalZero:
             if (bit) {
                 state = StateTwelveOnes;
