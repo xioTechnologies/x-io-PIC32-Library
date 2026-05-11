@@ -10,6 +10,7 @@
 //------------------------------------------------------------------------------
 // Includes
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
@@ -170,11 +171,12 @@ static inline __attribute__((always_inline)) size_t FifoAvailableReadPacket(Fifo
 
 /**
  * @brief Reads a packet from the FIFO. This function must only be used if all
- * data in the FIFO was written using FifoWritePacket.
+ * data in the FIFO was written using FifoWritePacket. The packet will not be
+ * read if the packet size is greater than the destination size.
  * @param fifo FIFO structure.
  * @param destination Destination.
  * @param destinationSize Destination size.
- * @return Size of the packet.
+ * @return Size of the packet. 0 if the packet was not read.
  */
 static inline __attribute__((always_inline)) size_t FifoReadPacket(Fifo * const fifo, void* const destination, const size_t destinationSize) {
     const size_t packetSize = FifoAvailableReadPacket(fifo);
@@ -187,6 +189,27 @@ static inline __attribute__((always_inline)) size_t FifoReadPacket(Fifo * const 
     FifoReadPointerComplete(fifo, sizeof (uint16_t));
     FifoRead(fifo, destination, packetSize);
     return packetSize;
+}
+
+/**
+ * @brief Reads packets from the FIFO. This function must only be used if all
+ * data in the FIFO was written using FifoWritePacket. No packets will be read
+ * if the packet size is greater than the destination size.
+ * @param fifo FIFO structure.
+ * @param destination Destination.
+ * @param destinationSize Destination size.
+ * @return Number of bytes read. 0 if no packets were read.
+ */
+static inline __attribute__((always_inline)) size_t FifoReadPackets(Fifo * const fifo, void* const destination, const size_t destinationSize) {
+    size_t numberOfBytes = 0;
+    while (true) {
+        const size_t packetSize = FifoReadPacket(fifo, &((uint8_t*) destination)[numberOfBytes], destinationSize - numberOfBytes);
+        if (packetSize == 0) {
+            break;
+        }
+        numberOfBytes += packetSize;
+    }
+    return numberOfBytes;
 }
 
 /**
