@@ -34,7 +34,7 @@
 typedef enum {
     SdCardLoggerSuffixNone,
     SdCardLoggerSuffixCounter,
-    SdCardLoggerSuffixDateTime,
+    SdCardLoggerSuffixDateAndTime,
 } SdCardLoggerSuffix;
 
 /**

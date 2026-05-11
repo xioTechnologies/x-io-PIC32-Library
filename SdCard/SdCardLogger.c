@@ -209,7 +209,7 @@ static Result Open(void) {
             }
             break;
         }
-        case SdCardLoggerSuffixDateTime:
+        case SdCardLoggerSuffixDateAndTime:
         {
             RtcTime time;
             RtcGetTime(&time);
