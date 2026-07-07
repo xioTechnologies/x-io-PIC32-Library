@@ -9,10 +9,8 @@
 
 #include "Config.h"
 #include "definitions.h"
-#include "Fifo.h"
 #include "Periodic.h"
 #include "RtcWeak/RtcWeak.h"
-#include "SdCard/SdCard.h"
 #include "SdCardLogger.h"
 #include <stdio.h>
 #include <string.h>
@@ -60,8 +58,10 @@ static Result Open(void);
 static int ReadCounter(void);
 static void WriteCounter(const int counter);
 static Result Write(void);
-static Result Close(void);
 static Result CloseThenOpen(void);
+static Result Close(void);
+static SdCardResult Preamble(void);
+static SdCardResult Trailer(void);
 static void EventCallback(const SdCardLoggerEvent event);
 static void ErrorCallback(const SdCardLoggerError error);
 
@@ -173,6 +173,7 @@ static Result Open(void) {
 
     // Open directory
     if (SdCardDirectoryOpen(SD_CARD_LOGGER_DIRECTORY) != SdCardResultOk) {
+        ErrorCallback(SdCardLoggerErrorFileSystemError);
         return ResultError;
     }
 
@@ -225,6 +226,7 @@ static Result Open(void) {
 
     // Close directory
     if (SdCardDirectoryClose() != SdCardResultOk) {
+        ErrorCallback(SdCardLoggerErrorFileSystemError);
         return ResultError;
     }
 
@@ -238,14 +240,32 @@ static Result Open(void) {
     char filePath[SD_CARD_MAX_PATH_SIZE];
     SdCardPathJoin(filePath, sizeof (filePath), 2, SD_CARD_LOGGER_DIRECTORY, fileName);
     if (SdCardFileCreate(filePath) != SdCardResultOk) {
+        ErrorCallback(SdCardLoggerErrorFileSystemError);
         return ResultError;
     }
-    EventCallback(SdCardLoggerEventOpen); // may be used to write preamble
+
+    // Write preamble
+    switch (Preamble()) {
+        case SdCardResultOk:
+            break;
+        case SdCardResultWriteIncomplete:
+            ErrorCallback(SdCardLoggerErrorSdCardFull);
+            SdCardFileClose();
+            return ResultError;
+        case SdCardResultFileSystemError:
+            ErrorCallback(SdCardLoggerErrorFileSystemError);
+            SdCardFileClose();
+            return ResultError;
+    }
+
+    // Get initial file size
     if (SdCardFileGetSize(&fileSize) != SdCardResultOk) {
+        ErrorCallback(SdCardLoggerErrorFileSystemError);
         SdCardFileClose();
         return ResultError;
     }
     fileTimeout = TimerGetTicks64() + ((uint64_t) settings.maxFilePeriod * TIMER_TICKS_PER_SECOND);
+    EventCallback(SdCardLoggerEventOpen);
 
     // Reset statistics
 #ifdef PRINT_STATISTICS
@@ -313,6 +333,8 @@ static Result Write(void) {
     // Flush file
     if (PERIODIC_POLL(1.0f)) {
         if (SdCardFileFlush() != SdCardResultOk) {
+            ErrorCallback(SdCardLoggerErrorFileSystemError);
+            SdCardFileClose();
             return ResultError;
         }
     }
@@ -337,27 +359,16 @@ static Result Write(void) {
     fileSize += numberOfBytes;
 
     // Abort if SD card full
-    if (result == SdCardResultFileOrSdCardFull) {
+    if (result == SdCardResultWriteIncomplete) {
         ErrorCallback(SdCardLoggerErrorSdCardFull);
+        SdCardFileClose();
         return ResultError;
     }
 
     // Abort if file system error occurred
     if (result != SdCardResultOk) {
         ErrorCallback(SdCardLoggerErrorFileSystemError);
-        return ResultError;
-    }
-    return ResultOk;
-}
-
-/**
- * @brief Closes the file.
- * @return Result.
- */
-static Result Close(void) {
-    EventCallback(SdCardLoggerEventClose); // may be used to write trailer
-    if (SdCardFileClose() != SdCardResultOk) {
-        ErrorCallback(SdCardLoggerErrorFileSystemError);
+        SdCardFileClose();
         return ResultError;
     }
     return ResultOk;
@@ -373,6 +384,35 @@ static Result CloseThenOpen(void) {
         return result;
     }
     return Open();
+}
+
+/**
+ * @brief Closes the file.
+ * @return Result.
+ */
+static Result Close(void) {
+
+    // Write trailer
+    switch (Trailer()) {
+        case SdCardResultOk:
+            break;
+        case SdCardResultWriteIncomplete:
+            ErrorCallback(SdCardLoggerErrorSdCardFull);
+            SdCardFileClose();
+            return ResultError;
+        case SdCardResultFileSystemError:
+            ErrorCallback(SdCardLoggerErrorFileSystemError);
+            SdCardFileClose();
+            return ResultError;
+    }
+
+    // Close file
+    if (SdCardFileClose() != SdCardResultOk) {
+        ErrorCallback(SdCardLoggerErrorFileSystemError);
+        return ResultError;
+    }
+    EventCallback(SdCardLoggerEventClose);
+    return ResultOk;
 }
 
 /**
@@ -404,9 +444,11 @@ void SdCardLoggerStop(void) {
             break;
         case StateWriting:
             EventCallback(SdCardLoggerEventStop);
-            state = StateDisabled;
-            if ((Write() != ResultOk) || (Write() != ResultOk)) { // write twice to handle FIFO wraparound
-                break;
+            state = StateDisabled; // disable further writes to FIFO
+            while (FifoAvailableRead(&fifo) > 0) {
+                if (Write() != ResultOk) {
+                    return;
+                }
             }
             Close();
             break;
@@ -452,6 +494,32 @@ size_t SdCardLoggerAvailableWrite(void) {
  */
 FifoResult SdCardLoggerWrite(const void* const data, const size_t numberOfBytes) {
     return FifoWrite(&fifo, data, numberOfBytes);
+}
+
+/**
+ * @brief Calls the preamble callback.
+ */
+static SdCardResult Preamble(void) {
+#ifdef PRINT_STATISTICS
+    printf("Preamble\n");
+#endif
+    if (callbacks.preamble == NULL) {
+        return SdCardResultOk;
+    }
+    return callbacks.preamble();
+}
+
+/**
+ * @brief Calls the trailer callback.
+ */
+static SdCardResult Trailer(void) {
+#ifdef PRINT_STATISTICS
+    printf("Trailer\n");
+#endif
+    if (callbacks.trailer == NULL) {
+        return SdCardResultOk;
+    }
+    return callbacks.trailer();
 }
 
 /**

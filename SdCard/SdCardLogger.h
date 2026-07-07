@@ -11,6 +11,7 @@
 // Includes
 
 #include "Fifo.h"
+#include "SdCard/SdCard.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -54,10 +55,10 @@ typedef struct {
 typedef enum {
     SdCardLoggerEventStart,
     SdCardLoggerEventStop,
-    SdCardLoggerEventOpen, /* use SdCardFileWrite to write preamble */
+    SdCardLoggerEventOpen,
     SdCardLoggerEventMaxFileSizeExceeded,
     SdCardLoggerEventMaxFilePeriodExceeded,
-    SdCardLoggerEventClose, /* use SdCardFileWrite to write trailer */
+    SdCardLoggerEventClose,
 } SdCardLoggerEvent;
 
 /**
@@ -73,6 +74,8 @@ typedef enum {
  * @brief Callbacks. NULL if unused.
  */
 typedef struct {
+    SdCardResult(*preamble)(void);
+    SdCardResult(*trailer)(void);
     void (*event)(const SdCardLoggerEvent event);
     void (*error)(const SdCardLoggerError error);
 } SdCardLoggerCallbacks;

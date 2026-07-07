@@ -52,7 +52,7 @@ typedef struct {
  */
 typedef enum {
     SdCardResultOk,
-    SdCardResultFileOrSdCardFull, /* only returned by SdCardFileWrite and SdCardFileWriteString */
+    SdCardResultWriteIncomplete,
     SdCardResultFileSystemError,
 } SdCardResult;
 

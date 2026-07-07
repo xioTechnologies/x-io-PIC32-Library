@@ -312,18 +312,13 @@ SdCardResult SdCardFileReadString(void* const destination, const size_t destinat
  * @return Result.
  */
 SdCardResult SdCardFileWrite(const void* const data, const size_t numberOfBytes) {
-
-    // Write data
     const size_t numberOfBytesWritten = SYS_FS_FileWrite(fileHandle, data, numberOfBytes);
     if (numberOfBytesWritten == (size_t) - 1) {
         PrintFileSystemError();
         return SdCardResultFileSystemError;
     }
-
-    // File or SD card full
-    if (numberOfBytesWritten != numberOfBytes) {
-        PrintFileSystemError();
-        return SdCardResultFileOrSdCardFull;
+    if (numberOfBytesWritten < numberOfBytes) {
+        return SdCardResultWriteIncomplete;
     }
     return SdCardResultOk;
 }
@@ -378,7 +373,7 @@ SdCardResult SdCardFileClose(void) {
 }
 
 /**
- * @brief Wraps SdCardFileRead in a file open/close block.
+ * @brief Wraps SdCardFileRead in a file open/close sequence.
  * @param filePath File path.
  * @param destination Destination.
  * @param destinationSize Destination size.
@@ -392,13 +387,14 @@ SdCardResult SdCardFileQuickRead(const char* const filePath, void* const destina
     }
     result = SdCardFileRead(destination, destinationSize, numberOfBytes);
     if (result != SdCardResultOk) {
+        SdCardFileClose();
         return result;
     }
     return SdCardFileClose();
 }
 
 /**
- * @brief Wraps SdCardFileReadString in a file open/close block.
+ * @brief Wraps SdCardFileReadString in a file open/close sequence.
  * @param filePath File path.
  * @param destination Destination.
  * @param destinationSize Destination size.
@@ -411,13 +407,14 @@ SdCardResult SdCardFileQuickReadString(const char* const filePath, void* const d
     }
     result = SdCardFileReadString(destination, destinationSize);
     if (result != SdCardResultOk) {
+        SdCardFileClose();
         return result;
     }
     return SdCardFileClose();
 }
 
 /**
- * @brief Wraps SdCardFileWrite in a file create/close block.
+ * @brief Wraps SdCardFileWrite in a file create/close sequence.
  * @param filePath File path.
  * @param data Data.
  * @param numberOfBytes Number of bytes.
@@ -430,13 +427,14 @@ SdCardResult SdCardFileQuickWrite(const char* const filePath, const void* const 
     }
     result = SdCardFileWrite(data, numberOfBytes);
     if (result != SdCardResultOk) {
+        SdCardFileClose();
         return result;
     }
     return SdCardFileClose();
 }
 
 /**
- * @brief Wraps SdCardFileWriteString in a file create/close block.
+ * @brief Wraps SdCardFileWriteString in a file create/close sequence.
  * @param filePath File path.
  * @param string String.
  * @return Result.
@@ -448,6 +446,7 @@ SdCardResult SdCardFileQuickWriteString(const char* const filePath, const char* 
     }
     result = SdCardFileWriteString(string);
     if (result != SdCardResultOk) {
+        SdCardFileClose();
         return result;
     }
     return SdCardFileClose();
@@ -562,7 +561,7 @@ SdCardResult SdCardDirectoryClose(void) {
 }
 
 /**
- * @brief Wraps SdCardDirectorySearch inside a directory open/close block.
+ * @brief Wraps SdCardDirectorySearch inside a directory open/close sequence.
  * @param directory Directory. "" if root.
  * @param fileName File name.
  * @param fileStatus File status.
@@ -575,13 +574,14 @@ SdCardResult SdCardDirectoryQuickSearch(const char* const directory, const char*
     }
     result = SdCardDirectorySearch(fileName, fileStatus);
     if (result != SdCardResultOk) {
+        SdCardDirectoryClose();
         return result;
     }
     return SdCardDirectoryClose();
 }
 
 /**
- * @brief Wraps SdCardDirectoryExists inside a directory open/close block.
+ * @brief Wraps SdCardDirectoryExists inside a directory open/close sequence.
  * @param directory Directory. "" if root.
  * @param fileName File name.
  * @return True if any files matching the file name exist.
@@ -591,9 +591,7 @@ bool SdCardDirectoryQuickExists(const char* const directory, const char* const f
         return false;
     }
     const bool exists = SdCardDirectoryExists(fileName);
-    if (SdCardDirectoryClose() != SdCardResultOk) {
-        return false;
-    }
+    SdCardDirectoryClose();
     return exists;
 }
 
@@ -861,8 +859,8 @@ const char* SdCardResultToString(const SdCardResult result) {
     switch (result) {
         case SdCardResultOk:
             return "Ok";
-        case SdCardResultFileOrSdCardFull:
-            return "File or SD card full";
+        case SdCardResultWriteIncomplete:
+            return "Write incomplete";
         case SdCardResultFileSystemError:
             return "File system error";
     }

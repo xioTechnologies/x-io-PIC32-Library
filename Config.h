@@ -21,8 +21,6 @@
 //------------------------------------------------------------------------------
 // Definitions
 
-#define DATA_LOGGER_BUFFER_SIZE             (393216)
-
 #define EEPROM_I2C_ADDRESS                  (0x50)
 #define EEPROM_SIZE                         (0x1000)
 #define EEPROM_PAGE_SIZE                    (32)
@@ -60,6 +58,9 @@
 //#define NEOPIXELS_6_NO_RESET_CODE
 #define NEOPIXELS_6_HAL_NUMBER_OF_PIXELS    (4)
 #define NEOPIXELS_6_SPI                     spi6Dma
+
+#define SD_CARD_LOGGER_DIRECTORY            "Data" /* must exist on SD card */
+#define SD_CARD_LOGGER_BUFFER_SIZE          (8192)
 
 //#define SPI1_CS_ACTIVE_HIGH
 
