@@ -7,6 +7,7 @@
 //------------------------------------------------------------------------------
 // Includes
 
+#include "Config.h"
 #include "SdCard/SdCard.h"
 #include "SdCardArbiter.h"
 #include <stddef.h>
@@ -20,15 +21,10 @@
  */
 //#define PRINT_ACCESS
 
-/**
- * @brief Maximum number of clients.
- */
-#define MAX_NUMBER_OF_CLIENTS (8)
-
 //------------------------------------------------------------------------------
 // Variables
 
-static const SdCardArbiterClient* clients[MAX_NUMBER_OF_CLIENTS];
+static const SdCardArbiterClient* clients[SD_CARD_ARBITER_MAX_NUMBER_OF_CLIENTS];
 static const SdCardArbiterClient* activeClient;
 #ifdef PRINT_ACCESS
 static const SdCardArbiterClient* previousClient;
@@ -42,7 +38,7 @@ static const SdCardArbiterClient* previousClient;
  * @param client Client.
  */
 void SdCardArbiterAdd(const SdCardArbiterClient * const client) {
-    for (int index = 0; index < MAX_NUMBER_OF_CLIENTS; index++) {
+    for (int index = 0; index < SD_CARD_ARBITER_MAX_NUMBER_OF_CLIENTS; index++) {
         if (clients[index] == NULL) {
             clients[index] = client;
             return;
@@ -61,7 +57,7 @@ void SdCardArbiterTasks(void) {
     const SdCardArbiterClient* requestingClient = NULL;
 
     // Check for requests
-    for (int index = 0; index < MAX_NUMBER_OF_CLIENTS; index++) {
+    for (int index = 0; index < SD_CARD_ARBITER_MAX_NUMBER_OF_CLIENTS; index++) {
         const SdCardArbiterClient * const client = clients[index];
 
         // End of list

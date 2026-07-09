@@ -21,46 +21,48 @@
 //------------------------------------------------------------------------------
 // Definitions
 
-#define EEPROM_I2C_ADDRESS                  (0x50)
-#define EEPROM_SIZE                         (0x1000)
-#define EEPROM_PAGE_SIZE                    (32)
+#define EEPROM_I2C_ADDRESS                		(0x50)
+#define EEPROM_SIZE                       		(0x1000)
+#define EEPROM_PAGE_SIZE                  		(32)
 
-#define I2CBB1_SCL_PIN                      SCL1_PIN
-#define I2CBB1_SDA_PIN                      SDA1_PIN
-#define I2CBB1_HALF_CLOCK_CYCLE             (5)
+#define I2CBB1_SCL_PIN                    		SCL1_PIN
+#define I2CBB1_SDA_PIN                    		SDA1_PIN
+#define I2CBB1_HALF_CLOCK_CYCLE           		(5)
 
-#define I2CBB2_SCL_PIN                      SCL2_PIN
-#define I2CBB2_SDA_PIN                      SDA2_PIN
-#define I2CBB2_HALF_CLOCK_CYCLE             (5)
+#define I2CBB2_SCL_PIN                    		SCL2_PIN
+#define I2CBB2_SDA_PIN                    		SDA2_PIN
+#define I2CBB2_HALF_CLOCK_CYCLE           		(5)
 
-#define LTC_INPUT_CAPTURE                   inputCapture1
+#define LTC_INPUT_CAPTURE                 		inputCapture1
 
 //#define NEOPIXELS_1_NO_RESET_CODE
-#define NEOPIXELS_1_HAL_NUMBER_OF_PIXELS    (4)
-#define NEOPIXELS_1_SPI                     spi1Dma
+#define NEOPIXELS_1_HAL_NUMBER_OF_PIXELS  		(4)
+#define NEOPIXELS_1_SPI                   		spi1Dma
 
 //#define NEOPIXELS_2_NO_RESET_CODE
-#define NEOPIXELS_2_HAL_NUMBER_OF_PIXELS    (4)
-#define NEOPIXELS_2_SPI                     spi2Dma
+#define NEOPIXELS_2_HAL_NUMBER_OF_PIXELS  		(4)
+#define NEOPIXELS_2_SPI                   		spi2Dma
 
 //#define NEOPIXELS_3_NO_RESET_CODE
-#define NEOPIXELS_3_HAL_NUMBER_OF_PIXELS    (4)
-#define NEOPIXELS_3_SPI                     spi3Dma
+#define NEOPIXELS_3_HAL_NUMBER_OF_PIXELS  		(4)
+#define NEOPIXELS_3_SPI                   		spi3Dma
 
 //#define NEOPIXELS_4_NO_RESET_CODE
-#define NEOPIXELS_4_HAL_NUMBER_OF_PIXELS    (4)
-#define NEOPIXELS_4_SPI                     spi4Dma
+#define NEOPIXELS_4_HAL_NUMBER_OF_PIXELS  		(4)
+#define NEOPIXELS_4_SPI                   		spi4Dma
 
 //#define NEOPIXELS_5_NO_RESET_CODE
-#define NEOPIXELS_5_HAL_NUMBER_OF_PIXELS    (4)
-#define NEOPIXELS_5_SPI                     spi5Dma
+#define NEOPIXELS_5_HAL_NUMBER_OF_PIXELS  		(4)
+#define NEOPIXELS_5_SPI                   		spi5Dma
 
 //#define NEOPIXELS_6_NO_RESET_CODE
-#define NEOPIXELS_6_HAL_NUMBER_OF_PIXELS    (4)
-#define NEOPIXELS_6_SPI                     spi6Dma
+#define NEOPIXELS_6_HAL_NUMBER_OF_PIXELS  		(4)
+#define NEOPIXELS_6_SPI                   		spi6Dma
 
-#define SD_CARD_LOGGER_DIRECTORY            "Data" /* must exist on SD card */
-#define SD_CARD_LOGGER_BUFFER_SIZE          (8192)
+#define SD_CARD_ARBITER_MAX_NUMBER_OF_CLIENTS   (8)
+
+#define SD_CARD_LOGGER_DIRECTORY           		"Data" /* must exist on SD card */
+#define SD_CARD_LOGGER_BUFFER_SIZE         		(8192)
 
 //#define SPI1_CS_ACTIVE_HIGH
 
@@ -74,64 +76,64 @@
 
 //#define SPI6_CS_ACTIVE_HIGH
 
-#define SPI_BUS_1_MAX_NUMBER_OF_CLIENTS     (4)
-#define SPI_BUS_1_SPI                       spi1Dma
+#define SPI_BUS_1_MAX_NUMBER_OF_CLIENTS    		(4)
+#define SPI_BUS_1_SPI                      		spi1Dma
 
-#define SPI_BUS_2_MAX_NUMBER_OF_CLIENTS     (4)
-#define SPI_BUS_2_SPI                       spi2Dma
+#define SPI_BUS_2_MAX_NUMBER_OF_CLIENTS    		(4)
+#define SPI_BUS_2_SPI                      		spi2Dma
 
-#define SPI_BUS_3_MAX_NUMBER_OF_CLIENTS     (4)
-#define SPI_BUS_3_SPI                       spi3Dma
+#define SPI_BUS_3_MAX_NUMBER_OF_CLIENTS    		(4)
+#define SPI_BUS_3_SPI                      		spi3Dma
 
-#define SPI_BUS_4_MAX_NUMBER_OF_CLIENTS     (4)
-#define SPI_BUS_4_SPI                       spi4Dma
+#define SPI_BUS_4_MAX_NUMBER_OF_CLIENTS    		(4)
+#define SPI_BUS_4_SPI                      		spi4Dma
 
-#define SPI_BUS_5_MAX_NUMBER_OF_CLIENTS     (4)
-#define SPI_BUS_5_SPI                       spi5Dma
+#define SPI_BUS_5_MAX_NUMBER_OF_CLIENTS    		(4)
+#define SPI_BUS_5_SPI                      		spi5Dma
 
-#define SPI_BUS_6_MAX_NUMBER_OF_CLIENTS     (4)
-#define SPI_BUS_6_SPI                       spi6Dma
+#define SPI_BUS_6_MAX_NUMBER_OF_CLIENTS    		(4)
+#define SPI_BUS_6_SPI                      		spi6Dma
 
-#define SYNC_INPUT_CAPTURE                  inputCapture1
+#define SYNC_INPUT_CAPTURE                 		inputCapture1
 
 //#define UART1_DMA_TIMEOUT_POLL
-#define UART1_READ_BUFFER_SIZE              (4096)
-#define UART1_WRITE_BUFFER_SIZE             (4096)
-#define UART1_DMA_READ_TRANSFER_SIZE        (1024)
-#define UART1_DMA_WRITE_TRANSFER_SIZE       (1024)
+#define UART1_READ_BUFFER_SIZE             		(4096)
+#define UART1_WRITE_BUFFER_SIZE            		(4096)
+#define UART1_DMA_READ_TRANSFER_SIZE       		(1024)
+#define UART1_DMA_WRITE_TRANSFER_SIZE      		(1024)
 
 //#define UART2_DMA_TIMEOUT_POLL
-#define UART2_READ_BUFFER_SIZE              (4096)
-#define UART2_WRITE_BUFFER_SIZE             (4096)
-#define UART2_DMA_READ_TRANSFER_SIZE        (1024)
-#define UART2_DMA_WRITE_TRANSFER_SIZE       (1024)
+#define UART2_READ_BUFFER_SIZE             		(4096)
+#define UART2_WRITE_BUFFER_SIZE            		(4096)
+#define UART2_DMA_READ_TRANSFER_SIZE       		(1024)
+#define UART2_DMA_WRITE_TRANSFER_SIZE      		(1024)
 
 //#define UART3_DMA_TIMEOUT_POLL
-#define UART3_READ_BUFFER_SIZE              (4096)
-#define UART3_WRITE_BUFFER_SIZE             (4096)
-#define UART3_DMA_READ_TRANSFER_SIZE        (1024)
-#define UART3_DMA_WRITE_TRANSFER_SIZE       (1024)
+#define UART3_READ_BUFFER_SIZE             		(4096)
+#define UART3_WRITE_BUFFER_SIZE            		(4096)
+#define UART3_DMA_READ_TRANSFER_SIZE       		(1024)
+#define UART3_DMA_WRITE_TRANSFER_SIZE      		(1024)
 
 //#define UART4_DMA_TIMEOUT_POLL
-#define UART4_READ_BUFFER_SIZE              (4096)
-#define UART4_WRITE_BUFFER_SIZE             (4096)
-#define UART4_DMA_READ_TRANSFER_SIZE        (1024)
-#define UART4_DMA_WRITE_TRANSFER_SIZE       (1024)
+#define UART4_READ_BUFFER_SIZE             		(4096)
+#define UART4_WRITE_BUFFER_SIZE            		(4096)
+#define UART4_DMA_READ_TRANSFER_SIZE       		(1024)
+#define UART4_DMA_WRITE_TRANSFER_SIZE      		(1024)
 
 //#define UART5_DMA_TIMEOUT_POLL
-#define UART5_READ_BUFFER_SIZE              (4096)
-#define UART5_WRITE_BUFFER_SIZE             (4096)
-#define UART5_DMA_READ_TRANSFER_SIZE        (1024)
-#define UART5_DMA_WRITE_TRANSFER_SIZE       (1024)
+#define UART5_READ_BUFFER_SIZE             		(4096)
+#define UART5_WRITE_BUFFER_SIZE            		(4096)
+#define UART5_DMA_READ_TRANSFER_SIZE       		(1024)
+#define UART5_DMA_WRITE_TRANSFER_SIZE      		(1024)
 
 //#define UART6_DMA_TIMEOUT_POLL
-#define UART6_READ_BUFFER_SIZE              (4096)
-#define UART6_WRITE_BUFFER_SIZE             (4096)
-#define UART6_DMA_READ_TRANSFER_SIZE        (1024)
-#define UART6_DMA_WRITE_TRANSFER_SIZE       (1024)
+#define UART6_READ_BUFFER_SIZE             		(4096)
+#define UART6_WRITE_BUFFER_SIZE            		(4096)
+#define UART6_DMA_READ_TRANSFER_SIZE       		(1024)
+#define UART6_DMA_WRITE_TRANSFER_SIZE      		(1024)
 
-#define USB_CDC_READ_BUFFER_SIZE            (4096)
-#define USB_CDC_WRITE_BUFFER_SIZE           (4096)
+#define USB_CDC_READ_BUFFER_SIZE           		(4096)
+#define USB_CDC_WRITE_BUFFER_SIZE          		(4096)
 
 #endif
 
