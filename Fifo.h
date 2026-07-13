@@ -227,6 +227,30 @@ static inline __attribute__((always_inline)) size_t FifoAvailableWrite(Fifo * co
 }
 
 /**
+ * @brief Writes data to the FIFO. This function is private.
+ * @param fifo FIFO structure.
+ * @param data Data.
+ * @param numberOfBytes Number of bytes.
+ * @param writeIndex Write index.
+ * @return Write index.
+ */
+static inline __attribute__((always_inline)) size_t FifoWriteInternal(Fifo * const fifo, const void* const data, const size_t numberOfBytes, const size_t writeIndex) {
+
+    // Write data with no wraparound
+    if ((writeIndex + numberOfBytes) < fifo->dataSize) {
+        memcpy((void*) &fifo->data[writeIndex], data, numberOfBytes);
+        return writeIndex + numberOfBytes;
+    }
+
+    // Write data with wraparound
+    const size_t numberOfBytesBeforeWraparound = fifo->dataSize - writeIndex;
+    memcpy((void*) &fifo->data[writeIndex], data, numberOfBytesBeforeWraparound);
+    const size_t numberOfBytesAfterWraparound = numberOfBytes - numberOfBytesBeforeWraparound;
+    memcpy((void*) fifo->data, &((uint8_t*) data)[numberOfBytesBeforeWraparound], numberOfBytesAfterWraparound);
+    return numberOfBytesAfterWraparound;
+}
+
+/**
  * @brief Writes data to the FIFO.
  * @param fifo FIFO structure.
  * @param data Data.
@@ -240,19 +264,8 @@ static inline __attribute__((always_inline)) FifoResult FifoWrite(Fifo * const f
         return FifoResultError;
     }
 
-    // Write data with no wraparound
-    if ((fifo->writeIndex + numberOfBytes) < fifo->dataSize) {
-        memcpy((void*) &fifo->data[fifo->writeIndex], data, numberOfBytes);
-        fifo->writeIndex += numberOfBytes;
-        return FifoResultOk;
-    }
-
-    // Write data with wraparound
-    const size_t numberOfBytesBeforeWraparound = fifo->dataSize - fifo->writeIndex;
-    memcpy((void*) &fifo->data[fifo->writeIndex], data, numberOfBytesBeforeWraparound);
-    const size_t numberOfBytesAfterWraparound = numberOfBytes - numberOfBytesBeforeWraparound;
-    memcpy((void*) fifo->data, &((uint8_t*) data)[numberOfBytesBeforeWraparound], numberOfBytesAfterWraparound);
-    fifo->writeIndex = numberOfBytesAfterWraparound;
+    // Write data
+    fifo->writeIndex = FifoWriteInternal(fifo, data, numberOfBytes, fifo->writeIndex);
     return FifoResultOk;
 }
 
@@ -299,18 +312,22 @@ static inline __attribute__((always_inline)) size_t FifoAvailableWritePacket(Fif
  * @return Result.
  */
 static inline __attribute__((always_inline)) FifoResult FifoWritePacket(Fifo * const fifo, const void* const data, const size_t numberOfBytes) {
+    if (numberOfBytes == 0) {
+        return FifoResultError;
+    }
     if (numberOfBytes > UINT16_MAX) {
         return FifoResultError;
     }
     if (numberOfBytes > FifoAvailableWritePacket(fifo)) {
         return FifoResultError;
     }
-    if (fifo->writeIndex == fifo->dataSize - 1) {
-        fifo->writeIndex = 0; // packetSize must not be written to wrapround
+    size_t writeIndex = fifo->writeIndex; // avoid asynchronous hazard
+    if (writeIndex == fifo->dataSize - 1) {
+        writeIndex = 0; // packetSize must not be written to wrapround
     }
     const uint16_t packetSize = (uint16_t) numberOfBytes;
-    FifoWrite(fifo, &packetSize, sizeof (packetSize));
-    FifoWrite(fifo, data, numberOfBytes);
+    writeIndex = FifoWriteInternal(fifo, &packetSize, sizeof (packetSize), writeIndex);
+    fifo->writeIndex = FifoWriteInternal(fifo, data, numberOfBytes, writeIndex);
     return FifoResultOk;
 }
 
