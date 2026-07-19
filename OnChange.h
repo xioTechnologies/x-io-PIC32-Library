@@ -45,13 +45,13 @@ typedef struct {
 })
 
 /**
- * @brief Returns the edge of the digital input change with debounce.
+ * @brief Returns the edge of the digital input change with 50 ms debounce.
  * @param input Input.
  * @return Edge of the digital input change.
  */
 #define ON_CHANGE_POLL_DEBOUNCE(input) ({ \
     static OnChange onChange; \
-    OnChangePoll(&onChange, 20, input); \
+    OnChangePoll(&onChange, 50, input); \
 })
 
 //------------------------------------------------------------------------------
