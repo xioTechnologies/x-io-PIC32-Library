@@ -7,7 +7,6 @@
 //------------------------------------------------------------------------------
 // Includes
 
-#include "Config.h"
 #include "definitions.h"
 #include "Spi3Dma.h"
 #include "sys/kmem.h"
