@@ -39,8 +39,8 @@
  */
 typedef enum {
     StateDisabled,
-    StateOpen,
-    StateWriting,
+    StateCreate,
+    StateWrite,
 } State;
 
 /**
@@ -54,11 +54,11 @@ typedef enum {
 //------------------------------------------------------------------------------
 // Function declarations
 
-static Result Open(void);
+static Result Create(void);
 static int ReadCounter(void);
 static void WriteCounter(const int counter);
 static Result Write(void);
-static Result CloseThenOpen(void);
+static Result CloseThenCreate(void);
 static Result Close(void);
 static SdCardResult Preamble(void);
 static SdCardResult Trailer(void);
@@ -119,14 +119,14 @@ void SdCardLoggerTasks(void) {
     switch (state) {
         case StateDisabled:
             return;
-        case StateOpen:
-            if (Open() != ResultOk) {
+        case StateCreate:
+            if (Create() != ResultOk) {
                 state = StateDisabled;
             } else {
-                state = StateWriting;
+                state = StateWrite;
             }
             break;
-        case StateWriting:
+        case StateWrite:
             if (Write() != ResultOk) {
                 state = StateDisabled;
             }
@@ -166,10 +166,10 @@ void SdCardLoggerTasks(void) {
 }
 
 /**
- * @brief Opens a new file.
+ * @brief Creates a new file.
  * @return Result.
  */
-static Result Open(void) {
+static Result Create(void) {
 
     // Open directory
     if (SdCardDirectoryOpen(SD_CARD_LOGGER_DIRECTORY) != SdCardResultOk) {
@@ -265,7 +265,7 @@ static Result Open(void) {
         return ResultError;
     }
     fileTimeout = TimerGetTicks64() + ((uint64_t) settings.maxFilePeriod * TIMER_TICKS_PER_SECOND);
-    EventCallback(SdCardLoggerEventOpen);
+    EventCallback(SdCardLoggerEventCreate);
 
     // Reset statistics
 #ifdef PRINT_STATISTICS
@@ -322,11 +322,11 @@ static Result Write(void) {
     }
 #endif
 
-    // Open new file if maximum file period exceeded
+    // Create new file if maximum file period exceeded
     if (settings.maxFilePeriod != 0) {
         if (TimerGetTicks64() >= fileTimeout) {
             EventCallback(SdCardLoggerEventMaxFilePeriodExceeded);
-            return CloseThenOpen();
+            return CloseThenCreate();
         }
     }
 
@@ -347,10 +347,10 @@ static Result Write(void) {
         return ResultOk;
     }
 
-    // Open new file if maximum file size exceeded
+    // Create new file if maximum file size exceeded
     if (((uint64_t) fileSize + (uint64_t) numberOfBytes) >= (uint64_t) settings.maxFileSize) {
         EventCallback(SdCardLoggerEventMaxFileSizeExceeded);
-        return CloseThenOpen();
+        return CloseThenCreate();
     }
 
     // Write data
@@ -375,15 +375,15 @@ static Result Write(void) {
 }
 
 /**
- * @brief Closes the file then opens a new file.
+ * @brief Closes the file then creates a new file.
  * @return Result.
  */
-static Result CloseThenOpen(void) {
+static Result CloseThenCreate(void) {
     const Result result = Close();
     if (result != ResultOk) {
         return result;
     }
-    return Open();
+    return Create();
 }
 
 /**
@@ -423,10 +423,10 @@ void SdCardLoggerStart(void) {
         case StateDisabled:
             EventCallback(SdCardLoggerEventStart);
             FifoClear(&fifo);
-            state = StateOpen;
+            state = StateCreate;
             break;
-        case StateOpen:
-        case StateWriting:
+        case StateCreate:
+        case StateWrite:
             break;
     }
 }
@@ -438,11 +438,11 @@ void SdCardLoggerStop(void) {
     switch (state) {
         case StateDisabled:
             break;
-        case StateOpen:
+        case StateCreate:
             EventCallback(SdCardLoggerEventStop);
             state = StateDisabled;
             break;
-        case StateWriting:
+        case StateWrite:
             EventCallback(SdCardLoggerEventStop);
             state = StateDisabled; // disable further writes to FIFO
             while (FifoAvailableRead(&fifo) > 0) {
@@ -463,8 +463,8 @@ bool SdCardLoggerLogging(void) {
     switch (state) {
         case StateDisabled:
             return false;
-        case StateOpen:
-        case StateWriting:
+        case StateCreate:
+        case StateWrite:
             return true;
     }
     return false; // avoid compiler warning
@@ -559,8 +559,8 @@ const char* SdCardLoggerEventToString(const SdCardLoggerEvent event) {
             return "Start";
         case SdCardLoggerEventStop:
             return "Stop";
-        case SdCardLoggerEventOpen:
-            return "Open";
+        case SdCardLoggerEventCreate:
+            return "Create";
         case SdCardLoggerEventMaxFileSizeExceeded:
             return "Max file size exceeded";
         case SdCardLoggerEventMaxFilePeriodExceeded:

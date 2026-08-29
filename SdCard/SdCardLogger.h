@@ -55,7 +55,7 @@ typedef struct {
 typedef enum {
     SdCardLoggerEventStart,
     SdCardLoggerEventStop,
-    SdCardLoggerEventOpen,
+    SdCardLoggerEventCreate,
     SdCardLoggerEventMaxFileSizeExceeded,
     SdCardLoggerEventMaxFilePeriodExceeded,
     SdCardLoggerEventClose,
