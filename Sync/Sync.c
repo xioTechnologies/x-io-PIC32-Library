@@ -8,6 +8,7 @@
 // Includes
 
 #include "Config.h"
+#include "definitions.h"
 #include "Fifo.h"
 #include "InputCapture/InputCapture.h"
 #include <stdio.h>
