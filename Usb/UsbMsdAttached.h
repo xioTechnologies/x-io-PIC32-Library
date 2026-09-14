@@ -18,7 +18,7 @@
 // Function declarations
 
 bool UsbMsdAttachedGet(const DRV_HANDLE handle);
-void UsbMsdAttachedSet(const bool isAttached);
+void UsbMsdAttachedSet(const bool enabled_);
 
 #endif
 
