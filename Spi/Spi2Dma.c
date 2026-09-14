@@ -9,6 +9,7 @@
 
 #include "definitions.h"
 #include "Spi2Dma.h"
+#include <stdint.h>
 #include "sys/kmem.h"
 
 //------------------------------------------------------------------------------
