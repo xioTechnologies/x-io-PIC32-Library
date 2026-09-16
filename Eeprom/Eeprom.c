@@ -116,6 +116,7 @@ static void StartSequence(const I2C * const i2c, const uint16_t address) {
 
 /**
  * @brief Erases the EEPROM. All data bytes are set to 0xFF.
+ * @param i2c I2C interface.
  */
 void EepromErase(const I2C * const i2c) {
     const uint8_t blankPage[] = {[0 ... (EEPROM_PAGE_SIZE - 1)] = 0xFF};

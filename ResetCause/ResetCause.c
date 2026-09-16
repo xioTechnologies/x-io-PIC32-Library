@@ -29,6 +29,7 @@ RCON_RESET_CAUSE ResetCauseGet(void) {
 
 /**
  * @brief Prints the reset cause.
+ * @param cause Reset cause.
  */
 void ResetCausePrint(const RCON_RESET_CAUSE cause) {
     printf("Reset ");
