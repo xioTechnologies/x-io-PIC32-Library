@@ -9,6 +9,7 @@
 
 #include "definitions.h"
 #include "I2C2.h"
+#include <stddef.h>
 #include "Timer/Timer.h"
 
 //------------------------------------------------------------------------------
@@ -22,7 +23,8 @@
 //------------------------------------------------------------------------------
 // Function declarations
 
-static inline __attribute__((always_inline)) bool Send(const uint8_t byte);
+static inline __attribute__((always_inline)) bool Transmit(const uint8_t byte);
+static inline __attribute__((always_inline)) uint8_t Receive(void);
 static void WaitForInterruptOrTimeout(void);
 
 //------------------------------------------------------------------------------
@@ -32,11 +34,19 @@ const I2C i2c2 = {
     .start = I2C2Start,
     .repeatedStart = I2C2RepeatedStart,
     .stop = I2C2Stop,
-    .send = I2C2Send,
-    .sendAddressRead = I2C2SendAddressRead,
-    .sendAddressWrite = I2C2SendAddressWrite,
-    .receive = I2C2Receive,
+    .transmit = I2C2Transmit,
+    .transmitAddressRead = I2C2TransmitAddressRead,
+    .transmitAddressWrite = I2C2TransmitAddressWrite,
+    .receiveAck = I2C2ReceiveAck,
+    .receiveNack = I2C2ReceiveNack,
 };
+
+static int lock;
+static const I2CInstruction* instructions;
+static int numberOfInstructions;
+static int instructionsIndex;
+static void (*transferComplete)(void);
+static uint64_t transferTimeout;
 
 //------------------------------------------------------------------------------
 // Functions
@@ -73,7 +83,7 @@ void I2C2Deinitialise(void) {
 }
 
 /**
- * @brief Generates a start event.
+ * @brief Generates a start condition.
  */
 void I2C2Start(void) {
     EVIC_SourceStatusClear(INT_SOURCE_I2C2_MASTER);
@@ -85,7 +95,7 @@ void I2C2Start(void) {
 }
 
 /**
- * @brief Generates a repeated start event.
+ * @brief Generates a repeated start condition.
  */
 void I2C2RepeatedStart(void) {
     EVIC_SourceStatusClear(INT_SOURCE_I2C2_MASTER);
@@ -97,7 +107,7 @@ void I2C2RepeatedStart(void) {
 }
 
 /**
- * @brief Generates a stop event.
+ * @brief Generates a stop condition.
  */
 void I2C2Stop(void) {
     EVIC_SourceStatusClear(INT_SOURCE_I2C2_MASTER);
@@ -109,55 +119,67 @@ void I2C2Stop(void) {
 }
 
 /**
- * @brief Sends a byte and checks for ACK.
+ * @brief Transmits a byte and checks for an ACK.
  * @param byte Byte.
- * @return True if an ACK was generated.
+ * @return True if an ACK was received.
  */
-bool I2C2Send(const uint8_t byte) {
-    const bool ack = Send(byte);
+bool I2C2Transmit(const uint8_t byte) {
+    const bool ack = Transmit(byte);
 #ifdef PRINT_MESSAGES
     I2CPrintByte(byte);
-    I2CPrintAckNack(ack);
+    if (ack) {
+        I2CPrintAck();
+    } else {
+        I2CPrintNack();
+    }
 #endif
     return ack;
 }
 
 /**
- * @brief Sends a 7-bit client address with appended R/W bit to indicate a
+ * @brief Transmits a 7-bit client address with appended R/W bit to indicate a
  * read.
  * @param address 7-bit client address.
- * @return True if an ACK was generated.
+ * @return True if an ACK was received.
  */
-bool I2C2SendAddressRead(const uint8_t address) {
-    const bool ack = Send(I2CAddressRead(address));
+bool I2C2TransmitAddressRead(const uint8_t address) {
+    const bool ack = Transmit(I2CAddressRead(address));
 #ifdef PRINT_MESSAGES
     I2CPrintReadAddress(address);
-    I2CPrintAckNack(ack);
+    if (ack) {
+        I2CPrintAck();
+    } else {
+        I2CPrintNack();
+    }
 #endif
     return ack;
 }
 
 /**
- * @brief Sends a 7-bit client address with appended R/W bit to indicate a
+ * @brief Transmits a 7-bit client address with appended R/W bit to indicate a
  * write.
  * @param address 7-bit client address.
- * @return True if an ACK was generated.
+ * @return True if an ACK was received.
  */
-bool I2C2SendAddressWrite(const uint8_t address) {
-    const bool ack = Send(I2CAddressWrite(address));
+bool I2C2TransmitAddressWrite(const uint8_t address) {
+    const bool ack = Transmit(I2CAddressWrite(address));
 #ifdef PRINT_MESSAGES
     I2CPrintWriteAddress(address);
-    I2CPrintAckNack(ack);
+    if (ack) {
+        I2CPrintAck();
+    } else {
+        I2CPrintNack();
+    }
 #endif
     return ack;
 }
 
 /**
- * @brief Sends a byte and checks for ACK.
+ * @brief Transmits a byte and checks for an ACK.
  * @param byte Byte.
- * @return True if an ACK was generated.
+ * @return True if an ACK was received.
  */
-static inline __attribute__((always_inline)) bool Send(const uint8_t byte) {
+static inline __attribute__((always_inline)) bool Transmit(const uint8_t byte) {
     EVIC_SourceStatusClear(INT_SOURCE_I2C2_MASTER);
     I2C2TRN = byte;
     WaitForInterruptOrTimeout();
@@ -165,28 +187,48 @@ static inline __attribute__((always_inline)) bool Send(const uint8_t byte) {
 }
 
 /**
- * @brief Receives a byte and generates an ACK or NACK.
- * @param ack True for ACK.
+ * @brief Receives a byte and generates an ACK.
  * @return Byte.
  */
-uint8_t I2C2Receive(const bool ack) {
+uint8_t I2C2ReceiveAck(void) {
+    const uint8_t byte = Receive();
+    EVIC_SourceStatusClear(INT_SOURCE_I2C2_MASTER);
+    I2C2CONbits.ACKDT = 0;
+    I2C2CONbits.ACKEN = 1;
+    WaitForInterruptOrTimeout();
+#ifdef PRINT_MESSAGES
+    I2CPrintByte(byte);
+    I2CPrintAck();
+#endif
+    return byte;
+}
 
-    // Receive
+/**
+ * @brief Receives a byte and generates a NACK.
+ * @return Byte.
+ */
+uint8_t I2C2ReceiveNack(void) {
+    const uint8_t byte = Receive();
+    EVIC_SourceStatusClear(INT_SOURCE_I2C2_MASTER);
+    I2C2CONbits.ACKDT = 1;
+    I2C2CONbits.ACKEN = 1;
+    WaitForInterruptOrTimeout();
+#ifdef PRINT_MESSAGES
+    I2CPrintByte(byte);
+    I2CPrintNack();
+#endif
+    return byte;
+}
+
+/**
+ * @brief Receives a byte.
+ * @return Byte.
+ */
+static inline __attribute__((always_inline)) uint8_t Receive(void) {
     EVIC_SourceStatusClear(INT_SOURCE_I2C2_MASTER);
     I2C2CONbits.RCEN = 1;
     WaitForInterruptOrTimeout();
-
-    // ACK/NACK
-    EVIC_SourceStatusClear(INT_SOURCE_I2C2_MASTER);
-    I2C2CONbits.ACKDT = ack ? 0 : 1;
-    I2C2CONbits.ACKEN = 1;
-    WaitForInterruptOrTimeout();
-    const uint8_t byte = I2C2RCV;
-#ifdef PRINT_MESSAGES
-    I2CPrintByte(byte);
-    I2CPrintAckNack(ack);
-#endif
-    return byte;
+    return I2C2RCV;
 }
 
 /**
@@ -202,6 +244,177 @@ static void WaitForInterruptOrTimeout(void) {
             break;
         }
     }
+}
+
+/**
+ * @brief Acquires the lock and transfers data. The transfer will only begin
+ * if the lock was acquired. The lock will be released when the transfer
+ * completes or a timeout occurs. The transfer complete callback will be called
+ * from within an interrupt once the transfer is complete.
+ * @param instructions_ Instructions.
+ * @param numberOfInstructions_ Number of instructions.
+ * @param transferComplete_ Transfer complete callback. NULL if unused.
+ * @return True if the lock was acquired.
+ */
+bool I2C2LockThenTransfer(const I2CInstruction * const instructions_, const int numberOfInstructions_, void (*const transferComplete_) (void)) {
+
+    // Attempt to acquire lock
+    if (I2C2Lock() == false) {
+        return false;
+    }
+
+    // Configure transfer
+    instructions = instructions_;
+    numberOfInstructions = numberOfInstructions_;
+    instructionsIndex = 0;
+    transferComplete = transferComplete_;
+    transferTimeout = TimerGetTicks64() + (uint64_t) (numberOfInstructions * I2C_TIMEOUT);
+
+    // Trigger first interrupt
+    EVIC_SourceStatusClear(INT_SOURCE_I2C2_MASTER);
+    EVIC_SourceEnable(INT_SOURCE_I2C2_MASTER);
+    EVIC_SourceStatusSet(INT_SOURCE_I2C2_MASTER);
+    return true;
+}
+
+/**
+ * @brief I2C master interrupt handler. This function should be called by the
+ * ISR implementation generated by MPLAB Harmony.
+ */
+void I2C2MasterInterruptHandler(void) {
+    EVIC_SourceStatusClear(INT_SOURCE_I2C2_MASTER);
+
+    // Print received ACK or NACK
+#ifdef PRINT_MESSAGES
+    if (instructionsIndex > 0) {
+        switch (instructions[instructionsIndex - 1].operation) {
+            case I2COperationTransmit:
+            case I2COperationTransmitAddressRead:
+            case I2COperationTransmitAddressWrite:
+                if (I2C2STATbits.ACKSTAT == 0) {
+                    I2CPrintAck();
+                } else {
+                    I2CPrintNack();
+                }
+                break;
+            default:
+                break;
+        }
+    }
+#endif
+
+    // End of transfer
+    if (instructionsIndex >= numberOfInstructions) {
+        EVIC_SourceDisable(INT_SOURCE_I2C2_MASTER);
+        I2C2Unlock();
+        if (transferComplete != NULL) {
+            transferComplete();
+        }
+        return;
+    }
+
+    // Initiate operation
+    switch (instructions[instructionsIndex].operation) {
+        case I2COperationStart:
+            I2C2CONbits.SEN = 1;
+            break;
+        case I2COperationRepeatedStart:
+            I2C2CONbits.RSEN = 1;
+            break;
+        case I2COperationStop:
+            I2C2CONbits.PEN = 1;
+            break;
+        case I2COperationTransmit:
+            I2C2TRN = instructions[instructionsIndex].data;
+            break;
+        case I2COperationTransmitAddressRead:
+            I2C2TRN = I2CAddressRead(instructions[instructionsIndex].address);
+            break;
+        case I2COperationTransmitAddressWrite:
+            I2C2TRN = I2CAddressWrite(instructions[instructionsIndex].address);
+            break;
+        case I2COperationReceive:
+            I2C2CONbits.RCEN = 1;
+            break;
+        case I2COperationAck:
+            *instructions[instructionsIndex].destination = I2C2RCV;
+            I2C2CONbits.ACKDT = 0;
+            I2C2CONbits.ACKEN = 1;
+            break;
+        case I2COperationNack:
+            *instructions[instructionsIndex].destination = I2C2RCV;
+            I2C2CONbits.ACKDT = 1;
+            I2C2CONbits.ACKEN = 1;
+            break;
+    }
+
+    // Print operation
+#ifdef PRINT_MESSAGES
+    switch (instructions[instructionsIndex].operation) {
+        case I2COperationStart:
+            I2CPrintStart();
+            break;
+        case I2COperationRepeatedStart:
+            I2CPrintRepeatedStart();
+            break;
+        case I2COperationStop:
+            I2CPrintStop();
+            break;
+        case I2COperationTransmit:
+            I2CPrintByte(instructions[instructionsIndex].data);
+            break;
+        case I2COperationTransmitAddressRead:
+            I2CPrintReadAddress(instructions[instructionsIndex].address);
+            break;
+        case I2COperationTransmitAddressWrite:
+            I2CPrintWriteAddress(instructions[instructionsIndex].address);
+            break;
+        case I2COperationReceive:
+            break;
+        case I2COperationAck:
+            I2CPrintByte(*instructions[instructionsIndex].destination);
+            I2CPrintAck();
+            break;
+        case I2COperationNack:
+            I2CPrintByte(*instructions[instructionsIndex].destination);
+            I2CPrintNack();
+            break;
+    }
+#endif
+
+    // Increment index
+    instructionsIndex++;
+}
+
+/**
+ * @brief Attempts to acquire the lock.
+ * @return True if the lock was acquired.
+ */
+bool I2C2Lock(void) {
+    if (EVIC_SourceIsEnabled(INT_SOURCE_I2C2_MASTER) && (TimerGetTicks64() > transferTimeout)) {
+        EVIC_SourceDisable(INT_SOURCE_I2C2_MASTER);
+        I2C2Unlock();
+    }
+    return __sync_lock_test_and_set(&lock, 1) == 0;
+}
+
+/**
+ * @brief Releases the lock.
+ */
+void I2C2Unlock(void) {
+    __sync_lock_release(&lock);
+}
+
+/**
+ * @brief Returns true if locked.
+ * @return True if locked.
+ */
+bool I2C2Locked(void) {
+    if (I2C2Lock() == false) {
+        return true;
+    }
+    I2C2Unlock();
+    return false;
 }
 
 //------------------------------------------------------------------------------

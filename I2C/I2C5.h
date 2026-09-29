@@ -27,10 +27,15 @@ void I2C5Deinitialise(void);
 void I2C5Start(void);
 void I2C5RepeatedStart(void);
 void I2C5Stop(void);
-bool I2C5Send(const uint8_t byte);
-bool I2C5SendAddressRead(const uint8_t address);
-bool I2C5SendAddressWrite(const uint8_t address);
-uint8_t I2C5Receive(const bool ack);
+bool I2C5Transmit(const uint8_t byte);
+bool I2C5TransmitAddressRead(const uint8_t address);
+bool I2C5TransmitAddressWrite(const uint8_t address);
+uint8_t I2C5ReceiveAck(void);
+uint8_t I2C5ReceiveNack(void);
+bool I2C5LockThenTransfer(const I2CInstruction * const instructions_, const int numberOfInstructions_, void (*const transferComplete_) (void));
+bool I2C5Lock(void);
+void I2C5Unlock(void);
+bool I2C5Locked(void);
 
 #endif
 

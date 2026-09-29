@@ -26,11 +26,13 @@ const I2C i2cBB2 = {
     .start = I2CBB2Start,
     .repeatedStart = I2CBB2RepeatedStart,
     .stop = I2CBB2Stop,
-    .send = I2CBB2Send,
-    .sendAddressRead = I2CBB2SendAddressRead,
-    .sendAddressWrite = I2CBB2SendAddressWrite,
-    .receive = I2CBB2Receive,
+    .transmit = I2CBB2Transmit,
+    .transmitAddressRead = I2CBB2TransmitAddressRead,
+    .transmitAddressWrite = I2CBB2TransmitAddressWrite,
+    .receiveAck = I2CBB2ReceiveAck,
+    .receiveNack = I2CBB2ReceiveNack,
 };
+
 static const I2CBB i2cBB = {
     .sclPin = I2CBB2_SCL_PIN,
     .sdaPin = I2CBB2_SDA_PIN,
@@ -51,7 +53,7 @@ void I2CBB2BusClear(void) {
 }
 
 /**
- * @brief Generates a start event.
+ * @brief Generates a start condition.
  */
 void I2CBB2Start(void) {
     I2CBBStart(&i2cBB);
@@ -61,7 +63,7 @@ void I2CBB2Start(void) {
 }
 
 /**
- * @brief Generates a repeated start event.
+ * @brief Generates a repeated start condition.
  */
 void I2CBB2RepeatedStart(void) {
     I2CBBRepeatedStart(&i2cBB);
@@ -71,7 +73,7 @@ void I2CBB2RepeatedStart(void) {
 }
 
 /**
- * @brief Generates a stop event.
+ * @brief Generates a stop condition.
  */
 void I2CBB2Stop(void) {
     I2CBBStop(&i2cBB);
@@ -81,59 +83,85 @@ void I2CBB2Stop(void) {
 }
 
 /**
- * @brief Sends a byte and checks for ACK.
+ * @brief Transmits a byte and checks for an ACK.
  * @param byte Byte.
- * @return True if an ACK was generated.
+ * @return True if an ACK was received.
  */
-bool I2CBB2Send(const uint8_t byte) {
-    const bool ack = I2CBBSend(&i2cBB, byte);
+bool I2CBB2Transmit(const uint8_t byte) {
+    const bool ack = I2CBBTransmit(&i2cBB, byte);
 #ifdef PRINT_MESSAGES
     I2CPrintByte(byte);
-    I2CPrintAckNack(ack);
+    if (ack) {
+        I2CPrintAck();
+    } else {
+        I2CPrintNack();
+    }
 #endif
     return ack;
 }
 
 /**
- * @brief Sends a 7-bit client address with appended R/W bit to indicate a
+ * @brief Transmits a 7-bit client address with appended R/W bit to indicate a
  * read.
  * @param address 7-bit client address.
- * @return True if an ACK was generated.
+ * @return True if an ACK was received.
  */
-bool I2CBB2SendAddressRead(const uint8_t address) {
-    const bool ack = I2CBBSendAddressRead(&i2cBB, address);
+bool I2CBB2TransmitAddressRead(const uint8_t address) {
+    const bool ack = I2CBBTransmit(&i2cBB, I2CAddressRead(address));
 #ifdef PRINT_MESSAGES
     I2CPrintReadAddress(address);
-    I2CPrintAckNack(ack);
+    if (ack) {
+        I2CPrintAck();
+    } else {
+        I2CPrintNack();
+    }
 #endif
     return ack;
 }
 
 /**
- * @brief Sends a 7-bit client address with appended R/W bit to indicate a
+ * @brief Transmits a 7-bit client address with appended R/W bit to indicate a
  * write.
  * @param address 7-bit client address.
- * @return True if an ACK was generated.
+ * @return True if an ACK was received.
  */
-bool I2CBB2SendAddressWrite(const uint8_t address) {
-    const bool ack = I2CBBSendAddressWrite(&i2cBB, address);
+bool I2CBB2TransmitAddressWrite(const uint8_t address) {
+    const bool ack = I2CBBTransmit(&i2cBB, I2CAddressWrite(address));
 #ifdef PRINT_MESSAGES
     I2CPrintWriteAddress(address);
-    I2CPrintAckNack(ack);
+    if (ack) {
+        I2CPrintAck();
+    } else {
+        I2CPrintNack();
+    }
 #endif
     return ack;
 }
 
 /**
- * @brief Receives a byte and generates an ACK or NACK.
- * @param ack True for ACK.
+ * @brief Receives a byte and generates an ACK.
  * @return Byte.
  */
-uint8_t I2CBB2Receive(const bool ack) {
-    const uint8_t byte = I2CBBReceive(&i2cBB, ack);
+uint8_t I2CBB2ReceiveAck(void) {
+    const uint8_t byte = I2CBBReceive(&i2cBB);
+    I2CBBAck(&i2cBB);
 #ifdef PRINT_MESSAGES
     I2CPrintByte(byte);
-    I2CPrintAckNack(ack);
+    I2CPrintAck();
+#endif
+    return byte;
+}
+
+/**
+ * @brief Receives a byte and generates a NACK.
+ * @return Byte.
+ */
+uint8_t I2CBB2ReceiveNack(void) {
+    const uint8_t byte = I2CBBReceive(&i2cBB);
+    I2CBBNack(&i2cBB);
+#ifdef PRINT_MESSAGES
+    I2CPrintByte(byte);
+    I2CPrintNack();
 #endif
     return byte;
 }

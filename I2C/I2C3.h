@@ -27,10 +27,15 @@ void I2C3Deinitialise(void);
 void I2C3Start(void);
 void I2C3RepeatedStart(void);
 void I2C3Stop(void);
-bool I2C3Send(const uint8_t byte);
-bool I2C3SendAddressRead(const uint8_t address);
-bool I2C3SendAddressWrite(const uint8_t address);
-uint8_t I2C3Receive(const bool ack);
+bool I2C3Transmit(const uint8_t byte);
+bool I2C3TransmitAddressRead(const uint8_t address);
+bool I2C3TransmitAddressWrite(const uint8_t address);
+uint8_t I2C3ReceiveAck(void);
+uint8_t I2C3ReceiveNack(void);
+bool I2C3LockThenTransfer(const I2CInstruction * const instructions_, const int numberOfInstructions_, void (*const transferComplete_) (void));
+bool I2C3Lock(void);
+void I2C3Unlock(void);
+bool I2C3Locked(void);
 
 #endif
 

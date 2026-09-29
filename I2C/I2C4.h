@@ -27,10 +27,15 @@ void I2C4Deinitialise(void);
 void I2C4Start(void);
 void I2C4RepeatedStart(void);
 void I2C4Stop(void);
-bool I2C4Send(const uint8_t byte);
-bool I2C4SendAddressRead(const uint8_t address);
-bool I2C4SendAddressWrite(const uint8_t address);
-uint8_t I2C4Receive(const bool ack);
+bool I2C4Transmit(const uint8_t byte);
+bool I2C4TransmitAddressRead(const uint8_t address);
+bool I2C4TransmitAddressWrite(const uint8_t address);
+uint8_t I2C4ReceiveAck(void);
+uint8_t I2C4ReceiveNack(void);
+bool I2C4LockThenTransfer(const I2CInstruction * const instructions_, const int numberOfInstructions_, void (*const transferComplete_) (void));
+bool I2C4Lock(void);
+void I2C4Unlock(void);
+bool I2C4Locked(void);
 
 #endif
 

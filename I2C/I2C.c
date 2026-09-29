@@ -57,28 +57,28 @@ uint8_t I2CAddressWrite(const uint8_t address) {
 }
 
 /**
- * @brief Print start event.
+ * @brief Prints a start condition.
  */
 void I2CPrintStart(void) {
     printf("S ");
 }
 
 /**
- * @brief Print repeated start event.
+ * @brief Prints a repeated start condition.
  */
 void I2CPrintRepeatedStart(void) {
     printf("R ");
 }
 
 /**
- * @brief Print stop event.
+ * @brief Prints a stop condition.
  */
 void I2CPrintStop(void) {
     printf("P\n");
 }
 
 /**
- * @brief Print byte.
+ * @brief Prints a byte.
  * @param byte Byte.
  */
 void I2CPrintByte(const uint8_t byte) {
@@ -86,7 +86,7 @@ void I2CPrintByte(const uint8_t byte) {
 }
 
 /**
- * @brief Print 7-bit client address used to read.
+ * @brief Prints a 7-bit client address used to read.
  * @param address 7-bit client address.
  */
 void I2CPrintReadAddress(const uint8_t address) {
@@ -94,7 +94,7 @@ void I2CPrintReadAddress(const uint8_t address) {
 }
 
 /**
- * @brief Print 7-bit client address used to write.
+ * @brief Prints a 7-bit client address used to write.
  * @param address 7-bit client address.
  */
 void I2CPrintWriteAddress(const uint8_t address) {
@@ -102,11 +102,17 @@ void I2CPrintWriteAddress(const uint8_t address) {
 }
 
 /**
- * @brief Print ACK or NACK.
- * @param ack True for ACK.
+ * @brief Prints an ACK.
  */
-void I2CPrintAckNack(const bool ack) {
-    printf("%c ", ack ? '-' : '^');
+void I2CPrintAck(void) {
+    printf("- ");
+}
+
+/**
+ * @brief Prints a NACK.
+ */
+void I2CPrintNack(void) {
+    printf("^ ");
 }
 
 //------------------------------------------------------------------------------

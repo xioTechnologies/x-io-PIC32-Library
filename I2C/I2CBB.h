@@ -11,7 +11,6 @@
 // Includes
 
 #include "definitions.h"
-#include "I2C.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include "Timer/Timer.h"
@@ -20,7 +19,7 @@
 // Definitions
 
 /**
- * @brief I2C bit bang structure.
+ * @brief I2C bit-bang structure.
  */
 typedef struct {
     const GPIO_PIN sclPin;
@@ -36,7 +35,7 @@ typedef struct {
  * if the SDA line is stuck low.
  * See page 20 of UM10204 I2C-bus specification and user manual Rev. 6 - 4 April
  * 2014.
- * @param i2cBB I2C bit bang structure.
+ * @param i2cBB I2C bit-bang structure.
  */
 static inline __attribute__((always_inline)) void I2CBBBusClear(const I2CBB * const i2cBB) {
     GPIO_PinWrite(i2cBB->sclPin, true);
@@ -52,8 +51,8 @@ static inline __attribute__((always_inline)) void I2CBBBusClear(const I2CBB * co
 }
 
 /**
- * @brief Generates a start event.
- * @param i2cBB I2C bit bang structure.
+ * @brief Generates a start condition.
+ * @param i2cBB I2C bit-bang structure.
  */
 static inline __attribute__((always_inline)) void I2CBBStart(const I2CBB * const i2cBB) {
     GPIO_PinWrite(i2cBB->sclPin, true);
@@ -65,8 +64,8 @@ static inline __attribute__((always_inline)) void I2CBBStart(const I2CBB * const
 }
 
 /**
- * @brief Generates a repeated start event.
- * @param i2cBB I2C bit bang structure.
+ * @brief Generates a repeated start condition.
+ * @param i2cBB I2C bit-bang structure.
  */
 static inline __attribute__((always_inline)) void I2CBBRepeatedStart(const I2CBB * const i2cBB) {
     GPIO_PinWrite(i2cBB->sclPin, false);
@@ -80,8 +79,8 @@ static inline __attribute__((always_inline)) void I2CBBRepeatedStart(const I2CBB
 }
 
 /**
- * @brief Generates a stop event.
- * @param i2cBB I2C bit bang structure.
+ * @brief Generates a stop condition.
+ * @param i2cBB I2C bit-bang structure.
  */
 static inline __attribute__((always_inline)) void I2CBBStop(const I2CBB * const i2cBB) {
     GPIO_PinWrite(i2cBB->sdaPin, false);
@@ -92,12 +91,12 @@ static inline __attribute__((always_inline)) void I2CBBStop(const I2CBB * const 
 }
 
 /**
- * @brief Sends a byte and checks for ACK.
- * @param i2cBB I2C bit bang structure.
+ * @brief Transmits a byte and checks for an ACK.
+ * @param i2cBB I2C bit-bang structure.
  * @param byte Byte.
- * @return True if an ACK was generated.
+ * @return True if an ACK was received.
  */
-static inline __attribute__((always_inline)) bool I2CBBSend(const I2CBB * const i2cBB, const uint8_t byte) {
+static inline __attribute__((always_inline)) bool I2CBBTransmit(const I2CBB * const i2cBB, const uint8_t byte) {
 
     // Data
     for (int bitIndex = 7; bitIndex >= 0; bitIndex--) {
@@ -120,36 +119,11 @@ static inline __attribute__((always_inline)) bool I2CBBSend(const I2CBB * const 
 }
 
 /**
- * @brief Sends a 7-bit client address with appended R/W bit to indicate a
- * read.
- * @param i2cBB I2C bit bang structure.
- * @param address 7-bit client address.
- * @return True if an ACK was generated.
- */
-static inline __attribute__((always_inline)) bool I2CBBSendAddressRead(const I2CBB * const i2cBB, const uint8_t address) {
-    return I2CBBSend(i2cBB, I2CAddressRead(address));
-}
-
-/**
- * @brief Sends a 7-bit client address with appended R/W bit to indicate a
- * write.
- * @param i2cBB I2C bit bang structure.
- * @param address 7-bit client address.
- * @return True if an ACK was generated.
- */
-static inline __attribute__((always_inline)) bool I2CBBSendAddressWrite(const I2CBB * const i2cBB, const uint8_t address) {
-    return I2CBBSend(i2cBB, I2CAddressWrite(address));
-}
-
-/**
- * @brief Receives a byte and generates an ACK or NACK.
- * @param i2cBB I2C bit bang structure.
- * @param ack True for ACK.
+ * @brief Receives a byte.
+ * @param i2cBB I2C bit-bang structure.
  * @return Byte.
  */
-static inline __attribute__((always_inline)) uint8_t I2CBBReceive(const I2CBB * const i2cBB, const bool ack) {
-
-    // Data
+static inline __attribute__((always_inline)) uint8_t I2CBBReceive(const I2CBB * const i2cBB) {
     GPIO_PinWrite(i2cBB->sdaPin, true);
     uint8_t byte = 0;
     for (int bitIndex = 7; bitIndex >= 0; bitIndex--) {
@@ -159,14 +133,31 @@ static inline __attribute__((always_inline)) uint8_t I2CBBReceive(const I2CBB * 
         byte |= GPIO_PinRead(i2cBB->sdaPin) ? (1 << bitIndex) : 0;
         GPIO_PinWrite(i2cBB->sclPin, false);
     }
+    return byte;
+}
 
-    // ACK/NACK
-    GPIO_PinWrite(i2cBB->sdaPin, ack == false);
+/**
+ * @brief Generates an ACK.
+ * @param i2cBB I2C bit-bang structure.
+ */
+static inline __attribute__((always_inline)) void I2CBBAck(const I2CBB * const i2cBB) {
+    GPIO_PinWrite(i2cBB->sdaPin, false);
     TimerDelayMicroseconds(i2cBB->halfClockCycle);
     GPIO_PinWrite(i2cBB->sclPin, true);
     TimerDelayMicroseconds(i2cBB->halfClockCycle);
     GPIO_PinWrite(i2cBB->sclPin, false);
-    return byte;
+}
+
+/**
+ * @brief Generates a NACK.
+ * @param i2cBB I2C bit-bang structure.
+ */
+static inline __attribute__((always_inline)) void I2CBBNack(const I2CBB * const i2cBB) {
+    GPIO_PinWrite(i2cBB->sdaPin, true);
+    TimerDelayMicroseconds(i2cBB->halfClockCycle);
+    GPIO_PinWrite(i2cBB->sclPin, true);
+    TimerDelayMicroseconds(i2cBB->halfClockCycle);
+    GPIO_PinWrite(i2cBB->sclPin, false);
 }
 
 #endif

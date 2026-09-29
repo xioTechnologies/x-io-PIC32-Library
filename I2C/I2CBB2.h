@@ -26,10 +26,11 @@ void I2CBB2BusClear(void);
 void I2CBB2Start(void);
 void I2CBB2RepeatedStart(void);
 void I2CBB2Stop(void);
-bool I2CBB2Send(const uint8_t byte);
-bool I2CBB2SendAddressRead(const uint8_t address);
-bool I2CBB2SendAddressWrite(const uint8_t address);
-uint8_t I2CBB2Receive(const bool ack);
+bool I2CBB2Transmit(const uint8_t byte);
+bool I2CBB2TransmitAddressRead(const uint8_t address);
+bool I2CBB2TransmitAddressWrite(const uint8_t address);
+uint8_t I2CBB2ReceiveAck(void);
+uint8_t I2CBB2ReceiveNack(void);
 
 #endif
 
