@@ -159,7 +159,7 @@ static inline __attribute__((always_inline)) size_t FifoAvailableReadPacket(Fifo
         return 0;
     }
     if (fifo->readIndex == fifo->dataSize - 1) {
-        fifo->readIndex = 0; // packetSize will never be written to wrapround
+        fifo->readIndex = 0; // packetSize will never be written to wraparound
     }
     volatile void *unaligned;
     size_t numberOfBytes __attribute__((unused));
@@ -323,7 +323,7 @@ static inline __attribute__((always_inline)) FifoResult FifoWritePacket(Fifo * c
     }
     size_t writeIndex = fifo->writeIndex; // avoid asynchronous hazard
     if (writeIndex == fifo->dataSize - 1) {
-        writeIndex = 0; // packetSize must not be written to wrapround
+        writeIndex = 0; // packetSize must not be written to wraparound
     }
     const uint16_t packetSize = (uint16_t) numberOfBytes;
     writeIndex = FifoWriteInternal(fifo, &packetSize, sizeof (packetSize), writeIndex);

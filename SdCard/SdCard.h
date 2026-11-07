@@ -95,9 +95,9 @@ void SdCardPathJoin(char* const destination, const size_t destinationSize, const
 void SdCardPathAppend(char* const destination, const size_t destinationSize, const char* const part);
 void SdCardPathSetExtension(char* const destination, const size_t destinationSize, const char* const extension);
 void SdCardSizeToString(char* const destination, const size_t destinationSize, const uint64_t size);
-const char* SdCardResultToString(const SdCardResult result);
 void SdCardPrintCapacity(void);
 void SdCardPrintDirectory(const char* const directory);
+const char* SdCardResultToString(const SdCardResult result);
 const char* SdCardGetFileSystemError(void);
 
 #endif

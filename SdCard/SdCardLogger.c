@@ -498,6 +498,7 @@ FifoResult SdCardLoggerWrite(const void* const data, const size_t numberOfBytes)
 
 /**
  * @brief Calls the preamble callback.
+ * @return Result.
  */
 static SdCardResult Preamble(void) {
 #ifdef PRINT_STATISTICS
@@ -511,6 +512,7 @@ static SdCardResult Preamble(void) {
 
 /**
  * @brief Calls the trailer callback.
+ * @return Result.
  */
 static SdCardResult Trailer(void) {
 #ifdef PRINT_STATISTICS

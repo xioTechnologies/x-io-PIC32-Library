@@ -14,8 +14,8 @@
 //------------------------------------------------------------------------------
 // Function declarations
 
-static void APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void * eventData, uintptr_t context);
-static void APP_USBDeviceCDCEventHandler(USB_DEVICE_CDC_INDEX instanceIndex, USB_DEVICE_CDC_EVENT event, void* pData, uintptr_t context);
+static USB_DEVICE_EVENT_RESPONSE APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void * eventData, uintptr_t context);
+static USB_DEVICE_CDC_EVENT_RESPONSE APP_USBDeviceCDCEventHandler(USB_DEVICE_CDC_INDEX instanceIndex, USB_DEVICE_CDC_EVENT event, void * pData, uintptr_t context);
 static void ReadTasks(void);
 static void WriteTasks(void);
 
@@ -59,8 +59,11 @@ void UsbCdcTasks(void) {
 
 /**
  * @brief USB device event handler based on MPLAB Harmony examples.
+ * @param event Event.
+ * @param eventData Event data.
+ * @param context Context.
  */
-static void APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void * eventData, uintptr_t context) {
+static USB_DEVICE_EVENT_RESPONSE APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void * eventData, uintptr_t context) {
     switch (event) {
         case USB_DEVICE_EVENT_RESET:
         case USB_DEVICE_EVENT_SUSPENDED:
@@ -69,12 +72,6 @@ static void APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void * eventData, 
             portOpen = false;
             readInProgress = false;
             writeInProgress = false;
-            break;
-        case USB_DEVICE_EVENT_CONFIGURED:
-            if (((USB_DEVICE_EVENT_DATA_CONFIGURED *) eventData)->configurationValue == 1) {
-                USB_DEVICE_CDC_EventHandlerSet(USB_DEVICE_CDC_INDEX_0, APP_USBDeviceCDCEventHandler, (uintptr_t) NULL);
-                hostConnected = true;
-            }
             break;
         case USB_DEVICE_EVENT_POWER_DETECTED:
             USB_DEVICE_Attach(usbDeviceHandle);
@@ -86,6 +83,12 @@ static void APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void * eventData, 
             readInProgress = false;
             writeInProgress = false;
             break;
+        case USB_DEVICE_EVENT_CONFIGURED:
+            if (((USB_DEVICE_EVENT_DATA_CONFIGURED*) eventData)->configurationValue == 1) {
+                USB_DEVICE_CDC_EventHandlerSet(USB_DEVICE_CDC_INDEX_0, APP_USBDeviceCDCEventHandler, (uintptr_t) NULL);
+                hostConnected = true;
+            }
+            break;
         default:
             break;
     }
@@ -93,8 +96,12 @@ static void APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void * eventData, 
 
 /**
  * @brief USB device CDC event handler based on MPLAB Harmony examples.
+ * @param instanceIndex Instance index.
+ * @param event Event.
+ * @param pData Data.
+ * @param context Context.
  */
-static void APP_USBDeviceCDCEventHandler(USB_DEVICE_CDC_INDEX index, USB_DEVICE_CDC_EVENT event, void * pData, uintptr_t context) {
+static USB_DEVICE_CDC_EVENT_RESPONSE APP_USBDeviceCDCEventHandler(USB_DEVICE_CDC_INDEX instanceIndex, USB_DEVICE_CDC_EVENT event, void * pData, uintptr_t context) {
     static USB_CDC_LINE_CODING usbCdcLineCoding = {
         .bDataBits = 8,
         .dwDTERate = 115200,
@@ -102,18 +109,21 @@ static void APP_USBDeviceCDCEventHandler(USB_DEVICE_CDC_INDEX index, USB_DEVICE_
         .bParityType = 0
     };
     switch (event) {
-        case USB_DEVICE_CDC_EVENT_GET_LINE_CODING:
-            USB_DEVICE_ControlSend(usbDeviceHandle, (uint8_t *) & usbCdcLineCoding, sizeof (usbCdcLineCoding));
-            break;
         case USB_DEVICE_CDC_EVENT_SET_LINE_CODING:
-            USB_DEVICE_ControlReceive(usbDeviceHandle, (uint8_t *) & usbCdcLineCoding, sizeof (usbCdcLineCoding));
+            USB_DEVICE_ControlReceive(usbDeviceHandle, (uint8_t*) & usbCdcLineCoding, sizeof (usbCdcLineCoding));
+            break;
+        case USB_DEVICE_CDC_EVENT_GET_LINE_CODING:
+            USB_DEVICE_ControlSend(usbDeviceHandle, (uint8_t*) & usbCdcLineCoding, sizeof (usbCdcLineCoding));
             break;
         case USB_DEVICE_CDC_EVENT_SET_CONTROL_LINE_STATE:
-            portOpen = ((USB_CDC_CONTROL_LINE_STATE *) pData)->dtr == 1;
+            portOpen = ((USB_CDC_CONTROL_LINE_STATE*) pData)->dtr == 1;
             USB_DEVICE_ControlStatus(usbDeviceHandle, USB_DEVICE_CONTROL_STATUS_OK);
             break;
         case USB_DEVICE_CDC_EVENT_SEND_BREAK:
             USB_DEVICE_ControlStatus(usbDeviceHandle, USB_DEVICE_CONTROL_STATUS_OK);
+            break;
+        case USB_DEVICE_CDC_EVENT_WRITE_COMPLETE:
+            writeInProgress = false;
             break;
         case USB_DEVICE_CDC_EVENT_READ_COMPLETE:
             if (readInProgress) { // prevent unexpected read event for PIC32MZ devices when host reconnected
@@ -124,9 +134,6 @@ static void APP_USBDeviceCDCEventHandler(USB_DEVICE_CDC_INDEX index, USB_DEVICE_
             break;
         case USB_DEVICE_CDC_EVENT_CONTROL_TRANSFER_DATA_RECEIVED:
             USB_DEVICE_ControlStatus(usbDeviceHandle, USB_DEVICE_CONTROL_STATUS_OK);
-            break;
-        case USB_DEVICE_CDC_EVENT_WRITE_COMPLETE:
-            writeInProgress = false;
             break;
         default:
             break;

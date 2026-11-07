@@ -45,7 +45,7 @@ typedef enum {
 /**
  * @brief String size.
  */
-#define RTC_STRING_SIZE (sizeof("YYYY-MM-DD hh:mm:ss"))
+#define RTC_STRING_SIZE (sizeof ("YYYY-MM-DD hh:mm:ss"))
 
 //------------------------------------------------------------------------------
 // Function declarations

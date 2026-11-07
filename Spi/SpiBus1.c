@@ -13,7 +13,7 @@
 //------------------------------------------------------------------------------
 // Function declarations
 
-static void BeginTrasnfer(SpiBusClient * const client);
+static void BeginTransfer(SpiBusClient * const client);
 static void TransferComplete(void);
 
 //------------------------------------------------------------------------------
@@ -64,7 +64,7 @@ void SpiBus1Transfer(SpiBusClient * const client, volatile void* const data, con
     client->numberOfBytes = numberOfBytes;
     client->transferComplete = transferComplete;
     client->inProgress = true; // set this member last else interrupt may use invalid structure
-    BeginTrasnfer(client);
+    BeginTransfer(client);
 }
 
 /**
@@ -83,7 +83,7 @@ bool SpiBus1TransferInProgress(const SpiBusClient * const client) {
  * @brief Begins transfer.
  * @param client Client.
  */
-static void BeginTrasnfer(SpiBusClient * const client) {
+static void BeginTransfer(SpiBusClient * const client) {
     static int lock;
     if (__sync_lock_test_and_set(&lock, 1) == 1) {
         return;
@@ -110,7 +110,7 @@ static void TransferComplete(void) {
     // Begin next transfer
     for (int index = 0; index < SPI_BUS_1_MAX_NUMBER_OF_CLIENTS; index++) {
         if (clients[index].inProgress) {
-            BeginTrasnfer(&clients[index]);
+            BeginTransfer(&clients[index]);
             return;
         }
     }

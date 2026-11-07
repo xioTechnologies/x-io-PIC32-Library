@@ -15,7 +15,7 @@
 // Functions
 
 /**
- * @brief Gets the reset cause. This function can only be called once.
+ * @brief Returns the reset cause. This function can only be called once.
  * @return Reset cause.
  */
 RCON_RESET_CAUSE ResetCauseGet(void) {

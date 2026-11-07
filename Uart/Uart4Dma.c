@@ -17,9 +17,9 @@
 //------------------------------------------------------------------------------
 // Function declarations
 
-static void WriteTransferComplete(void);
 static inline __attribute__((always_inline)) void BlockTransferComplete(void);
 static inline __attribute__((always_inline)) void TransferAborted(void);
+static void WriteTransferComplete(void);
 
 //------------------------------------------------------------------------------
 // Variables
@@ -42,7 +42,7 @@ static void (*writeTransferComplete)(void);
  * @brief Initialises the module.
  * @param settings Settings.
  * @param readConditions Read conditions.
- * @param read Read callback. NULL if unused.
+ * @param read_ Read callback. NULL if unused.
  */
 void Uart4DmaInitialise(const UartSettings * const settings, const UartDmaReadConditions * const readConditions, void (*const read_) (const void* const data, const size_t numberOfBytes)) {
 

@@ -17,7 +17,7 @@
 // Definitions
 
 /**
- * @brief Print line length. Must be a multiple of the EEPROM size.
+ * @brief Print line length. EEPROM_SIZE must be divisible by this value.
  */
 #define PRINT_LINE_LENGTH (32)
 

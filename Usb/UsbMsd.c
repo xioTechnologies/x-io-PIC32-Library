@@ -13,7 +13,7 @@
 //------------------------------------------------------------------------------
 // Function declarations
 
-static void APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void * pEventData, uintptr_t context);
+static USB_DEVICE_EVENT_RESPONSE APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void * eventData, uintptr_t context);
 
 //------------------------------------------------------------------------------
 // Variables
@@ -39,18 +39,16 @@ void UsbMsdTasks(void) {
 
 /**
  * @brief USB device event handler based on MPLAB Harmony examples.
+ * @param event Event.
+ * @param eventData Event data.
+ * @param context Context.
  */
-static void APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void * pEventData, uintptr_t context) {
+static USB_DEVICE_EVENT_RESPONSE APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void * eventData, uintptr_t context) {
     switch (event) {
         case USB_DEVICE_EVENT_RESET:
         case USB_DEVICE_EVENT_SUSPENDED:
         case USB_DEVICE_EVENT_DECONFIGURED:
             hostConnected = false;
-            break;
-        case USB_DEVICE_EVENT_CONFIGURED:
-            if (((USB_DEVICE_EVENT_DATA_CONFIGURED *) pEventData)->configurationValue == 1) {
-                hostConnected = true;
-            }
             break;
         case USB_DEVICE_EVENT_POWER_DETECTED:
             USB_DEVICE_Attach(usbDeviceHandle);
@@ -58,6 +56,11 @@ static void APP_USBDeviceEventHandler(USB_DEVICE_EVENT event, void * pEventData,
         case USB_DEVICE_EVENT_POWER_REMOVED:
             USB_DEVICE_Detach(usbDeviceHandle);
             hostConnected = false;
+            break;
+        case USB_DEVICE_EVENT_CONFIGURED:
+            if (((USB_DEVICE_EVENT_DATA_CONFIGURED*) eventData)->configurationValue == 1) {
+                hostConnected = true;
+            }
             break;
         default:
             break;

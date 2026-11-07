@@ -63,7 +63,7 @@ void TimerDeinitialise(void) {
 }
 
 /**
- * @brief Gets the 32-bit timer value.
+ * @brief Returns the 32-bit timer value.
  * @return 32-bit timer value.
  */
 uint32_t TimerGetTicks32(void) {
@@ -75,7 +75,7 @@ uint32_t TimerGetTicks32(void) {
 }
 
 /**
- * @brief Gets the 64-bit timer value.
+ * @brief Returns the 64-bit timer value.
  * @return 64-bit timer value.
  */
 uint64_t TimerGetTicks64(void) {

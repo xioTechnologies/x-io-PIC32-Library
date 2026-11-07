@@ -35,19 +35,20 @@
 #define LAST_PAGE_ADDRESS (NVM_FLASH_START_ADDRESS + NVM_FLASH_SIZE - NVM_FLASH_PAGESIZE)
 
 /**
- * @brief Print line length. Must be a multiple of NVM_FLASH_PAGESIZE.
+ * @brief Print line length. NVM_FLASH_PAGESIZE must be divisible by this
+ * value.
  */
 #define PRINT_LINE_LENGTH (32)
-
-//------------------------------------------------------------------------------
-// Variables
-
-static uint8_t __attribute__((coherent)) buffer[NVM_FLASH_PAGESIZE];
 
 //------------------------------------------------------------------------------
 // Function declarations
 
 static void PrintData(const uint8_t * const data);
+
+//------------------------------------------------------------------------------
+// Variables
+
+static uint8_t __attribute__((coherent)) buffer[NVM_FLASH_PAGESIZE];
 
 //------------------------------------------------------------------------------
 // Functions
@@ -71,8 +72,8 @@ void LastPageWrite(const void* const data, const size_t numberOfBytes) {
     memset(buffer, 0xFF, sizeof (buffer));
     memcpy(buffer, data, numberOfBytes);
     for (size_t address = 0; address < NVM_FLASH_PAGESIZE; address += NVM_FLASH_ROWSIZE) {
-        NVM_RowWrite((uint32_t *) (void*) &(buffer[address]), LAST_PAGE_ADDRESS + address);
-        while (NVM_IsBusy() == true);
+        NVM_RowWrite((uint32_t*) (void*) &(buffer[address]), LAST_PAGE_ADDRESS + address);
+        while (NVM_IsBusy());
     }
 }
 
@@ -94,7 +95,7 @@ void LastPageUpdate(const void* const data, const size_t numberOfBytes) {
  */
 void LastPageErase(void) {
     NVM_PageErase(LAST_PAGE_ADDRESS);
-    while (NVM_IsBusy() == true);
+    while (NVM_IsBusy());
 }
 
 /**
@@ -102,7 +103,7 @@ void LastPageErase(void) {
  */
 void LastPagePrint(void) {
     LastPageRead(buffer, sizeof (buffer));
-    bool printEllipses = true;
+    bool printEllipsis = true;
     for (uint32_t address = 0; address < NVM_FLASH_PAGESIZE; address += PRINT_LINE_LENGTH) {
         const bool isFirstLine = address == 0;
         const bool isLastLine = address == (NVM_FLASH_PAGESIZE - PRINT_LINE_LENGTH);
@@ -113,15 +114,15 @@ void LastPagePrint(void) {
         if (isFirstLine || isLastLine || isNotBlank) {
             printf("%08X | ", LAST_PAGE_ADDRESS + address);
             PrintData(&buffer[address]);
-            printEllipses = true;
+            printEllipsis = true;
             continue;
         }
 
-        // Print line with ellipses
-        if (printEllipses) {
+        // Print line with ellipsis
+        if (printEllipsis) {
             printf("...      | ");
             PrintData(&buffer[address]);
-            printEllipses = false;
+            printEllipsis = false;
         }
     }
 }

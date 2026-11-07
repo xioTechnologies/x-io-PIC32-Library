@@ -55,7 +55,7 @@ void Pwm4Deinitialise(void) {
 }
 
 /**
- * @brief Gets the duty cycle.
+ * @brief Returns the duty cycle.
  * @return Duty cycle.
  */
 uint16_t Pwm4Get(void) {

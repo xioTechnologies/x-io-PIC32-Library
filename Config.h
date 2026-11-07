@@ -61,7 +61,7 @@
 
 #define SD_CARD_ARBITER_MAX_NUMBER_OF_CLIENTS   (8)
 
-#define SD_CARD_LOGGER_DIRECTORY                "Data" /* must exist on SD card */
+#define SD_CARD_LOGGER_DIRECTORY                "Data" // must exist on SD card
 #define SD_CARD_LOGGER_BUFFER_SIZE              (8192)
 
 //#define SPI1_CS_ACTIVE_HIGH
