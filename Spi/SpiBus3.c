@@ -84,15 +84,15 @@ bool SpiBus3TransferInProgress(const SpiBusClient * const client) {
  * @param client Client.
  */
 static void BeginTransfer(SpiBusClient * const client) {
-    static int lock;
-    if (__sync_lock_test_and_set(&lock, 1) == 1) {
-        return;
-    }
-    if (activeClient == NULL) {
+    const bool state = EVIC_INT_Disable();
+    const bool idle = activeClient == NULL;
+    if (idle) {
         activeClient = client;
+    }
+    EVIC_INT_Restore(state);
+    if (idle) {
         SPI_BUS_3_SPI.transfer(activeClient->csPin, activeClient->data, activeClient->numberOfBytes, TransferComplete);
     }
-    __sync_lock_release(&lock);
 }
 
 /**

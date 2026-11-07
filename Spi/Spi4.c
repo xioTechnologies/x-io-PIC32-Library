@@ -109,9 +109,9 @@ void Spi4Transfer(const GPIO_PIN csPin_, volatile void* const data_, const size_
         GPIO_PinClear(csPin);
 #endif
     }
-    for (size_t index = 0; index < numberOfBytes; index++) {
+    for (size_t index = 0; index < numberOfBytes_; index++) {
         while (SPI4STATbits.SPITBF == 1); // wait while no space available in the FIFO
-        SPI4BUF = data[index];
+        SPI4BUF = ((uint8_t*) data_)[index];
     }
 }
 
