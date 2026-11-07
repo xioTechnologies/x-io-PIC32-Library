@@ -177,7 +177,7 @@ FifoResult Uart3DmaTxWrite(const void* const data, const size_t numberOfBytes) {
  * @brief Write transfer complete callback.
  */
 static void WriteTransferComplete(void) {
-    static __attribute__((coherent)) uint8_t data[UART3_DMA_WRITE_TRANSFER_SIZE];
+    static uint8_t __attribute__((coherent)) data[UART3_DMA_WRITE_TRANSFER_SIZE];
     const size_t numberOfBytes = FifoRead(&writeFifo, data, sizeof (data));
     if (numberOfBytes > 0) {
         Uart3DmaTxWriteTransfer(data, numberOfBytes, WriteTransferComplete);

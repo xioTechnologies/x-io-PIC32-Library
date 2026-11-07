@@ -318,7 +318,7 @@ FifoResult Uart6DmaWrite(const void* const data, const size_t numberOfBytes) {
  * @brief Write transfer complete callback.
  */
 static void WriteTransferComplete(void) {
-    static __attribute__((coherent)) uint8_t data[UART6_DMA_WRITE_TRANSFER_SIZE];
+    static uint8_t __attribute__((coherent)) data[UART6_DMA_WRITE_TRANSFER_SIZE];
     const size_t numberOfBytes = FifoRead(&writeFifo, data, sizeof (data));
     if (numberOfBytes > 0) {
         Uart6DmaWriteTransfer(data, numberOfBytes, WriteTransferComplete);
