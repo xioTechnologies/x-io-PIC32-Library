@@ -208,7 +208,7 @@ const char* RtcResultToString(const RtcResult result) {
         case RtcResultInvalidStringFormat:
             return "String format must be YYYY-MM-DD hh:mm:ss";
     }
-    return ""; // avoid compiler warning
+    return ""; // unreachable code: -Werror=switch
 }
 
 //------------------------------------------------------------------------------

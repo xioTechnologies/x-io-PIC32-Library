@@ -864,7 +864,7 @@ const char* SdCardResultToString(const SdCardResult result) {
         case SdCardResultFileSystemError:
             return "File system error";
     }
-    return ""; // avoid compiler warning
+    return ""; // unreachable code: -Werror=switch
 }
 
 /**

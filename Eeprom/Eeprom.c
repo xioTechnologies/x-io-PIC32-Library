@@ -239,7 +239,7 @@ const char* EepromTestResultToString(const EepromTestResult result) {
         case EepromTestResultDataMismatch:
             return "Data mismatch";
     }
-    return ""; // avoid compiler warning
+    return ""; // unreachable code: -Werror=switch
 }
 
 //------------------------------------------------------------------------------

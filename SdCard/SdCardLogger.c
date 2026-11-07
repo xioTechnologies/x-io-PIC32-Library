@@ -467,7 +467,7 @@ bool SdCardLoggerLogging(void) {
         case StateWrite:
             return true;
     }
-    return false; // avoid compiler warning
+    return false; // unreachable code: -Werror=switch
 }
 
 /**
@@ -568,7 +568,7 @@ const char* SdCardLoggerEventToString(const SdCardLoggerEvent event) {
         case SdCardLoggerEventClose:
             return "Close";
     }
-    return ""; // avoid compiler warning
+    return ""; // unreachable code: -Werror=switch
 }
 
 /**
@@ -585,7 +585,7 @@ const char* SdCardLoggerErrorToString(const SdCardLoggerError error) {
         case SdCardLoggerErrorFileSystemError:
             return "File system error";
     }
-    return ""; // avoid compiler warning
+    return ""; // unreachable code: -Werror=switch
 }
 
 //------------------------------------------------------------------------------
