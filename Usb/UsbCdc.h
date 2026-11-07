@@ -23,7 +23,7 @@ bool UsbCdcVbusValid(void);
 bool UsbCdcHostConnected(void);
 bool UsbCdcPortOpen(void);
 size_t UsbCdcAvailableRead(void);
-size_t UsbCdcRead(void* const destination, size_t numberOfBytes);
+size_t UsbCdcRead(void* const destination, const size_t numberOfBytes);
 uint8_t UsbCdcReadByte(void);
 size_t UsbCdcAvailableWrite(void);
 FifoResult UsbCdcWrite(const void* const data, const size_t numberOfBytes);

@@ -22,7 +22,7 @@
 void Uart4Initialise(const UartSettings * const settings);
 void Uart4Deinitialise(void);
 size_t Uart4AvailableRead(void);
-size_t Uart4Read(void* const destination, size_t numberOfBytes);
+size_t Uart4Read(void* const destination, const size_t numberOfBytes);
 uint8_t Uart4ReadByte(void);
 size_t Uart4AvailableWrite(void);
 FifoResult Uart4Write(const void* const data, const size_t numberOfBytes);

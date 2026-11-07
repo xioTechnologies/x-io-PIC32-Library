@@ -22,7 +22,7 @@
 void Uart5DmaTxInitialise(const UartSettings * const settings);
 void Uart5DmaTxDeinitialise(void);
 size_t Uart5DmaTxAvailableRead(void);
-size_t Uart5DmaTxRead(void* const destination, size_t numberOfBytes);
+size_t Uart5DmaTxRead(void* const destination, const size_t numberOfBytes);
 uint8_t Uart5DmaTxReadByte(void);
 size_t Uart5DmaTxAvailableWrite(void);
 FifoResult Uart5DmaTxWrite(const void* const data, const size_t numberOfBytes);

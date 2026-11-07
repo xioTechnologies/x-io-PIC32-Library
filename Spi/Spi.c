@@ -69,7 +69,7 @@ float SpiCalculateClockFrequency(const uint32_t spixbrg) {
  * @param data Data.
  * @param numberOfBytes Number of bytes.
  */
-void SpiPrintTransfer(GPIO_PIN csPin, const void * const data, const size_t numberOfBytes) {
+void SpiPrintTransfer(const GPIO_PIN csPin, const void * const data, const size_t numberOfBytes) {
     printf("CS %u\n", csPin);
     printf("SDO");
     PrintData(data, numberOfBytes);

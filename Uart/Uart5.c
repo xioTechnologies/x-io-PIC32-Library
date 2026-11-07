@@ -109,7 +109,7 @@ size_t Uart5AvailableRead(void) {
  * @param numberOfBytes Number of bytes.
  * @return Number of bytes read.
  */
-size_t Uart5Read(void* const destination, size_t numberOfBytes) {
+size_t Uart5Read(void* const destination, const size_t numberOfBytes) {
     Uart5AvailableRead(); // process receive buffer
     return FifoRead(&readFifo, destination, numberOfBytes);
 }

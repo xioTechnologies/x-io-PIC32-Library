@@ -226,7 +226,7 @@ size_t UsbCdcAvailableRead(void) {
  * @param numberOfBytes Number of bytes.
  * @return Number of bytes read.
  */
-size_t UsbCdcRead(void* const destination, size_t numberOfBytes) {
+size_t UsbCdcRead(void* const destination, const size_t numberOfBytes) {
     return FifoRead(&readFifo, destination, numberOfBytes);
 }
 

@@ -137,7 +137,7 @@ size_t Uart4DmaTxAvailableRead(void) {
  * @param numberOfBytes Number of bytes.
  * @return Number of bytes read.
  */
-size_t Uart4DmaTxRead(void* const destination, size_t numberOfBytes) {
+size_t Uart4DmaTxRead(void* const destination, const size_t numberOfBytes) {
     Uart4DmaTxAvailableRead(); // process receive buffer
     return FifoRead(&readFifo, destination, numberOfBytes);
 }
